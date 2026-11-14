@@ -1,57 +1,31 @@
-"use client";
+import { HydrationBoundary } from "@tanstack/react-query";
+import { headers } from "next/headers";
 
-import dynamic from "next/dynamic";
-import { useRequireAuth } from "@/hooks/use-authentication";
-import { useMyProjects } from "@/hooks/use-projects";
-import { Loader2 } from "lucide-react";
-import { useTranslations } from "@/lib/i18n";
+import { dashboardPrefetchState } from "@/lib/server/dashboard-prefetch";
+import { SESSION_USER_HEADER, decodeSessionUser } from "@/lib/session-user";
+import { DashboardView } from "./_components/DashboardView";
 
-// One dashboard per role, each in its own chunk: a user only ever sees one,
-// and the SME one carries the whole loan-application flow. Rendered on the
-// server as before (the session user is known there), which also preloads
-// the chunk of the one rendered.
-const SmeDashboard = dynamic(
-  () => import("./_components/SmeDashboard").then((mod) => mod.SmeDashboard),
-  { loading: () => <DashboardLoader /> },
-);
-const InvestorDashboard = dynamic(
-  () =>
-    import("./_components/InvestorDashboard").then(
-      (mod) => mod.InvestorDashboard,
-    ),
-  { loading: () => <DashboardLoader /> },
-);
-
-function DashboardLoader() {
-  const { t } = useTranslations();
-  return (
-    <div className="h-64 w-full flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-2">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="text-sm font-medium text-muted-foreground">
-          {t("common.loadingDashboard")}
-        </span>
-      </div>
-    </div>
+/**
+ * Server half of /dashboard: fetches what the role's dashboard blocks on
+ * (an SME's projects and KYB status, in parallel) before rendering, so the
+ * dashboard arrives in the HTML instead of after a chain of browser requests.
+ * See lib/server/dashboard-prefetch.ts for the measurements behind it.
+ *
+ * The layout and its loading.tsx stream first, so the sidebar and header do not
+ * wait on this.
+ */
+export default async function DashboardPage() {
+  // The user proxy.ts already resolved for this request — no extra /users/me.
+  const sessionUser = decodeSessionUser(
+    (await headers()).get(SESSION_USER_HEADER),
   );
-}
+  const state = await dashboardPrefetchState(sessionUser?.role);
 
-export default function DashboardPage() {
-  const { user, isLoading } = useRequireAuth();
-  const shouldLoadMyProjects = !isLoading && user?.role === "SME";
-
-  // SMEs with no project land here (not on /project-application) and see an
-  // empty state that links to the KYB-gated application flow. No redirect.
-  const { data: myProjects = [], isLoading: isMyProjectsLoading } =
-    useMyProjects(shouldLoadMyProjects);
-
-  if (isLoading || isMyProjectsLoading) {
-    return <DashboardLoader />;
-  }
-
-  return user?.role === "SME" ? (
-    <SmeDashboard projects={myProjects} />
+  return state ? (
+    <HydrationBoundary state={state}>
+      <DashboardView />
+    </HydrationBoundary>
   ) : (
-    <InvestorDashboard />
+    <DashboardView />
   );
 }

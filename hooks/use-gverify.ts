@@ -18,16 +18,12 @@ import {
   type VerificationModeStatus,
 } from "@/services/gverify.service";
 import type { ApiError } from "@/lib/types";
+import { gverifyKeys } from "@/hooks/gverify-keys";
 
 // ---------- Query keys ----------
-export const gverifyKeys = {
-  all: ["gverify"] as const,
-  status: () => [...gverifyKeys.all, "status"] as const,
-  kybCertificate: () => [...gverifyKeys.all, "kyb-certificate"] as const,
-  kybStatus: () => [...gverifyKeys.all, "kyb-status"] as const,
-  verificationMode: () => [...gverifyKeys.all, "verification-mode"] as const,
-  handoff: () => [...gverifyKeys.all, "handoff"] as const,
-};
+// Defined in a module without "use client" so the dashboard page (a server
+// component) can prefetch under the same key. See hooks/gverify-keys.ts.
+export { gverifyKeys };
 
 interface UseGVerifyStatusOptions {
   enabled?: boolean;

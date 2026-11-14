@@ -8,11 +8,11 @@ import {
   type Project,
 } from "@/services/projects.service";
 
-export const projectKeys = {
-  all: ["projects"] as const,
-  mine: () => [...projectKeys.all, "mine"] as const,
-  public: () => [...projectKeys.all, "public"] as const,
-};
+import { projectKeys } from "@/hooks/project-keys";
+
+// Defined in a module without "use client" so the dashboard page (a server
+// component) can prefetch under the same key. See hooks/project-keys.ts.
+export { projectKeys };
 
 export function useMyProjects(enabled = true) {
   return useQuery<Project[], ApiError>({
