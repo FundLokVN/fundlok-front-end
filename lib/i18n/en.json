@@ -3026,7 +3026,6 @@
         "businessAccount": "Business account",
         "custodialAccount": "Direct bank transfer",
         "dailyRepayment": "Daily repayment",
-        "deductedFromDisbursement": "Deducted from disbursement",
         "invoicedSeparately": "Invoiced separately",
         "platformFee": "Platform service fee"
       },
@@ -4300,7 +4299,7 @@
       "fittingTitle": "Fitting to each SME",
       "header": "Why is FundLok special?",
       "safetyDesc": "SME financing priced from a business score. The score is a reference that FundLok assesses itself, not a guarantee. Returns are targets, and the investor bears the credit risk.",
-      "safetyItem1": "Repayment collected every business day",
+      "safetyItem1": "The SME repays each investor directly every working day",
       "safetyItem2": "Every movement recorded with a reference",
       "safetyItem3": "If revenue drops, the term can stretch out so the daily repayment gets smaller",
       "safetyTitle": "Visibility for investors",

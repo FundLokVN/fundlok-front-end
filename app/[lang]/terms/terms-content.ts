@@ -249,7 +249,7 @@ const TERMS_SECTIONS: SectionContent[] = [
         headingEn: "II. CATEGORIES OF PROCESSED PERSONAL DATA",
         contentVi: [
           "Dữ liệu cá nhân cơ bản: Họ và tên khai sinh, ngày tháng năm sinh, giới tính, số điện thoại, địa chỉ email, địa chỉ thường trú và nơi ở hiện tại, số định danh cá nhân / CCCD / hộ chiếu (kèm ngày cấp, nơi cấp), ảnh chân dung và video phục vụ xác thực sinh trắc học eKYC.",
-          "Dữ liệu cá nhân nhạy cảm & Dữ liệu tài chính: Thông tin tài khoản ngân hàng thụ hưởng phục vụ giải ngân/thu nợ, dữ liệu giao dịch tài chính liên quan đến khoản tài trợ, và dữ liệu nhật ký bảo mật (địa chỉ IP, chuỗi tác tử thiết bị) phục vụ kiểm toán an toàn thông tin.",
+          "Dữ liệu cá nhân nhạy cảm & Dữ liệu tài chính: Thông tin tài khoản ngân hàng thụ hưởng phục vụ giải ngân và nhận tiền trả nợ trực tiếp, dữ liệu giao dịch tài chính liên quan đến khoản tài trợ, và dữ liệu nhật ký bảo mật (địa chỉ IP, chuỗi tác tử thiết bị) phục vụ kiểm toán an toàn thông tin.",
           "Dữ liệu doanh nghiệp liên quan: Báo cáo thuế, hóa đơn điện tử có chữ ký số, báo cáo tài chính nội bộ và thông tin giấy chứng nhận đăng ký kinh doanh.",
         ],
         contentEn: [

@@ -3026,7 +3026,6 @@
         "businessAccount": "Tài khoản doanh nghiệp",
         "custodialAccount": "Chuyển khoản trực tiếp",
         "dailyRepayment": "Khoản trả hằng ngày",
-        "deductedFromDisbursement": "Khấu trừ khi giải ngân",
         "invoicedSeparately": "Xuất hóa đơn riêng",
         "platformFee": "Phí dịch vụ nền tảng"
       },
@@ -4300,7 +4299,7 @@
       "fittingTitle": "Phù hợp với từng SME",
       "header": "Tại sao FundLok đặc biệt?",
       "safetyDesc": "Cấp vốn cho doanh nghiệp, định giá theo điểm doanh nghiệp. Đây là điểm tham khảo do FundLok tự đánh giá, không phải cam kết. Lợi nhuận là mục tiêu, và nhà đầu tư chịu rủi ro tín dụng.",
-      "safetyItem1": "Thu nợ vào mỗi ngày làm việc",
+      "safetyItem1": "Doanh nghiệp trả trực tiếp cho từng nhà đầu tư mỗi ngày làm việc",
       "safetyItem2": "Mọi giao dịch đều có mã tham chiếu",
       "safetyItem3": "Khi doanh thu giảm, thời hạn có thể kéo dài để khoản trả hằng ngày nhẹ hơn",
       "safetyTitle": "Minh bạch cho nhà đầu tư",
