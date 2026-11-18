@@ -89,6 +89,45 @@ export interface Commitment {
   window_target_vnd: number;
 }
 
+/** One investor's Day-13 loan contract (backend WindowLoanContractOut). */
+export interface WindowLoanContract {
+  id: string;
+  contract_no: string;
+  /** Masked. */
+  lender_name: string;
+  amount_vnd: number;
+  status: "GENERATED" | "SME_SIGNED" | "INVESTOR_SIGNED" | "VOID";
+  generated_at: string;
+  sme_signed_at: string | null;
+  investor_signed_at: string | null;
+}
+
+/**
+ * Where Day-13 signing stands on the business's round. `signing_cutoff_at`:
+ * 12:00 on Day 13 when the pledges are below 50% of the target (signing must
+ * be done by then), else null. `all_signed`: Accept is open.
+ */
+export interface WindowLoanContracts {
+  window_id: string;
+  status: FundingWindowStatus;
+  pledged_vnd: number;
+  target_vnd: number;
+  sme_deadline_at: string | null;
+  signing_cutoff_at: string | null;
+  all_signed: boolean;
+  guarantor_signed_at: string | null;
+  guarantor_phone: string | null;
+  contracts: WindowLoanContract[];
+}
+
+/** A Zalo code sent to the guarantor. */
+export interface GuarantorCodeSent {
+  phone: string;
+  channel: string;
+  expires_in: number;
+  resend_in: number;
+}
+
 export interface CommitRequest {
   amount_vnd: number;
   ack_risk_disclosure: boolean;
@@ -426,6 +465,47 @@ export const fundingService = {
   withdrawCommitment(commitmentId: string) {
     return apiClient.post<Commitment>(
       FUNDING_ENDPOINTS.withdrawCommitment(commitmentId),
+    );
+  },
+
+  getWindowLoanContracts(windowId: string) {
+    return apiClient.get<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowLoanContracts(windowId),
+    );
+  },
+
+  getWindowLoanContractPdf(windowId: string, contractId: string) {
+    return apiClient.getFile(
+      FUNDING_ENDPOINTS.windowLoanContractDocument(windowId, contractId),
+      { params: { download: true } },
+    );
+  },
+
+  uploadSignedWindowLoanContract(
+    windowId: string,
+    contractId: string,
+    file: File,
+  ) {
+    const form = new FormData();
+    form.append("file", file);
+    // NEAC checks the signature (up to 45 s): wait longer than that.
+    return apiClient.post<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowLoanContractSigned(windowId, contractId),
+      form,
+      { timeout: 60_000 },
+    );
+  },
+
+  sendWindowGuarantorCode(windowId: string) {
+    return apiClient.post<GuarantorCodeSent>(
+      FUNDING_ENDPOINTS.windowGuarantorCode(windowId),
+    );
+  },
+
+  signWindowAsGuarantor(windowId: string, code: string) {
+    return apiClient.post<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowGuarantorSignature(windowId),
+      { code },
     );
   },
 

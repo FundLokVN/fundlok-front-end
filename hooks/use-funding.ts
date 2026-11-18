@@ -8,6 +8,8 @@ import {
   type AgreementCodeSent,
   type Commitment,
   type CommitRequest,
+  type GuarantorCodeSent,
+  type WindowLoanContracts,
   type InvestorAgreementStatus,
   type LenderStanding,
   type PaymentInstructions,
@@ -45,6 +47,8 @@ export const fundingKeys = {
   standing: () => [...fundingKeys.all, "standing"] as const,
   myCommitments: (windowId: string) =>
     [...fundingKeys.all, "my-commitments", windowId] as const,
+  windowLoanContracts: (windowId: string) =>
+    [...fundingKeys.all, "window-loan-contracts", windowId] as const,
   investmentConfirmation: (windowId: string, amountVnd: number) =>
     [
       ...fundingKeys.all,
@@ -305,6 +309,65 @@ export function useCommit() {
 export function useWithdrawCommitment() {
   return useCommitmentMutation((commitmentId: string) =>
     fundingService.withdrawCommitment(commitmentId),
+  );
+}
+
+/** Day 13: each investor's loan contract on the business's round. */
+export function useWindowLoanContracts(windowId: string, enabled = true) {
+  return useQuery<WindowLoanContracts, ApiError>({
+    queryKey: fundingKeys.windowLoanContracts(windowId),
+    queryFn: () => fundingService.getWindowLoanContracts(windowId),
+    enabled: enabled && Boolean(windowId),
+    staleTime: 15 * 1000,
+    retry: false,
+  });
+}
+
+/** One contract's PDF, fetched on demand to save it. */
+export function useDownloadWindowLoanContract(windowId: string) {
+  return useMutation<{ blob: Blob; filename: string | null }, ApiError, string>(
+    {
+      mutationFn: (contractId) =>
+        fundingService.getWindowLoanContractPdf(windowId, contractId),
+    },
+  );
+}
+
+// Each Day-13 step answers with where signing stands.
+function useLoanContractsMutation<TVars>(
+  windowId: string,
+  mutationFn: (vars: TVars) => Promise<WindowLoanContracts>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<WindowLoanContracts, ApiError, TVars>({
+    mutationFn,
+    onSuccess: (status) =>
+      queryClient.setQueryData(
+        fundingKeys.windowLoanContracts(windowId),
+        status,
+      ),
+  });
+}
+
+/** The business's signed copy of one investor's contract (NEAC-checked). */
+export function useUploadWindowLoanContract(windowId: string) {
+  return useLoanContractsMutation(
+    windowId,
+    ({ contractId, file }: { contractId: string; file: File }) =>
+      fundingService.uploadSignedWindowLoanContract(windowId, contractId, file),
+  );
+}
+
+export function useSendWindowGuarantorCode(windowId: string) {
+  return useMutation<GuarantorCodeSent, ApiError, void>({
+    mutationFn: () => fundingService.sendWindowGuarantorCode(windowId),
+  });
+}
+
+/** The guarantor signs every contract with the Zalo code (not a condition). */
+export function useSignWindowAsGuarantor(windowId: string) {
+  return useLoanContractsMutation(windowId, (code: string) =>
+    fundingService.signWindowAsGuarantor(windowId, code),
   );
 }
 

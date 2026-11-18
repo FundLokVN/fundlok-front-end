@@ -105,6 +105,20 @@ export const FUNDING_ENDPOINTS = {
     `/funding/commitments/${commitmentId}/withdraw`,
   // The business accepts or declines on Day 13 (Idempotency-Key header).
   windowDecision: (windowId: string) => `/funding/windows/${windowId}/decision`,
+  // Day 13 (Money flow FINAL v1.0): each investor's loan contract, generated
+  // at 00:00 from the final pledge list. The business downloads each one,
+  // signs it with its enterprise digital signature and uploads it back
+  // (accepting means signing); the guarantor signs them all with one Zalo code.
+  windowLoanContracts: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts`,
+  windowLoanContractDocument: (windowId: string, contractId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/${contractId}/document`,
+  windowLoanContractSigned: (windowId: string, contractId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/${contractId}/signed`,
+  windowGuarantorCode: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/guarantor-code`,
+  windowGuarantorSignature: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/guarantor-signature`,
   // The Investor Service Agreement (Contract 4): GET whether it must still be
   // confirmed with the next commitment; POST {version, tranche_id, code} to
   // confirm it with the one-time code (the investor's signature). The PDF to
