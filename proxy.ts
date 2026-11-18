@@ -678,7 +678,11 @@ async function routeRequest(request: NextRequest, refreshed: string[]) {
   // verify, and an already-approved user is sent on to their intended action
   // (?next=) or landing. A verifying role with an unreadable status
   // (isApproved === null) is left on /kyc so a backend hiccup can't loop them.
-  if (onKycRoute && (canAccessAdmin || isApproved === true)) {
+  // Except `?reverify=1`: an investor locked after disbursement day verifies
+  // again to unlock (Contract 4 Art. 5.4); the KYC page decides, from
+  // /gverify/kyc/status's `reverify_required`, whether there is anything to do.
+  const reverifying = request.nextUrl.searchParams.get("reverify") === "1";
+  if (onKycRoute && (canAccessAdmin || (isApproved === true && !reverifying))) {
     return NextResponse.redirect(new URL(postKycTarget, request.url));
   }
 

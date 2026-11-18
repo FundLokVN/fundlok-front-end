@@ -190,14 +190,20 @@ const EVENT_PRESENTATION: Record<
     messageKey: "notifications.items.transferDueToday",
     values: (notification, locale) => ({
       amount: formatCurrency(Number(notification.data.amount_vnd ?? 0), locale),
-      project: String(notification.data.listing_title ?? ""),
+      project: String(notification.data.listing_title || "FundLok"),
       time:
         formatTimeIct(String(notification.data.pay_deadline_at ?? "")) ||
         "14:45",
     }),
     tone: "action",
     icon: Banknote,
-    action: { labelKey: "notifications.actions.payNow", href: "/dashboard" },
+    // Straight to the payment screen when the round's project is known.
+    action: (notification) => ({
+      labelKey: "notifications.actions.payNow",
+      href: notification.data.project_id
+        ? `/dashboard/invest?projectId=${String(notification.data.project_id)}`
+        : "/dashboard",
+    }),
   },
   // To the investor at 15:00: locked after not paying on time.
   LENDER_LOCKED: {
@@ -206,7 +212,7 @@ const EVENT_PRESENTATION: Record<
         ? "notifications.items.lenderLockedLate"
         : "notifications.items.lenderLockedNoShow",
     values: (notification) => ({
-      project: String(notification.data.listing_title ?? ""),
+      project: String(notification.data.listing_title || "FundLok"),
     }),
     tone: "negative",
     icon: CircleX,
@@ -220,7 +226,7 @@ const EVENT_PRESENTATION: Record<
     messageKey: "notifications.items.topUpPledgeRecorded",
     values: (notification, locale) => ({
       amount: formatCurrency(Number(notification.data.amount_vnd ?? 0), locale),
-      project: String(notification.data.listing_title ?? ""),
+      project: String(notification.data.listing_title || "FundLok"),
     }),
     tone: "info",
     icon: ReceiptText,

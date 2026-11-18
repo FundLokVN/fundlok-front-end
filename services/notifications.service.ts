@@ -48,7 +48,7 @@ export type NotificationEvent =
   /**
    * To the investor, on disbursement day (Day-14 transfer rule): sign and pay
    * by 14:45. `data` has `tranche_id`, `listing_title`, `amount_vnd` and
-   * `pay_deadline_at`.
+   * `pay_deadline_at` (and `project_id`, for the link).
    */
   | "TRANSFER_DUE_TODAY"
   /**

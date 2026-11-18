@@ -315,6 +315,8 @@ export interface PaymentInstructions {
   pay_deadline_at?: string | null;
   /** 15:30 ICT on Day 14; null on LEGACY windows. */
   receipt_deadline_at?: string | null;
+  /** The server's clock when it answered: countdowns run on it, not the device's. */
+  server_time?: string | null;
 }
 
 /** Day-14 rule: a late payer's money, recorded as their top-up. */

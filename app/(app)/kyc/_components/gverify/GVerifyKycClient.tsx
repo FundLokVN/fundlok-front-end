@@ -28,7 +28,11 @@ export function GVerifyKycClient() {
   const { data: status } = useGVerifyStatus();
 
   const landing = postVerificationTarget(searchParams.get("next"), user?.role);
-  const isApproved = status?.is_approved === true;
+  // `?reverify=1` (the unlock card after a Day-14 lock): an approved investor
+  // verifies again while the backend still asks for it.
+  const reverifying =
+    searchParams.get("reverify") === "1" && status?.reverify_required === true;
+  const isApproved = status?.is_approved === true && !reverifying;
 
   // Once approved: hand back to the tab that opened this one, or head into
   // the app here (see useFinishVerification).

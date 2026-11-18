@@ -64,6 +64,14 @@ export function formatDateTimeIct(value: DateInput, locale?: string): string {
   return `${date} ${hour}:${minute}`;
 }
 
+// The Vietnam calendar date of an instant as YYYY-MM-DD ("" if invalid).
+export function dateIct(value: DateInput): string {
+  const d = toDate(value);
+  if (!d) return "";
+  const { year, month, day } = ictParts(d);
+  return `${year}-${month}-${day}`;
+}
+
 // Today in Vietnam as YYYY-MM-DD, the form the API's due dates take.
 export function todayIct(): string {
   return new Date().toLocaleDateString("en-CA", {

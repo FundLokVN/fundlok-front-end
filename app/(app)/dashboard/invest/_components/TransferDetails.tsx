@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNewQr, usePaymentInstructions } from "@/hooks/use-funding";
 import { formatCurrency } from "@/lib/format-currency";
-import { formatDateTimeIct } from "@/lib/format-date";
+import { formatDateTimeIct, formatTimeIct } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 
 const K = "investConfirm.transfer";
@@ -115,17 +115,37 @@ export function TransferDetails({
 }: TransferDetailsProps) {
   const payment = usePaymentInstructions(trancheId);
   const newQr = useNewQr(trancheId);
-  const [now, setNow] = useState(() => Date.now());
+  const [deviceNow, setDeviceNow] = useState(() => Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => setDeviceNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
   // When the current QR was shown (only used without the server's expiry).
-  // Another ticket starts with a fresh QR.
-  const [qr, setQr] = useState(() => ({ trancheId, shownAt: Date.now() }));
-  if (qr.trancheId !== trancheId) setQr({ trancheId, shownAt: now });
+  // The parent keys this component by ticket, so another ticket starts fresh.
+  const [shownAt, setShownAt] = useState(() => Date.now());
   // A "new QR" refused for a cut-off the clock had not reached yet.
   const [closedByServer, setClosedByServer] = useState(false);
+  // "Try again in N seconds" goes away once the N seconds are up.
+  const tooSoonFor =
+    newQr.error?.code === "QR_TOO_SOON"
+      ? (newQr.error.retryAfterSeconds ?? 60)
+      : null;
+  const { reset: resetNewQr } = newQr;
+  useEffect(() => {
+    if (tooSoonFor === null) return;
+    const id = setTimeout(resetNewQr, tooSoonFor * 1000);
+    return () => clearTimeout(id);
+  }, [tooSoonFor, resetNewQr]);
+
+  // The server decides whether a transfer was inside its QR's 15 minutes, so
+  // count down on the server's clock: a phone running a few minutes slow must
+  // not show time left on a code the server already treats as expired.
+  const serverTime = payment.data?.server_time;
+  const clockOffset =
+    serverTime && payment.dataUpdatedAt
+      ? new Date(serverTime).getTime() - payment.dataUpdatedAt
+      : 0;
+  const now = deviceNow + clockOffset;
 
   if (payment.isLoading) {
     return (
@@ -141,7 +161,8 @@ export function TransferDetails({
       now >= new Date(payment.data.pay_deadline_at).getTime());
   if (payDeadlinePassed) {
     // 14:45 on disbursement day: no QR any more (Loc, 18 Nov). The receipt
-    // upload beside this stays open until 15:30.
+    // upload beside this stays open until 15:30; whoever has not paid is
+    // locked at 15:00 and joins the top-up after unlocking.
     return (
       <div
         className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
@@ -154,7 +175,11 @@ export function TransferDetails({
             {t(`${K}.closedTitle`)}
           </p>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {t(`${K}.closedBody`)}
+            {t(`${K}.closedBody`, {
+              time: formatTimeIct(payment.data?.pay_deadline_at) || "14:45",
+              receiptTime:
+                formatTimeIct(payment.data?.receipt_deadline_at) || "15:30",
+            })}
           </p>
         </div>
       </div>
@@ -177,19 +202,16 @@ export function TransferDetails({
     : Infinity;
   const qrEndsAt = serverQr
     ? new Date(details.qr_expires_at as string).getTime()
-    : Math.min(qr.shownAt + QR_VALIDITY_MS, holdEndsAt, payDeadline);
+    : Math.min(shownAt + QR_VALIDITY_MS, holdEndsAt, payDeadline);
   const qrLeft = qrEndsAt - now;
   const qrExpired = !expired && qrLeft <= 0;
   const amount = formatCurrency(details.amount_vnd, locale);
   const memo = details.qr_code ?? details.reference_code;
-  const retryIn =
-    newQr.error?.code === "QR_TOO_SOON"
-      ? (newQr.error.retryAfterSeconds ?? 60)
-      : null;
+  const retryIn = tooSoonFor;
 
   const getNewQr = () => {
     if (!serverQr) {
-      setQr({ trancheId, shownAt: Date.now() });
+      setShownAt(Date.now());
       return;
     }
     newQr.mutate(undefined, {
