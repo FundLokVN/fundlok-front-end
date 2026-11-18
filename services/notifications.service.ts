@@ -44,7 +44,24 @@ export type NotificationEvent =
    * To the business: the investor confirmed a repayment reached them. `data`
    * has `tranche_id`, `memo`, the masked `investor` and `amount_vnd`.
    */
-  | "REPAYMENT_RECEIPT_CONFIRMED";
+  | "REPAYMENT_RECEIPT_CONFIRMED"
+  /**
+   * To the investor, on disbursement day (Day-14 transfer rule): sign and pay
+   * by 14:45. `data` has `tranche_id`, `listing_title`, `amount_vnd` and
+   * `pay_deadline_at`.
+   */
+  | "TRANSFER_DUE_TODAY"
+  /**
+   * To the investor at 15:00 on disbursement day: they did not pay on time and
+   * are locked. `data` has `window_id`, `listing_title` and `reason`
+   * (NO_SHOW or LATE_MONEY).
+   */
+  | "LENDER_LOCKED"
+  /**
+   * To the investor: their late money was kept as their top-up. `data` has
+   * `pledge_id`, `window_id`, `listing_title` and `amount_vnd`.
+   */
+  | "TOP_UP_PLEDGE_RECORDED";
 
 export interface AppNotification {
   id: string;

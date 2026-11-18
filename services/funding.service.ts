@@ -34,6 +34,19 @@ export interface FundingWindow {
   window_end: string;
   days_left: number;
   tranche_count: number;
+  /*
+   * Day-14 transfer rule (backend docs/specs/direct_transfer/
+   * day14-transfer-rule.md 4.3). Null on LEGACY windows and absent from older
+   * backends: without them the invest flow behaves as before.
+   */
+  /** Day 14, ISO date (YYYY-MM-DD). */
+  disbursement_date?: string | null;
+  /** Day 14, 14:45 ICT: signing and new QR codes close. */
+  pay_deadline_at?: string | null;
+  /** Day 14, 15:00 ICT: unpaid and late lenders are locked. */
+  no_show_at?: string | null;
+  /** Day 14, 15:30 ICT: the last receipt upload. */
+  receipt_deadline_at?: string | null;
 }
 
 export type TrancheStatus =
@@ -75,7 +88,14 @@ export interface Tranche {
   project_name?: string | null;
   /** Loan duration in months (from the project's funding window). */
   term_months?: number | null;
+  /** Day-14 rule: whether the transfer was on time; null until checked. */
+  payment_timing?: PaymentTiming | null;
+  /** Why a LATE transfer was late. */
+  late_reason?: LateReason | null;
 }
+
+export type PaymentTiming = "ON_TIME" | "LATE" | "PENDING_CHECK";
+export type LateReason = "EXPIRED_CODE" | "NO_QR_CODE" | "AFTER_CUTOFF";
 
 /** What the receipt upload is checked for, client-side, before it is sent. */
 export const RECEIPT_TYPES = [
@@ -281,6 +301,53 @@ export interface PaymentInstructions {
   /** EMVCo VietQR text with the amount and memo in it; rendered client-side. */
   vietqr_payload: string;
   hold_expires_at: string;
+  /*
+   * Day-14 transfer rule (day14-transfer-rule.md 4.1). Each QR has its own
+   * code and expiry. Absent from older backends: the UI then keeps its own
+   * 15 minutes per QR in the browser and the memo is `reference_code`.
+   */
+  /** This QR's code, also the VietQR memo: reference_code + 4 digits. */
+  qr_code?: string | null;
+  qr_issued_at?: string | null;
+  /** 15 minutes after issue, never past `pay_deadline_at`. */
+  qr_expires_at?: string | null;
+  /** 14:45 ICT on Day 14; null on LEGACY windows. */
+  pay_deadline_at?: string | null;
+  /** 15:30 ICT on Day 14; null on LEGACY windows. */
+  receipt_deadline_at?: string | null;
+}
+
+/** Day-14 rule: a late payer's money, recorded as their top-up. */
+export type TopUpPledgeStatus =
+  | "AWAITING_UNLOCK"
+  | "AWAITING_SIGNING"
+  | "VOID"
+  // A backend can be ahead of this build (e.g. SIGNED once signing exists).
+  | (string & {});
+
+export interface TopUpPledge {
+  id: string;
+  window_id: string;
+  listing_title: string | null;
+  amount_vnd: number;
+  recorded_at: string;
+  status: TopUpPledgeStatus;
+}
+
+export type LenderStandingStatus = "GOOD" | "LOCKED" | "CLOSED";
+export type UnlockRequirement = "EKYC" | "ACKNOWLEDGEMENT";
+
+// Mirrors backend LenderStandingOut (commit-then-accept-flow.md 4.7,
+// day14-transfer-rule.md 4.5).
+export interface LenderStanding {
+  status: LenderStandingStatus;
+  no_show_count: number;
+  locked_at: string | null;
+  /** What unlocking takes: a fresh eKYC and/or typing the sentence. */
+  unlock_requires: UnlockRequirement[];
+  /** The sentence to type exactly to unlock. */
+  acknowledgement_sentence: string | null;
+  top_up_pledges: TopUpPledge[];
 }
 
 export const fundingService = {
@@ -375,6 +442,29 @@ export const fundingService = {
     return apiClient.get<PaymentInstructions>(
       FUNDING_ENDPOINTS.payment(trancheId),
     );
+  },
+
+  // POST /funding/tranches/{id}/qr — a new QR with a new code (201, the same
+  // body as getPayment). 409 PAY_DEADLINE_PASSED after 14:45, 409
+  // TRANCHE_NOT_PAYABLE, 429 QR_TOO_SOON with Retry-After.
+  issueNewQr(trancheId: string) {
+    return apiClient.post<PaymentInstructions>(
+      FUNDING_ENDPOINTS.newQr(trancheId),
+    );
+  },
+
+  // GET /funding/me/standing — whether the investor may commit, and their
+  // top-up pledges.
+  getStanding() {
+    return apiClient.get<LenderStanding>(FUNDING_ENDPOINTS.standing);
+  },
+
+  // POST /funding/me/standing/unlock — after a fresh eKYC, with the sentence
+  // typed exactly. Answers the new standing.
+  unlockStanding(acknowledgement: string) {
+    return apiClient.post<LenderStanding>(FUNDING_ENDPOINTS.standingUnlock, {
+      acknowledgement,
+    });
   },
 
   // POST /funding/tranches/{id}/receipt — the investor's bank receipt for the

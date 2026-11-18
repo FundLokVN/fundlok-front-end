@@ -489,3 +489,60 @@ describe("NotificationsPopover (header bell on a phone)", () => {
     expect(useNotificationsRealtime).not.toHaveBeenCalled();
   });
 });
+
+describe("NotificationsPanel — Day-14 transfer rule", () => {
+  it("tells the investor to sign and pay by 14:45, Vietnam time", async () => {
+    listResult.data = {
+      items: [
+        notification({
+          id: "d1",
+          event: "TRANSFER_DUE_TODAY",
+          entity_type: "TRANCHE",
+          // 07:45 UTC is 14:45 in Vietnam, whatever the test machine's zone.
+          data: {
+            tranche_id: "t1",
+            listing_title: "Cong Ty ABC",
+            amount_vnd: 20_000_000,
+            pay_deadline_at: "2026-12-02T07:45:00Z",
+          },
+        }),
+      ],
+      unread: 1,
+    };
+    render(<NotificationsPanel />);
+    await userEvent.hover(screen.getAllByRole("button")[0]);
+
+    const copy = await screen.findByText(
+      /notifications\.items\.transferDueToday/,
+    );
+    expect(copy.textContent).toContain('"time":"14:45"');
+    expect(copy.textContent).toContain('"project":"Cong Ty ABC"');
+  });
+
+  it.each([
+    ["NO_SHOW", "notifications.items.lenderLockedNoShow"],
+    ["LATE_MONEY", "notifications.items.lenderLockedLate"],
+  ] as const)(
+    "words a %s lock and links to unlocking",
+    async (reason, copy) => {
+      listResult.data = {
+        items: [
+          notification({
+            id: "l1",
+            event: "LENDER_LOCKED",
+            entity_type: "TRANCHE",
+            data: { window_id: "w1", listing_title: "Cong Ty ABC", reason },
+          }),
+        ],
+        unread: 1,
+      };
+      render(<NotificationsPanel />);
+      await userEvent.hover(screen.getAllByRole("button")[0]);
+
+      expect(await screen.findByText(new RegExp(copy))).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /notifications\.actions\.unlock/ }),
+      ).toHaveAttribute("href", "/dashboard/invest");
+    },
+  );
+});

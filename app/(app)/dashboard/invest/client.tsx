@@ -22,6 +22,7 @@ import {
   useInvestorAgreement,
   useMyTranches,
   useReserveTicket,
+  useStanding,
 } from "@/hooks/use-funding";
 import { useToast } from "@/hooks/use-toast";
 import { BankAccountPrompt } from "../_components/BankAccountPrompt";
@@ -29,6 +30,7 @@ import { LastTicketNotice } from "../_components/LastTicketNotice";
 import { InvestmentConfirmationTable } from "./_components/InvestmentConfirmationTable";
 import { InvestorAgreementStep } from "./_components/InvestorAgreementStep";
 import { InvestTerms } from "./_components/InvestTerms";
+import { LenderStandingCard } from "./_components/LenderStandingCard";
 import { SignedAgreementNotice } from "./_components/SignedAgreementNotice";
 import { SignedLoanContractCard } from "./_components/SignedLoanContractCard";
 import { SignedConfirmationCard } from "./_components/SignedConfirmationCard";
@@ -60,6 +62,7 @@ const KNOWN_ERRORS = new Set([
   "ACCOUNT_NOT_APPROVED",
   "INVESTOR_FEE_UNPAID",
   "INVESTOR_AGREEMENT_REQUIRED",
+  "LENDER_LOCKED",
 ]);
 
 type Step = "amount" | "agreement" | "terms" | "transfer";
@@ -111,6 +114,11 @@ export default function InvestClient() {
   const fundingWindow = windowQuery.data ?? null;
   const tranches = useMyTranches(Boolean(fundingWindow));
   const agreement = useInvestorAgreement(Boolean(fundingWindow));
+  // Locked after a Day-14 no-show or late money: no new reservation until
+  // the investor unlocks (backend 409 LENDER_LOCKED).
+  const standing = useStanding(!isAuthLoading);
+  const locked =
+    standing.data?.status === "LOCKED" || standing.data?.status === "CLOSED";
   const reserve = useReserveTicket();
   // One key per reservation: a double click or a retry replays the same
   // reservation instead of making a second one. Reserving again takes a new key.
@@ -297,6 +305,7 @@ export default function InvestClient() {
             submittedAt={null}
             locale={locale}
             t={t}
+            receiptDeadlineAt={fundingWindow?.receipt_deadline_at}
           />
         </>
       ) : awaitingTransfer ? (
@@ -323,6 +332,9 @@ export default function InvestClient() {
         {ticketBody}
       </>
     );
+  } else if (locked) {
+    // The notifications about a lock link here (/dashboard/invest).
+    body = <LenderStandingCard locale={locale} t={t} />;
   } else if (!project || !fundingWindow || !open) {
     body = (
       <Notice title={t(`${K}.notOpenTitle`)} body={t(`${K}.notOpenBody`)} />
@@ -354,6 +366,7 @@ export default function InvestClient() {
           submittedAt={lapsed.receipt_submitted_at}
           locale={locale}
           t={t}
+          receiptDeadlineAt={fundingWindow.receipt_deadline_at}
         />
       </>
     );

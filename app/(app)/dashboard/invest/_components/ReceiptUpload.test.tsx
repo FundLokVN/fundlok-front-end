@@ -145,4 +145,57 @@ describe("ReceiptUpload", () => {
       "It matches your reservation, so your transfer is confirmed.",
     );
   });
+
+  describe("Day-14 receipt cut-off", () => {
+    it("says when receipts close, in Vietnam time", () => {
+      render(
+        <ReceiptUpload
+          trancheId="tr-1"
+          submittedAt={null}
+          locale="en"
+          t={t}
+          receiptDeadlineAt={new Date(Date.now() + 3600 * 1000).toISOString()}
+        />,
+      );
+      expect(screen.getByTestId("receipt-deadline")).toHaveTextContent(
+        "Upload your receipt by",
+      );
+      expect(screen.getByTestId("receipt-upload")).toBeInTheDocument();
+    });
+
+    it("closes the upload after 15:30 on disbursement day", () => {
+      render(
+        <ReceiptUpload
+          trancheId="tr-1"
+          submittedAt={null}
+          locale="en"
+          t={t}
+          // 08:30 UTC is 15:30 in Vietnam, whatever the test machine's zone.
+          receiptDeadlineAt="2026-11-02T08:30:00Z"
+        />,
+      );
+      expect(screen.getByTestId("receipt-closed")).toHaveTextContent(
+        "could be uploaded until 15:30",
+      );
+      expect(screen.queryByTestId("receipt-input")).toBeNull();
+    });
+
+    it("closes the upload when the server says the cut-off passed", () => {
+      (upload as Record<string, unknown>).error = {
+        message: "closed",
+        code: "RECEIPT_DEADLINE_PASSED",
+        status: 409,
+      };
+      render(
+        <ReceiptUpload
+          trancheId="tr-1"
+          submittedAt={null}
+          locale="en"
+          t={t}
+          receiptDeadlineAt={new Date(Date.now() + 60 * 1000).toISOString()}
+        />,
+      );
+      expect(screen.getByTestId("receipt-closed")).toBeInTheDocument();
+    });
+  });
 });

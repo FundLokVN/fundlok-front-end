@@ -40,6 +40,22 @@ function extractMessage(data: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Seconds a `Retry-After` header asks the caller to wait: delta-seconds
+ * ("42") or an HTTP date. Undefined when there is no usable value.
+ */
+export function retryAfterSeconds(
+  header: unknown,
+  now = Date.now(),
+): number | undefined {
+  if (typeof header !== "string" || !header.trim()) return undefined;
+  const value = header.trim();
+  if (/^\d+$/.test(value)) return Number(value);
+  const at = Date.parse(value);
+  if (Number.isNaN(at)) return undefined;
+  return Math.max(0, Math.ceil((at - now) / 1000));
+}
+
 const REFRESH_PATH = "/auth/refresh";
 
 /** `attachment; filename="a.pdf"` (or filename*=UTF-8''a.pdf) -> "a.pdf". */
@@ -181,6 +197,10 @@ class ApiClient {
         // existing caller already reads. See ApiError.code.
         const rawCode = error.response?.headers?.["x-error-code"];
         const code = typeof rawCode === "string" ? rawCode : undefined;
+        // A 429 says how long to wait in the standard header, not the body.
+        const retryAfter = retryAfterSeconds(
+          error.response?.headers?.["retry-after"],
+        );
 
         // An admin whose session was opened without a second factor (see
         // lib/second-factor.ts). The backend refuses almost every call, so
@@ -200,7 +220,15 @@ class ApiClient {
           return new Promise<never>(() => {});
         }
 
-        return Promise.reject({ message, details, status, code });
+        return Promise.reject({
+          message,
+          details,
+          status,
+          code,
+          ...(retryAfter === undefined
+            ? {}
+            : { retryAfterSeconds: retryAfter }),
+        });
       },
     );
   }

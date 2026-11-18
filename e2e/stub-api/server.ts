@@ -1735,6 +1735,18 @@ const server = createServer(async (req, res) => {
   // --- Funding windows (ADR-009) -------------------------------------------
   // Reserving checks what the backend checks that a test can reach: the terms
   // were agreed in their current version and the amount is within the window.
+  // Day-14 transfer rule: the stub investor is never locked.
+  if (path === "/funding/me/standing" && method === "GET") {
+    return json(res, 200, {
+      status: "GOOD",
+      no_show_count: 0,
+      locked_at: null,
+      unlock_requires: [],
+      acknowledgement_sentence: null,
+      top_up_pledges: [],
+    });
+  }
+
   // Payment details wait for the Investor Service Agreement, confirmed with a
   // one-time code.
   if (path === "/funding/me/investor-agreement" && method === "GET") {

@@ -30,6 +30,40 @@ export function formatDateTime(value: DateInput, locale?: string): string {
   return `${formatDate(d, locale)} ${hh}:${min}`;
 }
 
+// The parts of an instant as a clock in Vietnam shows them, whatever the
+// browser's own time zone. The Day-14 cut-offs (14:45, 15:30) are Vietnam
+// times and must read the same for an investor abroad.
+function ictParts(d: Date): Record<string, string> {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  return Object.fromEntries(parts.map((p) => [p.type, p.value]));
+}
+
+// 24-hour HH:mm in Vietnam, e.g. "14:45". Returns "" for empty/invalid input.
+export function formatTimeIct(value: DateInput): string {
+  const d = toDate(value);
+  if (!d) return "";
+  const { hour, minute } = ictParts(d);
+  return `${hour}:${minute}`;
+}
+
+// formatDateTime's layout, in Vietnam time, e.g. "02/12/2026 14:45".
+export function formatDateTimeIct(value: DateInput, locale?: string): string {
+  const d = toDate(value);
+  if (!d) return "";
+  const { year, month, day, hour, minute } = ictParts(d);
+  const date =
+    locale === "vi" ? `${day}/${month}/${year}` : `${month}/${day}/${year}`;
+  return `${date} ${hour}:${minute}`;
+}
+
 // Today in Vietnam as YYYY-MM-DD, the form the API's due dates take.
 export function todayIct(): string {
   return new Date().toLocaleDateString("en-CA", {
