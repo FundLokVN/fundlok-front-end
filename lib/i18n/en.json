@@ -4069,6 +4069,7 @@
         "phone": "Enter a phone number of 8 to 15 digits"
       },
       "estReturn": "What that's worth on your amount",
+      "estReturnOver": "Target return over {months} months, not guaranteed",
       "formHint": "Set your amount, how long you're committing, and how much risk you want, then press calculate.",
       "formTitle": "Investment specs",
       "gateBody": "What's behind this is an illustration. It is not an offer, not a solicitation, and not a guaranteed return. FundLok arranges funding between SMEs and investors. We don't take deposits, and we don't guarantee your principal or your yield.",

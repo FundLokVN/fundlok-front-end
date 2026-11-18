@@ -675,7 +675,7 @@ function InvestorCalculator({ getSessionId }: { getSessionId: () => string }) {
               className="flex items-baseline justify-between gap-4 border-t border-border/70 pt-4"
             >
               <span className="text-sm text-muted-foreground">
-                {t("ratePage.investor.estReturn")}
+                {t("ratePage.investor.estReturnOver", { months: commitment })}
               </span>
               <span className="font-mono text-base font-bold text-primary">
                 {formatCurrency(estimate.estimated_return_vnd, locale)}

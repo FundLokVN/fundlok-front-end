@@ -4069,6 +4069,7 @@
         "phone": "Số điện thoại cần có 8 đến 15 chữ số"
       },
       "estReturn": "Tương ứng bao nhiêu trên số tiền của bạn",
+      "estReturnOver": "Lợi nhuận mục tiêu trong {months} tháng, không đảm bảo",
       "formHint": "Chọn số tiền, thời gian cam kết và mức rủi ro bạn muốn, rồi bấm tính.",
       "formTitle": "Thông tin đầu tư",
       "gateBody": "Những gì bạn sắp xem là minh họa. Không phải lời chào mời, không phải đề nghị đầu tư, và không phải lợi nhuận được đảm bảo. FundLok thu xếp vốn giữa SME và nhà đầu tư. Chúng tôi không nhận tiền gửi và không đảm bảo gốc hay lãi.",
