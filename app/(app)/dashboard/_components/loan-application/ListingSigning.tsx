@@ -40,6 +40,7 @@ import {
   type SignedListingDocument,
 } from "@/services/loans.service";
 import { fileSignatureCount } from "./agreement-signature";
+import { GuarantorZaloSignature } from "./GuarantorZaloSignature";
 
 const K = "dashboard.sme.signing";
 
@@ -53,6 +54,7 @@ const KNOWN_ERRORS = new Set([
   "SIGNING_WRONG_DOCUMENT",
   "SIGNING_DOCUMENT_OUTDATED",
   "SIGNING_GUARANTOR_UNVERIFIED",
+  "SIGNING_GUARANTOR_NOT_READY",
   "SIGNING_SIGNATURE_INVALID",
   "SIGNING_SIGNER_MISMATCH",
   "SIGNING_GUARANTOR_MISSING",
@@ -93,8 +95,9 @@ const DOCUMENTS: {
   kind: ListingDocumentKind;
   key: "serviceAgreement" | "standingOffer" | "loanContract";
   field: "service_agreement" | "standing_offer" | "loan_contract";
-  // Signatures the signed copy must carry at least (enterprise; enterprise +
-  // the guarantor's personal one).
+  // Signatures the signed copy must carry at least: the enterprise's. The
+  // Personal Guarantor signs by Zalo code, not in the PDF (Money flow FINAL
+  // v1.0).
   signatures: number;
 }[] = [
   {
@@ -107,7 +110,7 @@ const DOCUMENTS: {
     kind: "standing-offer",
     key: "standingOffer",
     field: "standing_offer",
-    signatures: 2,
+    signatures: 1,
   },
   // The template each Investor's own contract is generated from at
   // commitment; the Investor signs that one then.
@@ -115,7 +118,7 @@ const DOCUMENTS: {
     kind: "loan-contract",
     key: "loanContract",
     field: "loan_contract",
-    signatures: 2,
+    signatures: 1,
   },
 ];
 
@@ -129,9 +132,12 @@ type Translate = (key: string) => string;
  * - the SME Service Agreement (Contract 2), with the enterprise's digital
  *   signature;
  * - the Standing Offer to Conclude Loan Contracts (Contract 3), with the
- *   enterprise's signature and the Personal Guarantor's personal one; and
+ *   enterprise's signature; and
  * - the Loan Contract template (Contract 5), signed the same way; each
- *   Investor's own contract is generated from it when they commit.
+ *   Investor's own contract is generated from it on Day 13.
+ *
+ * The Personal Guarantor then signs the Offer and the Loan Contract with one
+ * code sent by Zalo (GuarantorZaloSignature), which completes the set.
  *
  * Each is generated on the server with the approved terms, previewed and
  * downloaded here, signed outside FundLok and uploaded back; the backend
@@ -311,6 +317,13 @@ export function ListingSigning({
           />
         ))}
       </div>
+
+      <GuarantorZaloSignature
+        applicationId={applicationId}
+        docs={docs}
+        locale={locale}
+        t={t}
+      />
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         {t(`${K}.blanksNote`)}

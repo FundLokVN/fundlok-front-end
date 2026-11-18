@@ -1645,7 +1645,32 @@
     "tryAgain": "Please try again.",
     "unknown": "Unknown",
     "verifiedMember": "Verified member",
-    "viewProjectDetails": "View project details"
+    "viewProjectDetails": "View project details",
+    "zaloCode": {
+      "confirming": "Signing…",
+      "errors": {
+        "CODE_COOLDOWN": "Please wait a moment before requesting another code.",
+        "CODE_DAILY_LIMIT": "You have requested too many codes today. Please try again later.",
+        "CODE_EXPIRED": "This code has expired. Request a new one.",
+        "CODE_INCORRECT": "That code is not right. Check it and enter it again.",
+        "CODE_NOT_SENT": "The confirmation code could not be sent. Please try again.",
+        "CODE_TOO_MANY_ATTEMPTS": "Too many incorrect attempts. Request a new code.",
+        "CODE_UNAVAILABLE": "The confirmation code cannot be sent right now. Please try again later.",
+        "PHONE_NO_ZALO": "Your phone number has no Zalo account that can receive the code. Use a number with Zalo.",
+        "PHONE_REQUIRED": "Add a Vietnamese mobile number to your profile to receive the confirmation code by Zalo.",
+        "generic": "Something went wrong. Please try again later."
+      },
+      "expiry": "The code is valid for {minutes} minutes.",
+      "intro": "We send a one-time code by Zalo to {phone}. Entering it is your signature.",
+      "label": "Six-digit code",
+      "noPhone": "Verify a Vietnamese mobile number on your account first: the code is sent to it by Zalo.",
+      "noPhoneLink": "Go to your profile",
+      "resend": "Send a new code",
+      "resendIn": "New code in {seconds}s",
+      "sending": "Sending the code…",
+      "sentLog": "Code written to the server log for {phone} (local development).",
+      "sentZalo": "Code sent by Zalo to {phone}."
+    }
   },
   "contactPage": {
     "description": "Use this page for partnership requests, product questions, or support. We reply by email and route your message to the right team.",
@@ -2765,6 +2790,7 @@
           "SIGNING_DOCUMENT_OUTDATED": "The signed copy does not match the terms and details as they stand now (its check code differs): something changed after you downloaded it, or the file was edited. Download it again from this step, sign it and upload it.",
           "SIGNING_FILE_TOO_LARGE": "The signed PDF is larger than 25 MB.",
           "SIGNING_GUARANTOR_MISSING": "This document needs two digital signatures, one in each box: the enterprise's and the Personal Guarantor's.",
+          "SIGNING_GUARANTOR_NOT_READY": "Signing opens once the Personal Guarantor is ready: an approved identity verification (eKYC) and a verified phone number, where their Zalo code goes.",
           "SIGNING_GUARANTOR_UNVERIFIED": "The Personal Guarantor's identity is not verified yet. Complete identity verification (eKYC) first.",
           "SIGNING_NOT_OPEN": "There is nothing to sign until FundLok approves the request and locks its terms.",
           "SIGNING_NOT_PDF": "Upload the signed copy as a PDF.",
@@ -2776,16 +2802,39 @@
           "generic": "Something went wrong uploading the signed document. Please try again."
         },
         "failed": "The signed document was not accepted",
+        "guarantor": {
+          "confirm": "Sign as Personal Guarantor",
+          "errors": {
+            "GUARANTOR_ALREADY_SIGNED": "The Personal Guarantor has already signed. Reload the page.",
+            "GUARANTOR_SIGNS_AFTER_UPLOAD": "Upload the signed Standing Offer and Loan Contract first.",
+            "SIGNING_GUARANTOR_NOT_READY": "The Personal Guarantor needs an approved eKYC and a verified phone number first."
+          },
+          "failed": "The guarantor's signature was not accepted",
+          "fix": "Complete it",
+          "intro": "The Personal Guarantor (you, as the owner verified on this account) signs the Standing Offer and the Loan Contract with one code sent by Zalo. It opens once your signed copies of both are uploaded.",
+          "missing": {
+            "EKYC": "Identity verification (eKYC) approved",
+            "PHONE": "A verified phone number for the Zalo code"
+          },
+          "notReady": "The Personal Guarantor is not ready to sign yet:",
+          "send": "Send the guarantor's code",
+          "sendFailed": "The code was not sent",
+          "signedByCode": "Signed with a Zalo code on {time}.",
+          "signedInPdf": "Signed with a personal digital signature in the documents.",
+          "signedTitle": "The Personal Guarantor has signed",
+          "title": "Personal Guarantor's signature",
+          "waiting": "Upload the signed Standing Offer and Loan Contract first; the guarantor then signs them here."
+        },
         "how1": "Check the details in the preview: the business, the bank account, the amount, the rate, the term and the assessment.",
         "how2": "Download the PDF and sign it with your digital signature (USB token, or remote signing from your certificate provider) in the signature box it already has.",
         "how3": "Upload the signed PDF here. The signatures are checked with NEAC and the figures against the approved assessment automatically. A printed and scanned copy is not accepted.",
         "howTitle": "How to sign",
-        "intro": "Your request is approved. To list it for investors, digitally sign the three documents below and upload the signed copies. Your listing is published as soon as all three are verified.",
+        "intro": "Your request is approved. To list it for investors, sign the three documents below with your enterprise digital signature and upload the signed copies; the Personal Guarantor then signs the Standing Offer and the Loan Contract with a code sent by Zalo. Your listing is published as soon as everything is verified.",
         "loadFailed": "Could not load where signing stands.",
         "loading": "Preparing the document…",
         "loanContract": {
           "description": "The loan contract between your business and each investor, on the approved listing terms. When an investor commits, their own contract is made from this template and they sign it then.",
-          "signers": "Needs two digital signatures, one in each box: the Business box (your enterprise signature) and the Personal Guarantor box (your personal signature). What each investor's own copy fills in (their details, the amount and what follows from it) is stated as the rule it follows, with an example at the minimum ticket.",
+          "signers": "Sign the Business box with your enterprise digital signature; the Personal Guarantor signs it with the same Zalo code as the Standing Offer. What each investor's own copy fills in (their details, the amount and what follows from it) is stated as the rule it follows, with an example at the minimum ticket.",
           "title": "Loan Contract (template)"
         },
         "missing": {
@@ -2811,7 +2860,7 @@
         "pending": "Your listing terms are being finalised. The documents to sign will appear here as soon as they are ready.",
         "previewLabel": "Preview, filled in with your details",
         "progress": "{count} of {total} signed",
-        "publishedBody": "All three documents are signed and verified with NEAC. Whether investors fund it is their decision.",
+        "publishedBody": "All three documents are signed and verified with NEAC, and the Personal Guarantor has signed. Whether investors fund it is their decision.",
         "publishedTitle": "Your listing is published",
         "publishedToast": "All signed — your listing is published",
         "remove": "Remove file",
@@ -2827,7 +2876,7 @@
         "signedLabel": "Digitally signed PDF",
         "standingOffer": {
           "description": "Your business's offer to verified investors on the approved listing terms and assessment. Each investor who accepts concludes a separate loan contract with your business.",
-          "signers": "Needs two digital signatures, one in each box: the Business box (your enterprise signature) and the Personal Guarantor box (your personal signature, matching the identity you verified with eKYC on this account).",
+          "signers": "Sign the Business box with your enterprise digital signature. The Personal Guarantor signs separately, below, with a code sent by Zalo (a personal digital signature in the Guarantor box is not needed).",
           "title": "Standing Offer to Conclude Loan Contracts"
         },
         "statusLocked": "Sign the Offer first",

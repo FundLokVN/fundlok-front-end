@@ -242,6 +242,17 @@ export const LOANS_ENDPOINTS = {
   /** GET: where signing the three listing documents stands. */
   listingDocuments: (applicationId: string) =>
     `/loans/applications/${applicationId}/listing-documents`,
+  /**
+   * POST: send the Personal Guarantor the Zalo one-time code that signs the
+   * Standing Offer and the Loan Contract template on file (Money flow FINAL
+   * v1.0, Day 0). 409 GUARANTOR_SIGNS_AFTER_UPLOAD until the SME's signed
+   * copies of both are on file.
+   */
+  guarantorSignatureCode: (applicationId: string) =>
+    `/loans/applications/${applicationId}/guarantor-signature/code`,
+  /** POST { code }: the guarantor signs with the code; publishes when complete. */
+  guarantorSignature: (applicationId: string) =>
+    `/loans/applications/${applicationId}/guarantor-signature`,
   /** POST (multipart `file`): the signed copy, checked with NEAC. */
   signListingDocument: (applicationId: string, kind: ListingDocumentKind) =>
     `/loans/applications/${applicationId}/listing-documents/${kind}`,

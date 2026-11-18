@@ -1645,7 +1645,32 @@
     "tryAgain": "Vui lòng thử lại.",
     "unknown": "Không xác định",
     "verifiedMember": "Thành viên đã xác thực",
-    "viewProjectDetails": "Xem chi tiết dự án"
+    "viewProjectDetails": "Xem chi tiết dự án",
+    "zaloCode": {
+      "confirming": "Đang ký…",
+      "errors": {
+        "CODE_COOLDOWN": "Vui lòng đợi một lát trước khi yêu cầu mã mới.",
+        "CODE_DAILY_LIMIT": "Bạn đã yêu cầu quá nhiều mã trong hôm nay. Vui lòng thử lại sau.",
+        "CODE_EXPIRED": "Mã đã hết hiệu lực. Hãy yêu cầu mã mới.",
+        "CODE_INCORRECT": "Mã không đúng. Vui lòng kiểm tra và nhập lại.",
+        "CODE_NOT_SENT": "Chưa gửi được mã xác nhận. Vui lòng thử lại.",
+        "CODE_TOO_MANY_ATTEMPTS": "Bạn đã nhập sai quá nhiều lần. Hãy yêu cầu mã mới.",
+        "CODE_UNAVAILABLE": "Hiện chưa gửi được mã xác nhận. Vui lòng thử lại sau.",
+        "PHONE_NO_ZALO": "Số điện thoại của bạn chưa có tài khoản Zalo nhận được mã. Hãy dùng số có Zalo.",
+        "PHONE_REQUIRED": "Hãy thêm số di động Việt Nam vào hồ sơ của bạn để nhận mã xác nhận qua Zalo.",
+        "generic": "Đã có lỗi xảy ra. Vui lòng thử lại sau."
+      },
+      "expiry": "Mã có hiệu lực trong {minutes} phút.",
+      "intro": "Chúng tôi gửi mã dùng một lần qua Zalo tới {phone}. Nhập mã này là chữ ký của bạn.",
+      "label": "Mã gồm sáu chữ số",
+      "noPhone": "Hãy xác minh số di động Việt Nam trên tài khoản trước: mã được gửi tới số đó qua Zalo.",
+      "noPhoneLink": "Đến hồ sơ của bạn",
+      "resend": "Gửi mã mới",
+      "resendIn": "Gửi mã mới sau {seconds} giây",
+      "sending": "Đang gửi mã…",
+      "sentLog": "Mã được ghi vào nhật ký máy chủ cho {phone} (môi trường phát triển).",
+      "sentZalo": "Đã gửi mã qua Zalo tới {phone}."
+    }
   },
   "contactPage": {
     "description": "Dùng trang này để gửi yêu cầu hợp tác, câu hỏi về sản phẩm hoặc cần hỗ trợ. Chúng tôi phản hồi qua email và chuyển đến đúng bộ phận.",
@@ -2765,6 +2790,7 @@
           "SIGNING_DOCUMENT_OUTDATED": "Bản đã ký không khớp với điều kiện và thông tin hiện tại (mã đối chiếu khác): có thông tin đã thay đổi sau khi bạn tải văn bản, hoặc tệp đã bị sửa. Hãy tải lại văn bản tại bước này, ký và tải lên.",
           "SIGNING_FILE_TOO_LARGE": "Tệp PDF đã ký vượt quá 25 MB.",
           "SIGNING_GUARANTOR_MISSING": "Văn bản này cần hai chữ ký số: chữ ký số doanh nghiệp và chữ ký số cá nhân của Người bảo lãnh, mỗi chữ ký vào một ô.",
+          "SIGNING_GUARANTOR_NOT_READY": "Việc ký được mở khi Người bảo lãnh đã sẵn sàng: đã xác minh danh tính (eKYC) và đã xác minh số điện thoại để nhận mã Zalo.",
           "SIGNING_GUARANTOR_UNVERIFIED": "Người bảo lãnh chưa xác minh danh tính. Hãy hoàn tất xác minh danh tính (eKYC) trước.",
           "SIGNING_NOT_OPEN": "Chưa có văn bản để ký cho đến khi FundLok duyệt hồ sơ và chốt điều kiện gọi vốn.",
           "SIGNING_NOT_PDF": "Hãy tải lên bản đã ký dưới dạng tệp PDF.",
@@ -2776,16 +2802,39 @@
           "generic": "Đã có lỗi khi tải văn bản đã ký lên. Vui lòng thử lại."
         },
         "failed": "Chưa thể nhận văn bản đã ký",
+        "guarantor": {
+          "confirm": "Ký với tư cách Người bảo lãnh",
+          "errors": {
+            "GUARANTOR_ALREADY_SIGNED": "Người bảo lãnh đã ký rồi. Hãy tải lại trang.",
+            "GUARANTOR_SIGNS_AFTER_UPLOAD": "Hãy tải lên bản đã ký của Đề nghị giao kết và Hợp đồng cho vay trước.",
+            "SIGNING_GUARANTOR_NOT_READY": "Người bảo lãnh cần được duyệt eKYC và xác minh số điện thoại trước."
+          },
+          "failed": "Chữ ký của Người bảo lãnh chưa được chấp nhận",
+          "fix": "Hoàn tất",
+          "intro": "Người bảo lãnh (là bạn, chủ sở hữu đã xác minh trên tài khoản này) ký Đề nghị giao kết và Hợp đồng cho vay bằng một mã gửi qua Zalo. Bước này mở khi bản đã ký của cả hai văn bản được tải lên.",
+          "missing": {
+            "EKYC": "Xác minh danh tính (eKYC) đã được duyệt",
+            "PHONE": "Số điện thoại đã xác minh để nhận mã Zalo"
+          },
+          "notReady": "Người bảo lãnh chưa sẵn sàng để ký:",
+          "send": "Gửi mã cho Người bảo lãnh",
+          "sendFailed": "Chưa gửi được mã",
+          "signedByCode": "Đã ký bằng mã Zalo lúc {time}.",
+          "signedInPdf": "Đã ký bằng chữ ký số cá nhân trong văn bản.",
+          "signedTitle": "Người bảo lãnh đã ký",
+          "title": "Chữ ký của Người bảo lãnh",
+          "waiting": "Hãy tải lên bản đã ký của Đề nghị giao kết và Hợp đồng cho vay trước; sau đó Người bảo lãnh ký tại đây."
+        },
         "how1": "Kiểm tra thông tin trong bản xem trước: doanh nghiệp, tài khoản ngân hàng, số tiền, lãi suất, thời hạn và kết quả thẩm định.",
         "how2": "Tải bản PDF và ký bằng chữ ký số (USB Token, hoặc ký số từ xa của nhà cung cấp chứng thư số) vào đúng ô chữ ký có sẵn trong tệp.",
         "how3": "Tải bản PDF đã ký lên tại đây. Hệ thống tự kiểm tra chữ ký với NEAC và đối chiếu các con số với kết quả thẩm định. Bản in ra rồi scan sẽ không được chấp nhận.",
         "howTitle": "Cách ký",
-        "intro": "Hồ sơ của bạn đã được duyệt. Để đăng khoản gọi vốn tới nhà đầu tư, hãy ký số ba văn bản dưới đây và tải bản đã ký lên. Khoản gọi vốn được đăng ngay khi cả ba văn bản được xác minh.",
+        "intro": "Hồ sơ của bạn đã được duyệt. Để đăng khoản gọi vốn tới nhà đầu tư, hãy ký ba văn bản dưới đây bằng chữ ký số doanh nghiệp và tải bản đã ký lên; sau đó Người bảo lãnh ký Đề nghị giao kết và Hợp đồng cho vay bằng mã gửi qua Zalo. Khoản gọi vốn được đăng ngay khi tất cả được xác minh.",
         "loadFailed": "Chưa thể tải tình trạng ký hồ sơ.",
         "loading": "Đang chuẩn bị văn bản…",
         "loanContract": {
           "description": "Mẫu hợp đồng cho vay giữa doanh nghiệp và từng nhà đầu tư, theo điều kiện gọi vốn đã được duyệt. Khi một nhà đầu tư cam kết, hợp đồng riêng của họ được tạo từ mẫu này và nhà đầu tư ký số khi đó.",
-          "signers": "Cần hai chữ ký số, mỗi chữ ký vào một ô: ô Doanh nghiệp (chữ ký số doanh nghiệp) và ô Người bảo lãnh (chữ ký số cá nhân của bạn). Những gì bản của từng nhà đầu tư điền vào (thông tin nhà đầu tư, số tiền và các khoản tính từ đó) được ghi theo quy tắc áp dụng, kèm ví dụ ở mức vé tối thiểu.",
+          "signers": "Ký ô Doanh nghiệp bằng chữ ký số doanh nghiệp; Người bảo lãnh ký bằng cùng mã Zalo với Đề nghị giao kết. Những gì bản của từng nhà đầu tư điền vào (thông tin nhà đầu tư, số tiền và các khoản tính từ đó) được ghi theo quy tắc áp dụng, kèm ví dụ ở mức vé tối thiểu.",
           "title": "Hợp đồng cho vay (mẫu)"
         },
         "missing": {
@@ -2811,7 +2860,7 @@
         "pending": "Điều kiện gọi vốn của bạn đang được hoàn tất. Các văn bản cần ký sẽ xuất hiện tại đây ngay khi sẵn sàng.",
         "previewLabel": "Bản xem trước, đã điền thông tin của bạn",
         "progress": "Đã ký {count}/{total}",
-        "publishedBody": "Cả ba văn bản đã được ký và xác minh với NEAC. Việc có đầu tư hay không do nhà đầu tư quyết định.",
+        "publishedBody": "Cả ba văn bản đã được ký và xác minh với NEAC, và Người bảo lãnh đã ký. Việc có đầu tư hay không do nhà đầu tư quyết định.",
         "publishedTitle": "Khoản gọi vốn đã được đăng",
         "publishedToast": "Đã ký đủ — khoản gọi vốn của bạn đã được đăng",
         "remove": "Bỏ tệp",
@@ -2827,7 +2876,7 @@
         "signedLabel": "Bản PDF đã ký số",
         "standingOffer": {
           "description": "Đề nghị của doanh nghiệp gửi tới các nhà đầu tư đã xác minh, theo điều kiện gọi vốn và kết quả thẩm định đã được duyệt. Mỗi nhà đầu tư chấp nhận sẽ giao kết một hợp đồng cho vay riêng với doanh nghiệp.",
-          "signers": "Cần hai chữ ký số, mỗi chữ ký vào một ô: ô Doanh nghiệp (chữ ký số doanh nghiệp) và ô Người bảo lãnh (chữ ký số cá nhân của bạn, đúng với danh tính đã xác minh eKYC trên tài khoản này).",
+          "signers": "Ký ô Doanh nghiệp bằng chữ ký số doanh nghiệp. Người bảo lãnh ký riêng ở bên dưới bằng mã gửi qua Zalo (không cần chữ ký số cá nhân ở ô Người bảo lãnh).",
           "title": "Đề nghị giao kết hợp đồng cho vay"
         },
         "statusLocked": "Ký Đề nghị trước",
