@@ -3462,6 +3462,61 @@
     },
     "notOpenBody": "Dự án này hiện không nhận đầu tư.",
     "notOpenTitle": "Chưa mở nhận đầu tư",
+    "pledge": {
+      "acceptedBody": "Vào Ngày 14, hãy ký hợp đồng cho vay bằng mã Zalo và chuyển khoản trước {time}.",
+      "acceptedTitle": "Doanh nghiệp đã chấp nhận",
+      "agree": "Tôi đã đọc điều khoản đầu tư và cam kết số tiền này theo các điều kiện trên. Tôi hiểu khoản đầu tư của tôi không được bảo đảm.",
+      "amountBody": "Mỗi cam kết tối thiểu {min}, hoặc đúng số còn lại ({left}).",
+      "amountTitle": "Hãy chọn số tiền khác",
+      "awaitingSmeBody": "{business} chấp nhận hoặc từ chối tổng số tiền cam kết trước {time}. Chúng tôi sẽ báo bạn ngay khi doanh nghiệp quyết định.",
+      "awaitingSmeTitle": "Danh sách cam kết đã chốt",
+      "confirm": "Xác nhận cam kết {amount}",
+      "declinedBody": "Doanh nghiệp đã từ chối, hoặc số tiền cam kết chưa đủ. Cam kết của bạn đã chấm dứt; chưa có tiền nào được chuyển và bạn không nợ gì.",
+      "declinedTitle": "Khoản gọi vốn không được thực hiện",
+      "errors": {
+        "ACCOUNT_NOT_APPROVED": "Tài khoản ngân hàng của bạn chưa được duyệt.",
+        "BELOW_MIN_TICKET": "Số tiền thấp hơn mức cam kết tối thiểu.",
+        "CAPACITY_EXCEEDED": "Số tiền vượt quá phần còn lại của khoản gọi vốn.",
+        "COMMITMENT_NOT_PLEDGED": "Cam kết này đã chấm dứt.",
+        "INVESTOR_FEE_UNPAID": "Một hóa đơn của FundLok đã quá hạn 7 ngày. Hãy thanh toán để cam kết tiếp.",
+        "LENDER_CLOSED": "Tài khoản của bạn đã bị đóng sau hai lần không chuyển khoản.",
+        "LENDER_LOCKED": "Tài khoản của bạn đang bị khóa do không chuyển khoản. Hãy mở khóa trước.",
+        "TERMS_OUTDATED": "Điều khoản đầu tư vừa thay đổi. Hãy tải lại trang và đọc lại.",
+        "WINDOW_FULL": "Khoản gọi vốn đã đủ cam kết. Sẽ mở lại nếu có nhà đầu tư rút cam kết trước khi hết Ngày 12.",
+        "WINDOW_NOT_OPEN": "Khoản gọi vốn này đã ngừng nhận cam kết.",
+        "WITHDRAW_CLOSED": "Danh sách cam kết đã chốt từ khi hết Ngày 12.",
+        "generic": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      },
+      "fullBody": "Hiện không nhận thêm cam kết. Khoản gọi vốn mở lại nếu có nhà đầu tư rút cam kết trước khi hết Ngày 12.",
+      "fullTitle": "Khoản gọi vốn đã đủ cam kết",
+      "mineTitle": "Cam kết của bạn",
+      "mineTotal": "Tổng {amount}",
+      "noAccount": "Hãy thêm và xác minh tài khoản ngân hàng trước: đây là tài khoản bạn sẽ chuyển khoản.",
+      "pledgeFailed": "Chưa ghi nhận được cam kết",
+      "pledged": "Đã ghi nhận cam kết",
+      "rules": {
+        "day14": "Nếu chấp nhận, vào Ngày 14 bạn ký một hợp đồng cho vay cho tổng số tiền bằng mã gửi qua Zalo, rồi chuyển khoản vào tài khoản của chính doanh nghiệp trước 14:45. Không chuyển khoản sẽ bị khóa tài khoản.",
+        "decision": "Vào Ngày 13, doanh nghiệp chấp nhận hoặc từ chối tổng số tiền cam kết. Nếu từ chối, cam kết của bạn chấm dứt và bạn không nợ gì.",
+        "noMoney": "Bạn cam kết {amount} cho {business}. Đây không phải thanh toán: chưa có tiền nào được chuyển và chưa ký gì lúc này.",
+        "risk": "Khoản đầu tư không được bảo đảm: bạn có thể mất một phần hoặc toàn bộ số tiền.",
+        "withdraw": "Bạn có thể rút cam kết đến hết Ngày 12. Sau đó danh sách cam kết là cuối cùng."
+      },
+      "status": {
+        "FOLDED": "Đã vào hợp đồng cho vay",
+        "PLEDGED": "Đã cam kết",
+        "VOID": "Đã rút hoặc chấm dứt"
+      },
+      "timeline": {
+        "decision": "Doanh nghiệp chấp nhận hoặc từ chối tổng số tiền cam kết trước {time} (Ngày 13).",
+        "pledges": "Cam kết hoặc rút cam kết đến {time} (hết Ngày 12). Chưa ký gì và chưa có tiền nào được chuyển.",
+        "sign": "Nếu doanh nghiệp chấp nhận: vào Ngày 14, bạn ký hợp đồng cho vay bằng mã Zalo và chuyển khoản trước {time}."
+      },
+      "timelineTitle": "Khoản gọi vốn này diễn ra thế nào",
+      "title": "Xác nhận cam kết",
+      "withdraw": "Rút cam kết",
+      "withdrawFailed": "Chưa rút được cam kết",
+      "withdrawn": "Đã rút cam kết"
+    },
     "receipt": {
       "body": "Sau khi chuyển khoản, hãy tải lên biên lai mà ứng dụng ngân hàng hiển thị (ảnh chụp màn hình hoặc PDF). FundLok sẽ đối chiếu với lượt giữ chỗ này: số tiền, tài khoản của doanh nghiệp và nội dung chuyển khoản.",
       "choose": "Chọn tệp",
@@ -3560,6 +3615,9 @@
     "steps": {
       "agreement": "Hợp đồng dịch vụ",
       "amount": "Số tiền",
+      "decision": "Doanh nghiệp quyết định",
+      "pledge": "Cam kết",
+      "sign": "Ký hợp đồng",
       "terms": "Điều khoản",
       "transfer": "Chuyển khoản"
     },

@@ -6,6 +6,8 @@ import {
   type FundingWindow,
   type InvestmentConfirmation,
   type AgreementCodeSent,
+  type Commitment,
+  type CommitRequest,
   type InvestorAgreementStatus,
   type LenderStanding,
   type PaymentInstructions,
@@ -41,6 +43,8 @@ export const fundingKeys = {
   windowLoanContract: (windowId: string) =>
     [...fundingKeys.all, "loan-contract", windowId] as const,
   standing: () => [...fundingKeys.all, "standing"] as const,
+  myCommitments: (windowId: string) =>
+    [...fundingKeys.all, "my-commitments", windowId] as const,
   investmentConfirmation: (windowId: string, amountVnd: number) =>
     [
       ...fundingKeys.all,
@@ -249,6 +253,76 @@ export function useUnlockStanding() {
       fundingService.unlockStanding(acknowledgement),
     onSuccess: (standing) => {
       queryClient.setQueryData(fundingKeys.standing(), standing);
+    },
+  });
+}
+
+/** The investor's own pledges to a commit-then-accept round, newest first. */
+export function useMyCommitments(windowId: string | null) {
+  return useQuery<Commitment[], ApiError>({
+    queryKey: fundingKeys.myCommitments(windowId ?? ""),
+    queryFn: () => fundingService.listMyCommitments(windowId as string),
+    enabled: Boolean(windowId),
+    staleTime: 15 * 1000,
+    retry: false,
+  });
+}
+
+// A pledge or a withdrawal moves the round's totals and the investor's list.
+function useCommitmentMutation<TVars>(
+  mutationFn: (vars: TVars) => Promise<Commitment>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<Commitment, ApiError, TVars>({
+    mutationFn,
+    onSuccess: (commitment) => {
+      void queryClient.invalidateQueries({
+        queryKey: fundingKeys.myCommitments(commitment.window_id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...fundingKeys.all, "window"],
+      });
+    },
+  });
+}
+
+/** Pledge on a commit-then-accept round: pressing Confirm, no money moves. */
+export function useCommit() {
+  return useCommitmentMutation(
+    ({
+      windowId,
+      body,
+      idempotencyKey,
+    }: {
+      windowId: string;
+      body: CommitRequest;
+      idempotencyKey: string;
+    }) => fundingService.commit(windowId, body, idempotencyKey),
+  );
+}
+
+/** Withdraw a pledge, until the end of Day 12. */
+export function useWithdrawCommitment() {
+  return useCommitmentMutation((commitmentId: string) =>
+    fundingService.withdrawCommitment(commitmentId),
+  );
+}
+
+/** The business accepts or declines its round on Day 13. */
+export function useWindowDecision() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    FundingWindow,
+    ApiError,
+    { windowId: string; decision: "ACCEPT" | "DECLINE"; idempotencyKey: string }
+  >({
+    mutationFn: ({ windowId, decision, idempotencyKey }) =>
+      fundingService.decide(windowId, decision, idempotencyKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: fundingKeys.myRounds() });
+      void queryClient.invalidateQueries({
+        queryKey: [...fundingKeys.all, "window"],
+      });
     },
   });
 }

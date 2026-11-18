@@ -3462,6 +3462,61 @@
     },
     "notOpenBody": "This project is not taking investments right now.",
     "notOpenTitle": "Not open for investment",
+    "pledge": {
+      "acceptedBody": "On Day 14, sign your loan contract with a Zalo code and transfer by {time}.",
+      "acceptedTitle": "The business accepted",
+      "agree": "I have read the investing terms and I pledge this amount on these conditions. I understand my investment is not guaranteed.",
+      "amountBody": "A pledge is at least {min}, or exactly what is left ({left}).",
+      "amountTitle": "Choose another amount",
+      "awaitingSmeBody": "{business} accepts or declines the total pledged by {time}. We will tell you as soon as it decides.",
+      "awaitingSmeTitle": "Pledges are final",
+      "confirm": "Confirm pledge of {amount}",
+      "declinedBody": "The business declined, or not enough was pledged. Your pledges have ended; no money moved and nothing is owed.",
+      "declinedTitle": "This round did not go ahead",
+      "errors": {
+        "ACCOUNT_NOT_APPROVED": "Your bank account is not approved yet.",
+        "BELOW_MIN_TICKET": "The amount is below the minimum pledge.",
+        "CAPACITY_EXCEEDED": "The amount is more than what is left in this round.",
+        "COMMITMENT_NOT_PLEDGED": "This pledge has already ended.",
+        "INVESTOR_FEE_UNPAID": "A FundLok invoice is more than 7 days unpaid. Pay it to pledge again.",
+        "LENDER_CLOSED": "Your account was closed after two missed transfers.",
+        "LENDER_LOCKED": "Your account is locked after a missed transfer. Unlock it first.",
+        "TERMS_OUTDATED": "The investing terms have changed. Reload the page and read them again.",
+        "WINDOW_FULL": "The round is fully pledged. It reopens if an investor withdraws before the end of Day 12.",
+        "WINDOW_NOT_OPEN": "Pledges are closed for this round.",
+        "WITHDRAW_CLOSED": "Pledges are final from the end of Day 12.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "fullBody": "It takes no more pledges for now. It reopens if an investor withdraws before the end of Day 12.",
+      "fullTitle": "This round is fully pledged",
+      "mineTitle": "Your pledges",
+      "mineTotal": "Total {amount}",
+      "noAccount": "Add and verify a bank account first: it is the account you will transfer from.",
+      "pledgeFailed": "The pledge was not recorded",
+      "pledged": "Pledge recorded",
+      "rules": {
+        "day14": "If it accepts, on Day 14 you sign one loan contract for your total with a code sent by Zalo, then transfer it to the business's own account before 14:45. A no-show locks your account.",
+        "decision": "On Day 13 the business accepts or declines the total pledged. If it declines, your pledge ends and nothing is owed.",
+        "noMoney": "You pledge {amount} to {business}. This is not a payment: no money moves and nothing is signed now.",
+        "risk": "Your investment is not guaranteed: you can lose some or all of it.",
+        "withdraw": "You can withdraw a pledge until the end of Day 12. After that the pledge list is final."
+      },
+      "status": {
+        "FOLDED": "In your loan contract",
+        "PLEDGED": "Pledged",
+        "VOID": "Withdrawn or ended"
+      },
+      "timeline": {
+        "decision": "The business accepts or declines the total pledged by {time} (Day 13).",
+        "pledges": "Pledge or withdraw until {time} (the end of Day 12). Nothing is signed and no money moves.",
+        "sign": "If it accepts: on Day 14, sign your loan contract with a Zalo code and transfer by {time}."
+      },
+      "timelineTitle": "How this round works",
+      "title": "Confirm your pledge",
+      "withdraw": "Withdraw",
+      "withdrawFailed": "The pledge was not withdrawn",
+      "withdrawn": "Pledge withdrawn"
+    },
     "receipt": {
       "body": "After you transfer, upload the receipt your bank app shows (a screenshot or PDF). FundLok checks it against this reservation: the amount, the business's account and the payment memo.",
       "choose": "Choose file",
@@ -3560,6 +3615,9 @@
     "steps": {
       "agreement": "Service agreement",
       "amount": "Amount",
+      "decision": "Business decides",
+      "pledge": "Pledge",
+      "sign": "Sign",
       "terms": "Terms",
       "transfer": "Transfer"
     },

@@ -95,6 +95,16 @@ export const FUNDING_ENDPOINTS = {
   // Reserves the amount and signs the acceptance in one call; needs an
   // Idempotency-Key header.
   reserve: (windowId: string) => `/funding/windows/${windowId}/reservations`,
+  // Commit-then-accept rounds (Money flow FINAL v1.0): a pledge is pressing
+  // Confirm (nothing signed, no money moves), withdrawable until the end of
+  // Day 12; needs an Idempotency-Key header.
+  commit: (windowId: string) => `/funding/windows/${windowId}/commitments`,
+  // ?window_id= : the investor's own pledges to a round, newest first.
+  myCommitments: "/funding/me/commitments",
+  withdrawCommitment: (commitmentId: string) =>
+    `/funding/commitments/${commitmentId}/withdraw`,
+  // The business accepts or declines on Day 13 (Idempotency-Key header).
+  windowDecision: (windowId: string) => `/funding/windows/${windowId}/decision`,
   // The Investor Service Agreement (Contract 4): GET whether it must still be
   // confirmed with the next commitment; POST {version, tranche_id, code} to
   // confirm it with the one-time code (the investor's signature). The PDF to

@@ -10,7 +10,21 @@ import { FUNDING_ENDPOINTS } from "@/lib/endpoints";
 export const INVESTOR_TERMS_VERSION = "2026-10-30";
 
 export type FundingWindowStatus =
-  "OPEN" | "FULL" | "CLOSING" | "REPAYING" | "FAILED" | "REPAID" | "CANCELLED";
+  | "OPEN"
+  | "FULL"
+  | "CLOSING"
+  | "REPAYING"
+  | "FAILED"
+  | "REPAID"
+  | "CANCELLED"
+  // Commit-then-accept rounds: Day 13 (the business decides) and Day 14
+  // (investors sign and pay).
+  | "AWAITING_SME"
+  | "AWAITING_PAYMENT";
+
+export type WindowFlow = "LEGACY" | "COMMIT_THEN_ACCEPT";
+export type SmeDecision =
+  "ACCEPTED" | "DECLINED" | "AUTO_ACCEPTED" | "AUTO_DECLINED";
 
 // Mirrors backend FundingWindowOut. Money is integer VND.
 export interface FundingWindow {
@@ -47,6 +61,39 @@ export interface FundingWindow {
   no_show_at?: string | null;
   /** Day 14, 15:30 ICT: the last receipt upload. */
   receipt_deadline_at?: string | null;
+  /*
+   * Commit-then-accept (backend commit-then-accept-flow.md 4.2, Money flow
+   * FINAL v1.0). Null on LEGACY windows.
+   */
+  flow?: WindowFlow | null;
+  /** 00:00 on Day 13: pledges and withdrawals end, the pledge list is final. */
+  commit_closes_at?: string | null;
+  /** 15:00 on Day 13: the business accepts or declines. */
+  sme_deadline_at?: string | null;
+  committed_total_vnd?: number | null;
+  committed_pct?: number | null;
+  sme_decision?: SmeDecision | null;
+  sme_decided_at?: string | null;
+}
+
+/** One pledge (backend CommitmentOut). Money is integer VND. */
+export interface Commitment {
+  id: string;
+  window_id: string;
+  amount_vnd: number;
+  status: "PLEDGED" | "FOLDED" | "VOID";
+  committed_at: string;
+  /** All of this investor's live pledges on the round. */
+  my_committed_total_vnd: number;
+  window_committed_total_vnd: number;
+  window_target_vnd: number;
+}
+
+export interface CommitRequest {
+  amount_vnd: number;
+  ack_risk_disclosure: boolean;
+  terms_version: string;
+  payment_account_id: string;
 }
 
 export type TrancheStatus =
@@ -360,6 +407,40 @@ export const fundingService = {
 
   // POST /funding/windows/{id}/reservations — holds the amount and signs the
   // acceptance of the terms. Replaying the same key returns the same ticket.
+  commit(windowId: string, body: CommitRequest, idempotencyKey: string) {
+    return apiClient.post<Commitment>(
+      FUNDING_ENDPOINTS.commit(windowId),
+      body,
+      {
+        headers: { "Idempotency-Key": idempotencyKey },
+      },
+    );
+  },
+
+  listMyCommitments(windowId: string) {
+    return apiClient.get<Commitment[]>(FUNDING_ENDPOINTS.myCommitments, {
+      params: { window_id: windowId },
+    });
+  },
+
+  withdrawCommitment(commitmentId: string) {
+    return apiClient.post<Commitment>(
+      FUNDING_ENDPOINTS.withdrawCommitment(commitmentId),
+    );
+  },
+
+  decide(
+    windowId: string,
+    decision: "ACCEPT" | "DECLINE",
+    idempotencyKey: string,
+  ) {
+    return apiClient.post<FundingWindow>(
+      FUNDING_ENDPOINTS.windowDecision(windowId),
+      { decision },
+      { headers: { "Idempotency-Key": idempotencyKey } },
+    );
+  },
+
   reserve(windowId: string, body: ReserveRequest, idempotencyKey: string) {
     return apiClient.post<Tranche>(FUNDING_ENDPOINTS.reserve(windowId), body, {
       headers: { "Idempotency-Key": idempotencyKey },

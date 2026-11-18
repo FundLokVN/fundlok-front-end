@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { BankAccountPrompt } from "../_components/BankAccountPrompt";
 import { LastTicketNotice } from "../_components/LastTicketNotice";
+import { CommitThenAccept } from "./_components/CommitThenAccept";
 import { InvestmentConfirmationTable } from "./_components/InvestmentConfirmationTable";
 import { InvestorAgreementStep } from "./_components/InvestorAgreementStep";
 import { InvestTerms } from "./_components/InvestTerms";
@@ -65,8 +66,23 @@ const KNOWN_ERRORS = new Set([
   "LENDER_LOCKED",
 ]);
 
-type Step = "amount" | "agreement" | "terms" | "transfer";
+type Step =
+  | "amount"
+  | "agreement"
+  | "terms"
+  | "transfer"
+  | "pledge"
+  | "decision"
+  | "sign";
 const STEPS: readonly Step[] = ["amount", "terms", "transfer"];
+// A commit-then-accept round (Money flow FINAL v1.0): pledge (Days 0 to 12),
+// the business decides (Day 13), sign and pay (Day 14).
+const COMMIT_STEPS: readonly Step[] = [
+  "pledge",
+  "decision",
+  "sign",
+  "transfer",
+];
 // The investor's first commitment: agreeing makes the commitment (code, held
 // amount, no money moved), then the Investor Service Agreement, filled in with
 // that commitment's Annex, is signed and uploaded before the transfer.
@@ -248,12 +264,27 @@ export default function InvestClient() {
     !!ticket &&
     (ticket.status === "RESERVED" || ticket.status === "SIGNED") &&
     !ticket.receipt_submitted_at;
-  const step: Step = !ticket
-    ? "terms"
-    : signsAgreement
-      ? "agreement"
-      : "transfer";
-  const steps = needsAgreement || signedHere ? FIRST_STEPS : STEPS;
+  const commitFlow = fundingWindow?.flow === "COMMIT_THEN_ACCEPT";
+  const commitStep: Step =
+    fundingWindow?.status === "OPEN"
+      ? "pledge"
+      : fundingWindow?.status === "AWAITING_SME"
+        ? "decision"
+        : !ticket || ticket.status === "RESERVED"
+          ? "sign"
+          : "transfer";
+  const step: Step = commitFlow
+    ? commitStep
+    : !ticket
+      ? "terms"
+      : signsAgreement
+        ? "agreement"
+        : "transfer";
+  const steps = commitFlow
+    ? COMMIT_STEPS
+    : needsAgreement || signedHere
+      ? FIRST_STEPS
+      : STEPS;
   const errorLine = error && (
     <p role="alert" className="text-sm font-medium text-destructive">
       {error}
@@ -262,7 +293,25 @@ export default function InvestClient() {
   const shownAmount = ticket?.amount_vnd ?? (amount || lapsed?.amount_vnd || 0);
 
   let body: React.ReactNode;
-  if (ticket && signsAgreement && agreement.data) {
+  // Commit-then-accept: pledges, the business's decision, then Day 14. A
+  // ticket already signed (paying, paid) goes on to the transfer below.
+  const commitBody =
+    commitFlow &&
+    project &&
+    fundingWindow &&
+    !locked &&
+    (!ticket || ticket.status === "RESERVED");
+  if (commitBody) {
+    body = (
+      <CommitThenAccept
+        fundingWindow={fundingWindow}
+        amount={amount}
+        businessName={project.legal_name}
+        locale={locale}
+        t={t}
+      />
+    );
+  } else if (ticket && signsAgreement && agreement.data && !commitFlow) {
     body = (
       <InvestorAgreementStep
         key={ticket.id}
