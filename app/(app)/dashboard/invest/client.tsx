@@ -98,7 +98,7 @@ export default function InvestClient() {
   const searchParams = useSearchParams();
   const { t, locale } = useTranslations();
   const { toast } = useToast();
-  const { isLoading: isAuthLoading } = useRequireAuth();
+  const { isLoading: isAuthLoading, user } = useRequireAuth();
   // Reached by URL too, so it checks for a bank account itself rather than
   // trusting the project page's button to have done so.
   const bankAccount = useHasBankAccount();
@@ -116,9 +116,12 @@ export default function InvestClient() {
   const agreement = useInvestorAgreement(Boolean(fundingWindow));
   // Locked after a Day-14 no-show or late money: no new reservation until
   // the investor unlocks (backend 409 LENDER_LOCKED).
-  const standing = useStanding(!isAuthLoading);
+  const standingEnabled = !isAuthLoading && user?.role === "INVESTOR";
+  const standing = useStanding(standingEnabled);
   const locked =
     standing.data?.status === "LOCKED" || standing.data?.status === "CLOSED";
+  // After unlocking, the late money the business kept stays listed here.
+  const hasPledges = (standing.data?.top_up_pledges.length ?? 0) > 0;
   const reserve = useReserveTicket();
   // One key per reservation: a double click or a retry replays the same
   // reservation instead of making a second one. Reserving again takes a new key.
@@ -184,6 +187,7 @@ export default function InvestClient() {
 
   const loading =
     isAuthLoading ||
+    (standingEnabled && standing.isLoading) ||
     projects.isLoading ||
     (Boolean(listingId) && windowQuery.isLoading) ||
     (Boolean(fundingWindow) && (tranches.isLoading || agreement.isLoading));
@@ -215,6 +219,8 @@ export default function InvestClient() {
           });
           // Their ticket from another tab: show it instead of the terms.
           if (code === "ALREADY_HAS_LIVE_TRANCHE") void tranches.refetch();
+          // Locked since the page loaded: bring up the unlock card.
+          if (code === "LENDER_LOCKED") void standing.refetch();
           // This key's reservation lapsed: agreeing again makes a new one.
           if (code === "HOLD_EXPIRED") setIdempotencyKey(crypto.randomUUID());
           // The backend wants a signed agreement (a new version came out):
@@ -289,6 +295,7 @@ export default function InvestClient() {
       awaitingTransfer && !ticket.receipt_submitted_at ? (
         <>
           <TransferDetails
+            key={ticket.id}
             trancheId={ticket.id}
             locale={locale}
             t={t}
@@ -333,8 +340,24 @@ export default function InvestClient() {
       </>
     );
   } else if (locked) {
-    // The notifications about a lock link here (/dashboard/invest).
-    body = <LenderStandingCard locale={locale} t={t} />;
+    // The notifications about a lock link here (/dashboard/invest). Locked at
+    // 15:00, the investor may still have a receipt to upload until 15:30 for
+    // money sent before then: the lapsed ticket's upload stays beside the card.
+    body = (
+      <>
+        <LenderStandingCard locale={locale} t={t} />
+        {lapsed && (
+          <ReceiptUpload
+            key={lapsed.id}
+            trancheId={lapsed.id}
+            submittedAt={lapsed.receipt_submitted_at}
+            locale={locale}
+            t={t}
+            receiptDeadlineAt={fundingWindow?.receipt_deadline_at}
+          />
+        )}
+      </>
+    );
   } else if (!project || !fundingWindow || !open) {
     body = (
       <Notice title={t(`${K}.notOpenTitle`)} body={t(`${K}.notOpenBody`)} />
@@ -574,6 +597,8 @@ export default function InvestClient() {
           </dl>
         )}
 
+        {/* Unlocked, with late money kept as a top-up: keep it in view. */}
+        {!locked && hasPledges && <LenderStandingCard locale={locale} t={t} />}
         {body}
       </Card>
     </div>

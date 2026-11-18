@@ -9,9 +9,11 @@ let payment: {
   isLoading: boolean;
   data?: PaymentInstructions;
   error?: ApiError | null;
+  dataUpdatedAt?: number;
 };
 let newQr: {
   mutate: ReturnType<typeof vi.fn>;
+  reset: ReturnType<typeof vi.fn>;
   isPending: boolean;
   error: ApiError | null;
 };
@@ -48,7 +50,7 @@ const withServerQr = (
 describe("TransferDetails", () => {
   beforeEach(() => {
     payment = { isLoading: false, data: instructions(2 * 3600 * 1000) };
-    newQr = { mutate: vi.fn(), isPending: false, error: null };
+    newQr = { mutate: vi.fn(), reset: vi.fn(), isPending: false, error: null };
   });
 
   describe("Day-14 rule with the server's QR code", () => {
@@ -108,10 +110,43 @@ describe("TransferDetails", () => {
       act(() => {
         vi.advanceTimersByTime(61 * 1000);
       });
-      expect(screen.getByTestId("transfer-closed")).toHaveTextContent(
-        "Disbursement closed. Unlock your account to join the top-up",
-      );
+      const closed = screen.getByTestId("transfer-closed");
+      expect(closed).toHaveTextContent("Disbursement closed");
+      expect(closed).toHaveTextContent("unlock it to join the top-up");
       expect(screen.queryByTestId("transfer-qr")).toBeNull();
+    });
+
+    it("counts down on the server's clock, not a slow device's", () => {
+      // The server is 3 minutes ahead of this device; its QR has 10 minutes left.
+      const serverNow = Date.now() + 3 * 60 * 1000;
+      payment = {
+        isLoading: false,
+        dataUpdatedAt: Date.now(),
+        data: withServerQr(0, {
+          server_time: new Date(serverNow).toISOString(),
+          qr_issued_at: new Date(serverNow - 5 * 60 * 1000).toISOString(),
+          qr_expires_at: new Date(serverNow + 10 * 60 * 1000).toISOString(),
+        }),
+      };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "10:00 left",
+      );
+    });
+
+    it("clears the wait message once the wait is over", () => {
+      payment = { isLoading: false, data: withServerQr(16 * 60 * 1000) };
+      newQr.error = {
+        message: "too soon",
+        code: "QR_TOO_SOON",
+        status: 429,
+        retryAfterSeconds: 5,
+      } as ApiError;
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      act(() => {
+        vi.advanceTimersByTime(5 * 1000);
+      });
+      expect(newQr.reset).toHaveBeenCalled();
     });
 
     it("shows the closed state when the server says payments closed", () => {

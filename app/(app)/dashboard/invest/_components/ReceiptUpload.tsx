@@ -12,7 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUploadReceipt } from "@/hooks/use-funding";
 import { useToast } from "@/hooks/use-toast";
-import { formatDateTime, formatTimeIct } from "@/lib/format-date";
+import {
+  dateIct,
+  formatDateTime,
+  formatDateTimeIct,
+  formatTimeIct,
+  todayIct,
+} from "@/lib/format-date";
 import { RECEIPT_MAX_BYTES, RECEIPT_TYPES } from "@/services/funding.service";
 
 const K = "investConfirm.receipt";
@@ -73,6 +79,12 @@ export function ReceiptUpload({
     const id = setInterval(() => setNow(Date.now()), 15_000);
     return () => clearInterval(id);
   }, [receiptDeadlineAt]);
+  // "15:30" today; with the date on any other day (a lapsed ticket's page).
+  const deadlineLabel = !receiptDeadlineAt
+    ? ""
+    : dateIct(receiptDeadlineAt) === todayIct()
+      ? formatTimeIct(receiptDeadlineAt)
+      : formatDateTimeIct(receiptDeadlineAt, locale);
   const deadlinePassed =
     upload.error?.code === "RECEIPT_DEADLINE_PASSED" ||
     (receiptDeadlineAt != null && now > new Date(receiptDeadlineAt).getTime());
@@ -127,7 +139,7 @@ export function ReceiptUpload({
           </p>
           <p className="text-xs leading-relaxed text-muted-foreground">
             {t(`${K}.closedBody`, {
-              time: formatTimeIct(receiptDeadlineAt) || "15:30",
+              time: deadlineLabel || "15:30",
             })}
           </p>
         </div>
@@ -203,7 +215,7 @@ export function ReceiptUpload({
             className="text-xs font-semibold text-foreground"
             data-testid="receipt-deadline"
           >
-            {t(`${K}.deadline`, { time: formatTimeIct(receiptDeadlineAt) })}
+            {t(`${K}.deadline`, { time: deadlineLabel })}
           </p>
         )}
       </div>

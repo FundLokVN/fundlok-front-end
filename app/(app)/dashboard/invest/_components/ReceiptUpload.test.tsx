@@ -174,9 +174,9 @@ describe("ReceiptUpload", () => {
           receiptDeadlineAt="2026-11-02T08:30:00Z"
         />,
       );
-      expect(screen.getByTestId("receipt-closed")).toHaveTextContent(
-        "could be uploaded until 15:30",
-      );
+      const closed = screen.getByTestId("receipt-closed");
+      expect(closed).toHaveTextContent("could be uploaded until");
+      expect(closed).toHaveTextContent("15:30");
       expect(screen.queryByTestId("receipt-input")).toBeNull();
     });
 

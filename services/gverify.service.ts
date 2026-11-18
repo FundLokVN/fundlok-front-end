@@ -39,6 +39,11 @@ export interface GVerifyStatusResponse {
   status: GVerifyStatus | "NOT_STARTED";
   is_terminal: boolean;
   is_approved: boolean;
+  /**
+   * Approved before a Day-14 lock: the investor must verify again to unlock
+   * (Contract 4 Art. 5.4). Absent from older backends.
+   */
+  reverify_required?: boolean;
   rejection_reason: string | null;
   person_number: string | null;
   full_name: string | null;

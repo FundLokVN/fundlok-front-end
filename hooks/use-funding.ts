@@ -238,6 +238,7 @@ export function useStanding(enabled = true) {
     queryFn: () => fundingService.getStanding(),
     enabled,
     staleTime: 30 * 1000,
+    retry: false,
   });
 }
 

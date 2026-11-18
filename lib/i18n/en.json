@@ -3419,11 +3419,12 @@
       "closedBody": "Receipts for this round could be uploaded until {time}. If you transferred, contact FundLok support with your bank receipt.",
       "closedTitle": "Receipt uploads are closed",
       "confirmedBody": "You uploaded your receipt on {date}. It matches your reservation, so your transfer is confirmed.",
-      "deadline": "Upload your receipt by {time} today (Vietnam time).",
+      "deadline": "Upload your receipt by {time} (Vietnam time).",
       "errors": {
         "DUPLICATE_FILE": "This file was already uploaded. Upload the receipt for this transfer.",
         "FILE_TOO_LARGE": "The file is larger than 10 MB.",
         "RECEIPT_ALREADY_SUBMITTED": "A receipt was already uploaded for this investment.",
+        "RECEIPT_DEADLINE_PASSED": "Receipts for this round are no longer taken. If you transferred, contact FundLok support with your bank receipt.",
         "TRANCHE_NOT_SIGNED": "This investment isn't waiting for a receipt any more.",
         "UNSUPPORTED_TYPE": "Upload a PDF, PNG, JPEG or WEBP file.",
         "generic": "Something went wrong. Try again in a moment."
@@ -3481,6 +3482,7 @@
       "closedTitle": "Your account is closed",
       "ekycAction": "Verify my identity",
       "ekycDone": "Done: your identity was verified again.",
+      "ekycFirst": "Verify your identity first: you can type the undertaking after that.",
       "errors": {
         "ACKNOWLEDGEMENT_MISMATCH": "The sentence doesn't match. Type it exactly as shown.",
         "EKYC_REQUIRED": "Verify your identity again first, then unlock.",
@@ -3501,9 +3503,10 @@
       "pledgeUntitled": "Funding round",
       "pledgesTitle": "Your top-ups",
       "sentenceLabel": "The undertaking, typed out",
-      "stepEkyc": "1. Verify your identity again",
-      "stepSentence": "2. Type this undertaking exactly as shown",
-      "unlock": "Unlock my account"
+      "stepEkyc": "Verify your identity again",
+      "stepSentence": "Type this undertaking exactly as shown",
+      "unlock": "Unlock my account",
+      "unlocked": "Your account is unlocked."
     },
     "steps": {
       "agreement": "Service agreement",
@@ -3539,12 +3542,12 @@
       "accountNumber": "Account number",
       "amount": "Amount",
       "bank": "Bank",
-      "closedBody": "Disbursement closed. Unlock your account to join the top-up. If you already transferred, upload your receipt below before 15:30.",
+      "closedBody": "No new QR after {time}. If you already transferred, upload your receipt below by {receiptTime}. If you did not pay in time, your account is locked at 15:00: unlock it to join the top-up.",
       "closedTitle": "Disbursement closed",
       "copied": "Copied",
       "copy": "Copy",
       "copyLabel": "Copy {field}",
-      "deadline": "Pay with this QR by {time}",
+      "deadline": "Pay with this QR by {time} (Vietnam time)",
       "expiredBody": "Your reservation was held for a limited time, and that time has passed. If you have already transferred, upload your bank receipt below for FundLok to review, and don't reserve again. If not, don't transfer to these details: reserve again to get a new deadline and payment memo.",
       "expiredTitle": "The time to transfer has passed",
       "loadFailed": "We couldn't load the transfer details. Refresh the page to try again.",

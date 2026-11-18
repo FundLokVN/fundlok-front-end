@@ -8,7 +8,7 @@ import { t } from "./test-t";
 const SENTENCE =
   "Tôi cam kết chuyển tiền đúng hạn vào Ngày giải ngân và hiểu rằng nếu tái phạm, tài khoản của tôi sẽ bị khóa vĩnh viễn.";
 
-let standing: { data?: LenderStanding };
+let standing: { data?: LenderStanding; refetch?: () => void };
 let unlock: {
   mutate: ReturnType<typeof vi.fn>;
   isPending: boolean;
@@ -18,6 +18,7 @@ vi.mock("@/hooks/use-funding", () => ({
   useStanding: () => standing,
   useUnlockStanding: () => unlock,
 }));
+vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -53,10 +54,37 @@ describe("LenderStandingCard", () => {
     unlock = { mutate: vi.fn(), isPending: false, error: null };
   });
 
-  it("shows nothing while the investor is in good standing", () => {
-    standing = { data: { ...locked(), status: "GOOD", unlock_requires: [] } };
+  it("shows nothing while the investor is in good standing with no top-up", () => {
+    standing = {
+      data: {
+        ...locked(),
+        status: "GOOD",
+        unlock_requires: [],
+        top_up_pledges: [],
+      },
+    };
     const { container } = render(<LenderStandingCard locale="en" t={t} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("keeps the top-up in view after unlocking", () => {
+    const base = locked();
+    standing = {
+      data: {
+        ...base,
+        status: "GOOD",
+        unlock_requires: [],
+        acknowledgement_sentence: null,
+        top_up_pledges: [
+          { ...base.top_up_pledges[0], status: "AWAITING_SIGNING" },
+        ],
+      },
+    };
+    render(<LenderStandingCard locale="en" t={t} />);
+    expect(screen.getByTestId("standing-top-ups")).toHaveTextContent(
+      "FundLok will open top-up signing during the 7-day reopening",
+    );
+    expect(screen.queryByTestId("lender-standing")).toBeNull();
   });
 
   it("explains the lock, sends the investor to eKYC first and lists the top-up", () => {
@@ -68,7 +96,7 @@ describe("LenderStandingCard", () => {
     expect(card).toHaveTextContent("15:00"); // Vietnam time
     expect(
       screen.getByRole("link", { name: "Verify my identity" }),
-    ).toHaveAttribute("href", "/kyc");
+    ).toHaveAttribute("href", "/kyc?reverify=1&next=%2Fdashboard%2Finvest");
     expect(
       screen.getByRole("button", { name: "Unlock my account" }),
     ).toBeDisabled();
@@ -89,7 +117,7 @@ describe("LenderStandingCard", () => {
       target: { value: SENTENCE },
     });
     fireEvent.click(screen.getByRole("button", { name: "Unlock my account" }));
-    expect(unlock.mutate).toHaveBeenCalledWith(SENTENCE);
+    expect(unlock.mutate).toHaveBeenCalledWith(SENTENCE, expect.anything());
   });
 
   it("says when the sentence does not match", () => {
