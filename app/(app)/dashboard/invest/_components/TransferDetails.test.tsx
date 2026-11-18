@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { PaymentInstructions } from "@/services/funding.service";
 import { TransferDetails } from "./TransferDetails";
 import { t } from "./test-t";
@@ -41,6 +41,70 @@ describe("TransferDetails", () => {
     expect(
       screen.getByRole("button", { name: "Copy Payment memo" }),
     ).toBeInTheDocument();
+  });
+
+  describe("15-minute QR", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      payment = { isLoading: false, data: instructions(2 * 3600 * 1000) };
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const tick = (ms: number) =>
+      act(() => {
+        vi.advanceTimersByTime(ms);
+      });
+
+    it("counts down 15 minutes, not the whole 2-hour hold", () => {
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "15:00 left",
+      );
+      tick(60 * 1000);
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "14:00 left",
+      );
+    });
+
+    it("blurs the QR after 15 minutes and offers a new one", () => {
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      tick(15 * 60 * 1000);
+
+      expect(screen.getByText("This QR has expired")).toBeInTheDocument();
+      expect(screen.queryByTestId("transfer-deadline")).toBeNull();
+      expect(screen.getByTestId("transfer-qr")).toHaveClass("blur-sm");
+      // The hold is still live: this is not the "reserve again" case.
+      expect(screen.queryByText("The time to transfer has passed")).toBeNull();
+    });
+
+    it("starts a fresh 15 minutes when the investor gets a new QR", () => {
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      tick(16 * 60 * 1000);
+
+      fireEvent.click(screen.getByRole("button", { name: "Get a new QR" }));
+
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "15:00 left",
+      );
+      expect(screen.getByTestId("transfer-qr")).not.toHaveClass("blur-sm");
+    });
+
+    it("never runs past the reservation hold", () => {
+      payment = { isLoading: false, data: instructions(5 * 60 * 1000) };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "05:00 left",
+      );
+      tick(5 * 60 * 1000);
+      expect(
+        screen.getByText("The time to transfer has passed"),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("This QR has expired")).toBeNull();
+    });
   });
 
   it("says when the time to transfer has passed", () => {

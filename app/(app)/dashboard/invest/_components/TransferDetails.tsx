@@ -8,6 +8,7 @@ import {
   Clock,
   Copy,
   Loader2,
+  QrCode,
   RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,17 @@ import { formatDateTime } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 
 const K = "investConfirm.transfer";
+
+/**
+ * How long one QR stays valid (Day-14 transfer rule, 18 Nov). The investor
+ * can ask for a new QR, which starts a fresh window, for as long as the
+ * reservation hold lasts. A window never runs past the hold.
+ *
+ * The window is kept here, in the browser, for now: the backend does not yet
+ * give each QR its own code and expiry (SCRUM-612), so a new QR carries the
+ * same payment memo. Read the expiry from the API once it does.
+ */
+export const QR_VALIDITY_MS = 15 * 60 * 1000;
 
 interface TransferDetailsProps {
   trancheId: string;
@@ -106,6 +118,9 @@ export function TransferDetails({
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+  // When the current QR was shown. Another ticket starts with a fresh QR.
+  const [qr, setQr] = useState(() => ({ trancheId, shownAt: Date.now() }));
+  if (qr.trancheId !== trancheId) setQr({ trancheId, shownAt: now });
 
   if (payment.isLoading) {
     return (
@@ -123,8 +138,11 @@ export function TransferDetails({
   }
 
   const details = payment.data;
-  const left = new Date(details.hold_expires_at).getTime() - now;
-  const expired = left <= 0;
+  const holdEndsAt = new Date(details.hold_expires_at).getTime();
+  const expired = holdEndsAt - now <= 0;
+  const qrEndsAt = Math.min(qr.shownAt + QR_VALIDITY_MS, holdEndsAt);
+  const qrLeft = qrEndsAt - now;
+  const qrExpired = !expired && qrLeft <= 0;
   const amount = formatCurrency(details.amount_vnd, locale);
 
   return (
@@ -165,6 +183,30 @@ export function TransferDetails({
             )}
           </div>
         </div>
+      ) : qrExpired ? (
+        <div
+          className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
+          data-testid="transfer-qr-expired"
+        >
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="space-y-1">
+            <p className="font-semibold text-foreground">
+              {t(`${K}.qrExpiredTitle`)}
+            </p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {t(`${K}.qrExpiredBody`, { minutes: QR_VALIDITY_MS / 60_000 })}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              className="mt-2 gap-2"
+              onClick={() => setQr({ trancheId, shownAt: Date.now() })}
+            >
+              <QrCode className="h-4 w-4" />
+              {t(`${K}.newQr`)}
+            </Button>
+          </div>
+        </div>
       ) : (
         <div
           className="flex items-center gap-2 rounded-xl border bg-muted/30 px-4 py-3 text-sm"
@@ -173,22 +215,24 @@ export function TransferDetails({
           <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
           <span className="text-foreground">
             {t(`${K}.deadline`, {
-              time: formatDateTime(details.hold_expires_at, locale),
+              time: formatDateTime(new Date(qrEndsAt), locale),
             })}
           </span>
           <span className="ml-auto font-mono font-semibold tabular-nums text-foreground">
-            {t(`${K}.timeLeft`, { time: remaining(left) })}
+            {t(`${K}.timeLeft`, { time: remaining(qrLeft) })}
           </span>
         </div>
       )}
 
       <div className="grid gap-5 md:grid-cols-[auto_1fr] md:items-start">
         <div className="mx-auto space-y-2 text-center">
-          {/* A QR needs a light background to stay scannable in dark mode. */}
+          {/* A QR needs a light background to stay scannable in dark mode.
+              An expired QR is blurred so it can no longer be scanned. */}
           <div
             className={cn(
               "rounded-2xl border border-border/40 bg-white p-4 shadow-sm",
               expired && "opacity-40",
+              qrExpired && "opacity-40 blur-sm",
             )}
             data-testid="transfer-qr"
             data-qr-value={details.vietqr_payload}
