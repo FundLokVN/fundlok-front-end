@@ -3487,6 +3487,24 @@
       "title": "Xác nhận đầu tư (Phụ lục)"
     },
     "confirming": "Khoản chuyển của bạn đã được báo và đang được xác nhận.",
+    "day14": {
+      "agree": "Tôi đã đọc hợp đồng cho vay và ký bằng mã gửi tới điện thoại của tôi.",
+      "confirm": "Ký hợp đồng cho vay",
+      "download": "Tải hợp đồng (PDF)",
+      "errors": {
+        "CLICK_REQUIRED": "Hãy đánh dấu rằng bạn ký hợp đồng cho vay.",
+        "CONTRACT_DEADLINE_PASSED": "Việc ký đã đóng lúc 14:45 hôm nay.",
+        "CONTRACT_UNAVAILABLE": "Hợp đồng cho vay của bạn chưa sẵn sàng. Hãy thử lại sau ít phút.",
+        "TRANCHE_NOT_SIGNABLE": "Hợp đồng này đã được ký hoặc không còn mở. Hãy tải lại trang."
+      },
+      "firstTime": "Đây là hợp đồng cho vay đầu tiên của bạn: cùng mã này cũng ký Hợp đồng dịch vụ dành cho Nhà đầu tư của FundLok.",
+      "intro": "Doanh nghiệp đã chấp nhận. Hãy đọc hợp đồng cho vay {amount} của bạn, rồi ký bằng mã gửi qua Zalo. Thông tin chuyển khoản hiện ngay sau đó. Việc ký đóng lúc {time}.",
+      "loadFailed": "Không tải được hợp đồng cho vay. Hãy tải lại trang.",
+      "previewLabel": "Hợp đồng cho vay của bạn",
+      "send": "Gửi mã ký cho tôi",
+      "signed": "Đã ký hợp đồng. Hãy chuyển khoản ngay, trước 14:45.",
+      "title": "Ký hợp đồng cho vay"
+    },
     "errors": {
       "ACCOUNT_NOT_APPROVED": "Bạn cần một tài khoản ngân hàng đã được duyệt, tại ngân hàng có trong danh sách, để đầu tư.",
       "ALREADY_HAS_LIVE_TRANCHE": "Bạn đã có một khoản đầu tư trong đợt gọi vốn này.",

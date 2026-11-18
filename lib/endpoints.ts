@@ -142,6 +142,14 @@ export const FUNDING_ENDPOINTS = {
   payment: (trancheId: string) => `/funding/tranches/${trancheId}/payment`,
   // POST: a new QR with a new code, valid 15 minutes (Day-14 transfer rule).
   newQr: (trancheId: string) => `/funding/tranches/${trancheId}/qr`,
+  // Day 14 on a commit-then-accept round (Money flow FINAL v1.0): the
+  // investor's own loan contract; POST .../code sends a Zalo code; POST
+  // {code, click_to_sign} signs it (and the Investor Service Agreement the
+  // first time). The VietQR opens only after.
+  trancheContract: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/contract`,
+  trancheContractCode: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/contract/code`,
   // The investor's standing (GOOD / LOCKED / CLOSED) and top-up pledges, and
   // POST {acknowledgement} to unlock after a fresh eKYC.
   standing: "/funding/me/standing",

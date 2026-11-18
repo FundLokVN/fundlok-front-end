@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BankAccountPrompt } from "../_components/BankAccountPrompt";
 import { LastTicketNotice } from "../_components/LastTicketNotice";
 import { CommitThenAccept } from "./_components/CommitThenAccept";
+import { Day14ContractStep } from "./_components/Day14ContractStep";
 import { InvestmentConfirmationTable } from "./_components/InvestmentConfirmationTable";
 import { InvestorAgreementStep } from "./_components/InvestorAgreementStep";
 import { InvestTerms } from "./_components/InvestTerms";
@@ -307,6 +308,19 @@ export default function InvestClient() {
         fundingWindow={fundingWindow}
         amount={amount}
         businessName={project.legal_name}
+        day14={
+          ticket && ticket.status === "RESERVED" ? (
+            <Day14ContractStep
+              key={ticket.id}
+              ticket={ticket}
+              payDeadlineAt={fundingWindow.pay_deadline_at}
+              phone={agreement.data?.phone ?? null}
+              firstTime={agreement.data?.required === true}
+              locale={locale}
+              t={t}
+            />
+          ) : undefined
+        }
         locale={locale}
         t={t}
       />

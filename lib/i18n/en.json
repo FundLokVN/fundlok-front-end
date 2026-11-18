@@ -3487,6 +3487,24 @@
       "title": "Investment Confirmation (Annex)"
     },
     "confirming": "Your transfer has been reported and is being confirmed.",
+    "day14": {
+      "agree": "I have read my loan contract and I sign it with the code sent to my phone.",
+      "confirm": "Sign the loan contract",
+      "download": "Download the contract (PDF)",
+      "errors": {
+        "CLICK_REQUIRED": "Tick that you sign the loan contract.",
+        "CONTRACT_DEADLINE_PASSED": "Signing closed at 14:45 today.",
+        "CONTRACT_UNAVAILABLE": "Your loan contract is not ready yet. Try again in a few minutes.",
+        "TRANCHE_NOT_SIGNABLE": "This contract is already signed or no longer open. Reload the page."
+      },
+      "firstTime": "This is your first loan contract: the same code also signs FundLok's Investor Service Agreement.",
+      "intro": "The business accepted. Read your loan contract for {amount}, then sign it with a code sent by Zalo. Your transfer details open right after. Signing closes at {time}.",
+      "loadFailed": "Could not load your loan contract. Reload the page.",
+      "previewLabel": "Your loan contract",
+      "send": "Send my signing code",
+      "signed": "Contract signed. Transfer now, before 14:45.",
+      "title": "Sign your loan contract"
+    },
     "errors": {
       "ACCOUNT_NOT_APPROVED": "You need an approved bank account, at a bank on our list, to invest.",
       "ALREADY_HAS_LIVE_TRANCHE": "You already have an investment in this round.",

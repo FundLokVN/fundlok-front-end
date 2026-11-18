@@ -128,6 +128,14 @@ export interface GuarantorCodeSent {
   resend_in: number;
 }
 
+/** A Zalo code sent for the Day-14 loan contract. */
+export interface ContractCodeSent {
+  sent_to_masked: string;
+  channel: string;
+  expires_in_seconds: number;
+  resend_after_seconds: number;
+}
+
 export interface CommitRequest {
   amount_vnd: number;
   ack_risk_disclosure: boolean;
@@ -465,6 +473,26 @@ export const fundingService = {
   withdrawCommitment(commitmentId: string) {
     return apiClient.post<Commitment>(
       FUNDING_ENDPOINTS.withdrawCommitment(commitmentId),
+    );
+  },
+
+  getTrancheContractPdf(trancheId: string) {
+    return apiClient.getFile(FUNDING_ENDPOINTS.trancheContract(trancheId));
+  },
+
+  sendContractCode(trancheId: string) {
+    return apiClient.post<ContractCodeSent>(
+      FUNDING_ENDPOINTS.trancheContractCode(trancheId),
+    );
+  },
+
+  signContract(trancheId: string, code: string) {
+    return apiClient.post<Tranche>(
+      FUNDING_ENDPOINTS.trancheContract(trancheId),
+      {
+        code,
+        click_to_sign: true,
+      },
     );
   },
 

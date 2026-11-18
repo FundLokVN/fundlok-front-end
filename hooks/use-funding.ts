@@ -8,6 +8,7 @@ import {
   type AgreementCodeSent,
   type Commitment,
   type CommitRequest,
+  type ContractCodeSent,
   type GuarantorCodeSent,
   type WindowLoanContracts,
   type InvestorAgreementStatus,
@@ -49,6 +50,8 @@ export const fundingKeys = {
     [...fundingKeys.all, "my-commitments", windowId] as const,
   windowLoanContracts: (windowId: string) =>
     [...fundingKeys.all, "window-loan-contracts", windowId] as const,
+  trancheContract: (trancheId: string) =>
+    [...fundingKeys.all, "tranche-contract", trancheId] as const,
   investmentConfirmation: (windowId: string, amountVnd: number) =>
     [
       ...fundingKeys.all,
@@ -310,6 +313,47 @@ export function useWithdrawCommitment() {
   return useCommitmentMutation((commitmentId: string) =>
     fundingService.withdrawCommitment(commitmentId),
   );
+}
+
+/** Day 14: the investor's own loan contract, to read before signing. */
+export function useTrancheContractPdf(trancheId: string, enabled = true) {
+  return useQuery<{ blob: Blob; filename: string | null }, ApiError>({
+    queryKey: fundingKeys.trancheContract(trancheId),
+    queryFn: () => fundingService.getTrancheContractPdf(trancheId),
+    enabled: enabled && Boolean(trancheId),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+}
+
+export function useSendContractCode() {
+  return useMutation<ContractCodeSent, ApiError, string>({
+    mutationFn: (trancheId) => fundingService.sendContractCode(trancheId),
+  });
+}
+
+/**
+ * Signing the Day-14 loan contract with the Zalo code: the ticket is SIGNED
+ * and its VietQR opens; the first time, the agreement is signed too.
+ */
+export function useSignContract() {
+  const queryClient = useQueryClient();
+  return useMutation<Tranche, ApiError, { trancheId: string; code: string }>({
+    mutationFn: ({ trancheId, code }) =>
+      fundingService.signContract(trancheId, code),
+    onSuccess: (tranche) => {
+      queryClient.setQueryData<Tranche[]>(fundingKeys.myTranches(), (old) =>
+        (old ?? []).map((t) => (t.id === tranche.id ? tranche : t)),
+      );
+      void queryClient.invalidateQueries({
+        queryKey: fundingKeys.myTranches(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: fundingKeys.investorAgreement(),
+        exact: true,
+      });
+    },
+  });
 }
 
 /** Day 13: each investor's loan contract on the business's round. */
