@@ -193,16 +193,23 @@ jobs:
       - name: Audit production dependencies
         run: bun audit --prod --audit-level=moderate
 
-      # Everything, build and dev tooling included: high and above. One
-      # suppression, with the same bar as the backend's pip-audit:
+      # Everything, build and dev tooling included: high and above. Two
+      # suppressions, with the same bar as the backend's pip-audit:
       #   GHSA-vfj7-8cjw-p6xm  braces <=3.0.3, stack exhaustion on deeply
       #   nested glob patterns. No fixed release exists (3.0.3 is the
       #   latest). It reaches only dev tooling (shadcn CLI and
       #   eslint-config-next, via fast-glob > micromatch), which globs
       #   patterns we write ourselves; nothing shipped depends on it.
       #   Drop the --ignore once braces publishes a fix.
+      #   GHSA-fc5q-39xc-vjpf  picomatch <=4.0.7, ReDoS on repeated
+      #   single-branch extglobs. No fixed release exists (4.0.7 is the
+      #   latest). It reaches only dev tooling (lint-staged, the shadcn
+      #   CLI, and eslint-config-next's TypeScript parser via tinyglobby),
+      #   which matches patterns we write ourselves; the --prod audit above
+      #   passes, so nothing shipped depends on it. Drop the --ignore once
+      #   picomatch publishes a fix.
       - name: Audit all dependencies
-        run: bun audit --audit-level=high --ignore=GHSA-vfj7-8cjw-p6xm
+        run: bun audit --audit-level=high --ignore=GHSA-vfj7-8cjw-p6xm --ignore=GHSA-fc5q-39xc-vjpf
 
       # The Cloudflare Worker (party/) has its own lockfile; audit it too.
       - name: Audit PartyKit worker dependencies
