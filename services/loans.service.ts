@@ -85,6 +85,28 @@ export interface ListingDocuments {
   service_agreement: SignedListingDocument;
   standing_offer: SignedListingDocument;
   loan_contract: SignedListingDocument;
+  /**
+   * The Personal Guarantor (Money flow FINAL v1.0): what they still lack
+   * before signing opens, how they signed the Standing Offer and the Loan
+   * Contract (by Zalo code, or in the PDF for copies signed before the code),
+   * when, and the masked number the code goes to.
+   */
+  guarantor_missing?: GuarantorMissing[];
+  guarantor_signed_by?: "ZALO_OTP" | "DIGITAL_SIGNATURE" | null;
+  guarantor_signed_at?: string | null;
+  guarantor_phone?: string | null;
+}
+
+/** What the guarantor still lacks before Day-0 signing opens. */
+export type GuarantorMissing = "EKYC" | "PHONE";
+
+/** A Zalo code was sent to the guarantor (POST …/guarantor-signature/code). */
+export interface GuarantorCode {
+  /** Masked, e.g. 0903***489. */
+  phone: string;
+  channel: string;
+  expires_in: number;
+  resend_in: number;
 }
 
 /** The signed PDF's upload limit (the backend's, 25 MB). */
@@ -117,6 +139,21 @@ export const loansService = {
     return apiClient.put<ListingDocuments>(
       LOANS_ENDPOINTS.guarantorAddress(applicationId),
       { address },
+    );
+  },
+
+  /** Send the guarantor the Zalo code that signs the Offer and the Loan Contract. */
+  async sendGuarantorCode(applicationId: string) {
+    return apiClient.post<GuarantorCode>(
+      LOANS_ENDPOINTS.guarantorSignatureCode(applicationId),
+    );
+  },
+
+  /** The guarantor signs with the code; answers with the new signing status. */
+  async signAsGuarantor(applicationId: string, code: string) {
+    return apiClient.post<ListingDocuments>(
+      LOANS_ENDPOINTS.guarantorSignature(applicationId),
+      { code },
     );
   },
 

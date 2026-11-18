@@ -10,7 +10,21 @@ import { FUNDING_ENDPOINTS } from "@/lib/endpoints";
 export const INVESTOR_TERMS_VERSION = "2026-10-30";
 
 export type FundingWindowStatus =
-  "OPEN" | "FULL" | "CLOSING" | "REPAYING" | "FAILED" | "REPAID" | "CANCELLED";
+  | "OPEN"
+  | "FULL"
+  | "CLOSING"
+  | "REPAYING"
+  | "FAILED"
+  | "REPAID"
+  | "CANCELLED"
+  // Commit-then-accept rounds: Day 13 (the business decides) and Day 14
+  // (investors sign and pay).
+  | "AWAITING_SME"
+  | "AWAITING_PAYMENT";
+
+export type WindowFlow = "LEGACY" | "COMMIT_THEN_ACCEPT";
+export type SmeDecision =
+  "ACCEPTED" | "DECLINED" | "AUTO_ACCEPTED" | "AUTO_DECLINED";
 
 // Mirrors backend FundingWindowOut. Money is integer VND.
 export interface FundingWindow {
@@ -47,6 +61,86 @@ export interface FundingWindow {
   no_show_at?: string | null;
   /** Day 14, 15:30 ICT: the last receipt upload. */
   receipt_deadline_at?: string | null;
+  /*
+   * Commit-then-accept (backend commit-then-accept-flow.md 4.2, Money flow
+   * FINAL v1.0). Null on LEGACY windows.
+   */
+  flow?: WindowFlow | null;
+  /** 00:00 on Day 13: pledges and withdrawals end, the pledge list is final. */
+  commit_closes_at?: string | null;
+  /** 15:00 on Day 13: the business accepts or declines. */
+  sme_deadline_at?: string | null;
+  committed_total_vnd?: number | null;
+  committed_pct?: number | null;
+  sme_decision?: SmeDecision | null;
+  sme_decided_at?: string | null;
+}
+
+/** One pledge (backend CommitmentOut). Money is integer VND. */
+export interface Commitment {
+  id: string;
+  window_id: string;
+  amount_vnd: number;
+  status: "PLEDGED" | "FOLDED" | "VOID";
+  committed_at: string;
+  /** All of this investor's live pledges on the round. */
+  my_committed_total_vnd: number;
+  window_committed_total_vnd: number;
+  window_target_vnd: number;
+}
+
+/** One investor's Day-13 loan contract (backend WindowLoanContractOut). */
+export interface WindowLoanContract {
+  id: string;
+  contract_no: string;
+  /** Masked. */
+  lender_name: string;
+  amount_vnd: number;
+  status: "GENERATED" | "SME_SIGNED" | "INVESTOR_SIGNED" | "VOID";
+  generated_at: string;
+  sme_signed_at: string | null;
+  investor_signed_at: string | null;
+}
+
+/**
+ * Where Day-13 signing stands on the business's round. `signing_cutoff_at`:
+ * 12:00 on Day 13 when the pledges are below 50% of the target (signing must
+ * be done by then), else null. `all_signed`: Accept is open.
+ */
+export interface WindowLoanContracts {
+  window_id: string;
+  status: FundingWindowStatus;
+  pledged_vnd: number;
+  target_vnd: number;
+  sme_deadline_at: string | null;
+  signing_cutoff_at: string | null;
+  all_signed: boolean;
+  guarantor_signed_at: string | null;
+  guarantor_phone: string | null;
+  contracts: WindowLoanContract[];
+}
+
+/** A Zalo code sent to the guarantor. */
+export interface GuarantorCodeSent {
+  phone: string;
+  channel: string;
+  expires_in: number;
+  resend_in: number;
+}
+
+/** A Zalo code sent for the Day-14 loan contract. */
+export interface ContractCodeSent {
+  sent_to_masked: string;
+  channel: string;
+  expires_in_seconds: number;
+  resend_after_seconds: number;
+}
+
+export interface CommitRequest {
+  amount_vnd: number;
+  ack_risk_disclosure: boolean;
+  terms_version: string;
+  payment_account_id: string;
 }
 
 export type TrancheStatus =
@@ -360,6 +454,101 @@ export const fundingService = {
 
   // POST /funding/windows/{id}/reservations — holds the amount and signs the
   // acceptance of the terms. Replaying the same key returns the same ticket.
+  commit(windowId: string, body: CommitRequest, idempotencyKey: string) {
+    return apiClient.post<Commitment>(
+      FUNDING_ENDPOINTS.commit(windowId),
+      body,
+      {
+        headers: { "Idempotency-Key": idempotencyKey },
+      },
+    );
+  },
+
+  listMyCommitments(windowId: string) {
+    return apiClient.get<Commitment[]>(FUNDING_ENDPOINTS.myCommitments, {
+      params: { window_id: windowId },
+    });
+  },
+
+  withdrawCommitment(commitmentId: string) {
+    return apiClient.post<Commitment>(
+      FUNDING_ENDPOINTS.withdrawCommitment(commitmentId),
+    );
+  },
+
+  getTrancheContractPdf(trancheId: string) {
+    return apiClient.getFile(FUNDING_ENDPOINTS.trancheContract(trancheId));
+  },
+
+  sendContractCode(trancheId: string) {
+    return apiClient.post<ContractCodeSent>(
+      FUNDING_ENDPOINTS.trancheContractCode(trancheId),
+    );
+  },
+
+  signContract(trancheId: string, code: string) {
+    return apiClient.post<Tranche>(
+      FUNDING_ENDPOINTS.trancheContract(trancheId),
+      {
+        code,
+        click_to_sign: true,
+      },
+    );
+  },
+
+  getWindowLoanContracts(windowId: string) {
+    return apiClient.get<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowLoanContracts(windowId),
+    );
+  },
+
+  getWindowLoanContractPdf(windowId: string, contractId: string) {
+    return apiClient.getFile(
+      FUNDING_ENDPOINTS.windowLoanContractDocument(windowId, contractId),
+      { params: { download: true } },
+    );
+  },
+
+  uploadSignedWindowLoanContract(
+    windowId: string,
+    contractId: string,
+    file: File,
+  ) {
+    const form = new FormData();
+    form.append("file", file);
+    // NEAC checks the signature (up to 45 s): wait longer than that.
+    return apiClient.post<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowLoanContractSigned(windowId, contractId),
+      form,
+      { timeout: 60_000 },
+    );
+  },
+
+  sendWindowGuarantorCode(windowId: string) {
+    return apiClient.post<GuarantorCodeSent>(
+      FUNDING_ENDPOINTS.windowGuarantorCode(windowId),
+    );
+  },
+
+  signWindowAsGuarantor(windowId: string, code: string) {
+    return apiClient.post<WindowLoanContracts>(
+      FUNDING_ENDPOINTS.windowGuarantorSignature(windowId),
+      { code },
+    );
+  },
+
+  decide(
+    windowId: string,
+    decision: "ACCEPT" | "DECLINE",
+    idempotencyKey: string,
+  ) {
+    return apiClient.post<FundingWindow>(
+      FUNDING_ENDPOINTS.windowDecision(windowId),
+      { decision },
+      { headers: { "Idempotency-Key": idempotencyKey } },
+    );
+  },
+
   reserve(windowId: string, body: ReserveRequest, idempotencyKey: string) {
     return apiClient.post<Tranche>(FUNDING_ENDPOINTS.reserve(windowId), body, {
       headers: { "Idempotency-Key": idempotencyKey },

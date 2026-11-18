@@ -2,6 +2,7 @@ import { Loader2, Users } from "lucide-react";
 import { useMyRounds } from "@/hooks/use-funding";
 import { RoundProgress } from "../funding/RoundProgress";
 import { RepaymentPlan } from "../funding/RepaymentPlan";
+import { SmeDecision } from "../funding/SmeDecision";
 import { RoundTickets } from "../funding/RoundTickets";
 import { TodaysRepayments } from "../funding/TodaysRepayments";
 
@@ -58,6 +59,8 @@ export function FundingStatus({
   }
   return (
     <div className="space-y-4" data-testid="funding-status">
+      {/* Commit-then-accept rounds: pledges, then the Day-13 decision. */}
+      {round.flow === "COMMIT_THEN_ACCEPT" && <SmeDecision round={round} />}
       <section
         aria-label={t("dashboard.sme.funding.heading")}
         className="space-y-5 rounded-xl border border-border/60 bg-card p-4 md:p-5"

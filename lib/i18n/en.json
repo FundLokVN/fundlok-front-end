@@ -1645,7 +1645,32 @@
     "tryAgain": "Please try again.",
     "unknown": "Unknown",
     "verifiedMember": "Verified member",
-    "viewProjectDetails": "View project details"
+    "viewProjectDetails": "View project details",
+    "zaloCode": {
+      "confirming": "Signing…",
+      "errors": {
+        "CODE_COOLDOWN": "Please wait a moment before requesting another code.",
+        "CODE_DAILY_LIMIT": "You have requested too many codes today. Please try again later.",
+        "CODE_EXPIRED": "This code has expired. Request a new one.",
+        "CODE_INCORRECT": "That code is not right. Check it and enter it again.",
+        "CODE_NOT_SENT": "The confirmation code could not be sent. Please try again.",
+        "CODE_TOO_MANY_ATTEMPTS": "Too many incorrect attempts. Request a new code.",
+        "CODE_UNAVAILABLE": "The confirmation code cannot be sent right now. Please try again later.",
+        "PHONE_NO_ZALO": "Your phone number has no Zalo account that can receive the code. Use a number with Zalo.",
+        "PHONE_REQUIRED": "Add a Vietnamese mobile number to your profile to receive the confirmation code by Zalo.",
+        "generic": "Something went wrong. Please try again later."
+      },
+      "expiry": "The code is valid for {minutes} minutes.",
+      "intro": "We send a one-time code by Zalo to {phone}. Entering it is your signature.",
+      "label": "Six-digit code",
+      "noPhone": "Verify a Vietnamese mobile number on your account first: the code is sent to it by Zalo.",
+      "noPhoneLink": "Go to your profile",
+      "resend": "Send a new code",
+      "resendIn": "New code in {seconds}s",
+      "sending": "Sending the code…",
+      "sentLog": "Code written to the server log for {phone} (local development).",
+      "sentZalo": "Code sent by Zalo to {phone}."
+    }
   },
   "contactPage": {
     "description": "Use this page for partnership requests, product questions, or support. We reply by email and route your message to the right team.",
@@ -2457,6 +2482,58 @@
       "createdAt": "Created at",
       "dayCount": "{count} days",
       "daysActive": "Days active",
+      "decision": {
+        "accept": "Accept and conclude the contracts",
+        "acceptNeedsSigning": "Accept opens once every contract carries your enterprise signature.",
+        "acceptedBody": "Each investor now signs their contract with a Zalo code and transfers to your account by {time} (Day 14). Confirm each transfer within 24 hours of the investor's receipt.",
+        "acceptedTitle": "You accepted",
+        "acceptedToast": "Accepted. Investors sign and pay on Day 14.",
+        "autoAcceptedBody": "No decision by 15:00 and 50% of the target or more was pledged: the round counts as accepted and your business is bound by every contract. Investors sign and transfer by {time} (Day 14).",
+        "autoDeclinedBody": "Less than 50% of the target was pledged and you did not accept by 15:00 on Day 13: the round counts as declined. No loan, no money moved, no fee.",
+        "cutoff": "Below 50% of the target: signing must be finished by {time} so acceptance completes before 15:00. After that the round is declined.",
+        "day13Body": "Investors pledged {pledged} of {target}. Accept by signing every investor's loan contract below with your enterprise digital signature, or decline. Deadline: {deadline}.",
+        "day13Title": "Your decision, by 15:00 today",
+        "decisionFailed": "The decision was not recorded",
+        "decline": "Decline",
+        "declineConfirm": "Confirm: decline the round",
+        "declinedBody": "You declined. No loan was made, no money moved and no fee is due. You can apply again.",
+        "declinedTitle": "The round did not go ahead",
+        "declinedToast": "Declined. No loan, no money moved, no fee.",
+        "download": "Download",
+        "downloadFailed": "Could not download the contract",
+        "errors": {
+          "CONTRACTS_NOT_SIGNED": "Sign and upload every investor's contract first: accepting means signing.",
+          "CONTRACT_SIGNING_NOT_OPEN": "The contracts are signed on Day 13.",
+          "DECISION_DEADLINE_PASSED": "The 15:00 deadline has passed; the automatic result stands.",
+          "DECISION_NOT_OPEN": "The round is not waiting for your decision.",
+          "GUARANTOR_ALREADY_SIGNED": "The guarantor has already signed. Reload the page.",
+          "NEAC_UNAVAILABLE": "The signature could not be checked with NEAC right now. Try again in a few minutes.",
+          "SIGNING_ALREADY_SIGNED": "This contract is already signed. Reload the page.",
+          "SIGNING_CUTOFF_PASSED": "Below 50% of the target, signing closed at 12:00 today.",
+          "SIGNING_DOCUMENT_OUTDATED": "The signed copy does not match the contract as generated. Download it again and sign that copy.",
+          "SIGNING_NOT_PDF": "Upload the signed contract as a PDF.",
+          "SIGNING_SIGNATURE_INVALID": "NEAC does not accept the digital signature on the contract.",
+          "SIGNING_SIGNER_MISMATCH": "The contract is not signed with your business's enterprise digital signature.",
+          "SIGNING_UNSIGNED": "This PDF has no digital signature. Sign it with your enterprise signature.",
+          "SIGNING_WRONG_DOCUMENT": "This is not this investor's contract. Download it again from this row.",
+          "generic": "Something went wrong. Please try again."
+        },
+        "guarantorBody": "The guarantor signs every investor's contract with one code sent by Zalo. It is not a condition of your acceptance.",
+        "guarantorConfirm": "Sign the contracts as guarantor",
+        "guarantorDone": "The guarantor has signed the contracts",
+        "guarantorSend": "Send the guarantor's code",
+        "guarantorSigned": "The guarantor signed every contract on {time}.",
+        "guarantorTitle": "Personal Guarantor",
+        "openBody": "{pledged} of {target} pledged so far. Pledges close at {closes} (the end of Day 12); then the list is final and you decide by {deadline} (Day 13).",
+        "openTitle": "Investors are pledging",
+        "signedAt": "signed {time}",
+        "silenceAccepts": "If you do nothing by 15:00, the round counts as accepted (50% of the target or more) and your business is bound by every contract without signing.",
+        "silenceRule": "On Day 13 you accept by signing each investor's loan contract with your enterprise digital signature, or decline. If you do nothing, 50% of the target or more counts as accepted and binds your business to every contract; less counts as declined.",
+        "toSign": "to sign",
+        "upload": "Upload signed copy",
+        "uploadFailed": "The signed contract was not accepted",
+        "uploaded": "Signed contract accepted"
+      },
       "documentsStillUploadingDescription": "Please wait for all documents to finish uploading before submitting.",
       "documentsStillUploadingTitle": "Documents still uploading",
       "eInvoiceData": "12-month running e-invoice data",
@@ -2765,6 +2842,7 @@
           "SIGNING_DOCUMENT_OUTDATED": "The signed copy does not match the terms and details as they stand now (its check code differs): something changed after you downloaded it, or the file was edited. Download it again from this step, sign it and upload it.",
           "SIGNING_FILE_TOO_LARGE": "The signed PDF is larger than 25 MB.",
           "SIGNING_GUARANTOR_MISSING": "This document needs two digital signatures, one in each box: the enterprise's and the Personal Guarantor's.",
+          "SIGNING_GUARANTOR_NOT_READY": "Signing opens once the Personal Guarantor is ready: an approved identity verification (eKYC) and a verified phone number, where their Zalo code goes.",
           "SIGNING_GUARANTOR_UNVERIFIED": "The Personal Guarantor's identity is not verified yet. Complete identity verification (eKYC) first.",
           "SIGNING_NOT_OPEN": "There is nothing to sign until FundLok approves the request and locks its terms.",
           "SIGNING_NOT_PDF": "Upload the signed copy as a PDF.",
@@ -2776,16 +2854,39 @@
           "generic": "Something went wrong uploading the signed document. Please try again."
         },
         "failed": "The signed document was not accepted",
+        "guarantor": {
+          "confirm": "Sign as Personal Guarantor",
+          "errors": {
+            "GUARANTOR_ALREADY_SIGNED": "The Personal Guarantor has already signed. Reload the page.",
+            "GUARANTOR_SIGNS_AFTER_UPLOAD": "Upload the signed Standing Offer and Loan Contract first.",
+            "SIGNING_GUARANTOR_NOT_READY": "The Personal Guarantor needs an approved eKYC and a verified phone number first."
+          },
+          "failed": "The guarantor's signature was not accepted",
+          "fix": "Complete it",
+          "intro": "The Personal Guarantor (you, as the owner verified on this account) signs the Standing Offer and the Loan Contract with one code sent by Zalo. It opens once your signed copies of both are uploaded.",
+          "missing": {
+            "EKYC": "Identity verification (eKYC) approved",
+            "PHONE": "A verified phone number for the Zalo code"
+          },
+          "notReady": "The Personal Guarantor is not ready to sign yet:",
+          "send": "Send the guarantor's code",
+          "sendFailed": "The code was not sent",
+          "signedByCode": "Signed with a Zalo code on {time}.",
+          "signedInPdf": "Signed with a personal digital signature in the documents.",
+          "signedTitle": "The Personal Guarantor has signed",
+          "title": "Personal Guarantor's signature",
+          "waiting": "Upload the signed Standing Offer and Loan Contract first; the guarantor then signs them here."
+        },
         "how1": "Check the details in the preview: the business, the bank account, the amount, the rate, the term and the assessment.",
         "how2": "Download the PDF and sign it with your digital signature (USB token, or remote signing from your certificate provider) in the signature box it already has.",
         "how3": "Upload the signed PDF here. The signatures are checked with NEAC and the figures against the approved assessment automatically. A printed and scanned copy is not accepted.",
         "howTitle": "How to sign",
-        "intro": "Your request is approved. To list it for investors, digitally sign the three documents below and upload the signed copies. Your listing is published as soon as all three are verified.",
+        "intro": "Your request is approved. To list it for investors, sign the three documents below with your enterprise digital signature and upload the signed copies; the Personal Guarantor then signs the Standing Offer and the Loan Contract with a code sent by Zalo. Your listing is published as soon as everything is verified.",
         "loadFailed": "Could not load where signing stands.",
         "loading": "Preparing the document…",
         "loanContract": {
           "description": "The loan contract between your business and each investor, on the approved listing terms. When an investor commits, their own contract is made from this template and they sign it then.",
-          "signers": "Needs two digital signatures, one in each box: the Business box (your enterprise signature) and the Personal Guarantor box (your personal signature). What each investor's own copy fills in (their details, the amount and what follows from it) is stated as the rule it follows, with an example at the minimum ticket.",
+          "signers": "Sign the Business box with your enterprise digital signature; the Personal Guarantor signs it with the same Zalo code as the Standing Offer. What each investor's own copy fills in (their details, the amount and what follows from it) is stated as the rule it follows, with an example at the minimum ticket.",
           "title": "Loan Contract (template)"
         },
         "missing": {
@@ -2811,7 +2912,7 @@
         "pending": "Your listing terms are being finalised. The documents to sign will appear here as soon as they are ready.",
         "previewLabel": "Preview, filled in with your details",
         "progress": "{count} of {total} signed",
-        "publishedBody": "All three documents are signed and verified with NEAC. Whether investors fund it is their decision.",
+        "publishedBody": "All three documents are signed and verified with NEAC, and the Personal Guarantor has signed. Whether investors fund it is their decision.",
         "publishedTitle": "Your listing is published",
         "publishedToast": "All signed — your listing is published",
         "remove": "Remove file",
@@ -2827,7 +2928,7 @@
         "signedLabel": "Digitally signed PDF",
         "standingOffer": {
           "description": "Your business's offer to verified investors on the approved listing terms and assessment. Each investor who accepts concludes a separate loan contract with your business.",
-          "signers": "Needs two digital signatures, one in each box: the Business box (your enterprise signature) and the Personal Guarantor box (your personal signature, matching the identity you verified with eKYC on this account).",
+          "signers": "Sign the Business box with your enterprise digital signature. The Personal Guarantor signs separately, below, with a code sent by Zalo (a personal digital signature in the Guarantor box is not needed).",
           "title": "Standing Offer to Conclude Loan Contracts"
         },
         "statusLocked": "Sign the Offer first",
@@ -3386,6 +3487,24 @@
       "title": "Investment Confirmation (Annex)"
     },
     "confirming": "Your transfer has been reported and is being confirmed.",
+    "day14": {
+      "agree": "I have read my loan contract and I sign it with the code sent to my phone.",
+      "confirm": "Sign the loan contract",
+      "download": "Download the contract (PDF)",
+      "errors": {
+        "CLICK_REQUIRED": "Tick that you sign the loan contract.",
+        "CONTRACT_DEADLINE_PASSED": "Signing closed at 14:45 today.",
+        "CONTRACT_UNAVAILABLE": "Your loan contract is not ready yet. Try again in a few minutes.",
+        "TRANCHE_NOT_SIGNABLE": "This contract is already signed or no longer open. Reload the page."
+      },
+      "firstTime": "This is your first loan contract: the same code also signs FundLok's Investor Service Agreement.",
+      "intro": "The business accepted. Read your loan contract for {amount}, then sign it with a code sent by Zalo. Your transfer details open right after. Signing closes at {time}.",
+      "loadFailed": "Could not load your loan contract. Reload the page.",
+      "previewLabel": "Your loan contract",
+      "send": "Send my signing code",
+      "signed": "Contract signed. Transfer now, before 14:45.",
+      "title": "Sign your loan contract"
+    },
     "errors": {
       "ACCOUNT_NOT_APPROVED": "You need an approved bank account, at a bank on our list, to invest.",
       "ALREADY_HAS_LIVE_TRANCHE": "You already have an investment in this round.",
@@ -3413,6 +3532,61 @@
     },
     "notOpenBody": "This project is not taking investments right now.",
     "notOpenTitle": "Not open for investment",
+    "pledge": {
+      "acceptedBody": "On Day 14, sign your loan contract with a Zalo code and transfer by {time}.",
+      "acceptedTitle": "The business accepted",
+      "agree": "I have read the investing terms and I pledge this amount on these conditions. I understand my investment is not guaranteed.",
+      "amountBody": "A pledge is at least {min}, or exactly what is left ({left}).",
+      "amountTitle": "Choose another amount",
+      "awaitingSmeBody": "{business} accepts or declines the total pledged by {time}. We will tell you as soon as it decides.",
+      "awaitingSmeTitle": "Pledges are final",
+      "confirm": "Confirm pledge of {amount}",
+      "declinedBody": "The business declined, or not enough was pledged. Your pledges have ended; no money moved and nothing is owed.",
+      "declinedTitle": "This round did not go ahead",
+      "errors": {
+        "ACCOUNT_NOT_APPROVED": "Your bank account is not approved yet.",
+        "BELOW_MIN_TICKET": "The amount is below the minimum pledge.",
+        "CAPACITY_EXCEEDED": "The amount is more than what is left in this round.",
+        "COMMITMENT_NOT_PLEDGED": "This pledge has already ended.",
+        "INVESTOR_FEE_UNPAID": "A FundLok invoice is more than 7 days unpaid. Pay it to pledge again.",
+        "LENDER_CLOSED": "Your account was closed after two missed transfers.",
+        "LENDER_LOCKED": "Your account is locked after a missed transfer. Unlock it first.",
+        "TERMS_OUTDATED": "The investing terms have changed. Reload the page and read them again.",
+        "WINDOW_FULL": "The round is fully pledged. It reopens if an investor withdraws before the end of Day 12.",
+        "WINDOW_NOT_OPEN": "Pledges are closed for this round.",
+        "WITHDRAW_CLOSED": "Pledges are final from the end of Day 12.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "fullBody": "It takes no more pledges for now. It reopens if an investor withdraws before the end of Day 12.",
+      "fullTitle": "This round is fully pledged",
+      "mineTitle": "Your pledges",
+      "mineTotal": "Total {amount}",
+      "noAccount": "Add and verify a bank account first: it is the account you will transfer from.",
+      "pledgeFailed": "The pledge was not recorded",
+      "pledged": "Pledge recorded",
+      "rules": {
+        "day14": "If it accepts, on Day 14 you sign one loan contract for your total with a code sent by Zalo, then transfer it to the business's own account before 14:45. A no-show locks your account.",
+        "decision": "On Day 13 the business accepts or declines the total pledged. If it declines, your pledge ends and nothing is owed.",
+        "noMoney": "You pledge {amount} to {business}. This is not a payment: no money moves and nothing is signed now.",
+        "risk": "Your investment is not guaranteed: you can lose some or all of it.",
+        "withdraw": "You can withdraw a pledge until the end of Day 12. After that the pledge list is final."
+      },
+      "status": {
+        "FOLDED": "In your loan contract",
+        "PLEDGED": "Pledged",
+        "VOID": "Withdrawn or ended"
+      },
+      "timeline": {
+        "decision": "The business accepts or declines the total pledged by {time} (Day 13).",
+        "pledges": "Pledge or withdraw until {time} (the end of Day 12). Nothing is signed and no money moves.",
+        "sign": "If it accepts: on Day 14, sign your loan contract with a Zalo code and transfer by {time}."
+      },
+      "timelineTitle": "How this round works",
+      "title": "Confirm your pledge",
+      "withdraw": "Withdraw",
+      "withdrawFailed": "The pledge was not withdrawn",
+      "withdrawn": "Pledge withdrawn"
+    },
     "receipt": {
       "body": "After you transfer, upload the receipt your bank app shows (a screenshot or PDF). FundLok checks it against this reservation: the amount, the business's account and the payment memo.",
       "choose": "Choose file",
@@ -3511,6 +3685,9 @@
     "steps": {
       "agreement": "Service agreement",
       "amount": "Amount",
+      "decision": "Business decides",
+      "pledge": "Pledge",
+      "sign": "Sign",
       "terms": "Terms",
       "transfer": "Transfer"
     },

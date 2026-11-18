@@ -1645,7 +1645,32 @@
     "tryAgain": "Vui lòng thử lại.",
     "unknown": "Không xác định",
     "verifiedMember": "Thành viên đã xác thực",
-    "viewProjectDetails": "Xem chi tiết dự án"
+    "viewProjectDetails": "Xem chi tiết dự án",
+    "zaloCode": {
+      "confirming": "Đang ký…",
+      "errors": {
+        "CODE_COOLDOWN": "Vui lòng đợi một lát trước khi yêu cầu mã mới.",
+        "CODE_DAILY_LIMIT": "Bạn đã yêu cầu quá nhiều mã trong hôm nay. Vui lòng thử lại sau.",
+        "CODE_EXPIRED": "Mã đã hết hiệu lực. Hãy yêu cầu mã mới.",
+        "CODE_INCORRECT": "Mã không đúng. Vui lòng kiểm tra và nhập lại.",
+        "CODE_NOT_SENT": "Chưa gửi được mã xác nhận. Vui lòng thử lại.",
+        "CODE_TOO_MANY_ATTEMPTS": "Bạn đã nhập sai quá nhiều lần. Hãy yêu cầu mã mới.",
+        "CODE_UNAVAILABLE": "Hiện chưa gửi được mã xác nhận. Vui lòng thử lại sau.",
+        "PHONE_NO_ZALO": "Số điện thoại của bạn chưa có tài khoản Zalo nhận được mã. Hãy dùng số có Zalo.",
+        "PHONE_REQUIRED": "Hãy thêm số di động Việt Nam vào hồ sơ của bạn để nhận mã xác nhận qua Zalo.",
+        "generic": "Đã có lỗi xảy ra. Vui lòng thử lại sau."
+      },
+      "expiry": "Mã có hiệu lực trong {minutes} phút.",
+      "intro": "Chúng tôi gửi mã dùng một lần qua Zalo tới {phone}. Nhập mã này là chữ ký của bạn.",
+      "label": "Mã gồm sáu chữ số",
+      "noPhone": "Hãy xác minh số di động Việt Nam trên tài khoản trước: mã được gửi tới số đó qua Zalo.",
+      "noPhoneLink": "Đến hồ sơ của bạn",
+      "resend": "Gửi mã mới",
+      "resendIn": "Gửi mã mới sau {seconds} giây",
+      "sending": "Đang gửi mã…",
+      "sentLog": "Mã được ghi vào nhật ký máy chủ cho {phone} (môi trường phát triển).",
+      "sentZalo": "Đã gửi mã qua Zalo tới {phone}."
+    }
   },
   "contactPage": {
     "description": "Dùng trang này để gửi yêu cầu hợp tác, câu hỏi về sản phẩm hoặc cần hỗ trợ. Chúng tôi phản hồi qua email và chuyển đến đúng bộ phận.",
@@ -2457,6 +2482,58 @@
       "createdAt": "Ngày tạo",
       "dayCount": "{count} ngày",
       "daysActive": "Số ngày hoạt động",
+      "decision": {
+        "accept": "Chấp nhận và giao kết các hợp đồng",
+        "acceptNeedsSigning": "Nút chấp nhận mở khi mọi hợp đồng đã có chữ ký số doanh nghiệp của bạn.",
+        "acceptedBody": "Mỗi nhà đầu tư sẽ ký hợp đồng bằng mã Zalo và chuyển khoản vào tài khoản của bạn trước {time} (Ngày 14). Hãy xác nhận từng khoản nhận trong 24 giờ kể từ khi nhà đầu tư gửi biên lai.",
+        "acceptedTitle": "Bạn đã chấp nhận",
+        "acceptedToast": "Đã chấp nhận. Nhà đầu tư ký và chuyển khoản vào Ngày 14.",
+        "autoAcceptedBody": "Không có quyết định trước 15:00 và đã có từ 50% mục tiêu được cam kết: khoản gọi vốn được xem là chấp nhận và doanh nghiệp bị ràng buộc bởi mọi hợp đồng. Nhà đầu tư ký và chuyển khoản trước {time} (Ngày 14).",
+        "autoDeclinedBody": "Số tiền cam kết dưới 50% mục tiêu và bạn không chấp nhận trước 15:00 Ngày 13: khoản gọi vốn được xem là từ chối. Không có khoản vay, không có tiền chuyển, không có phí.",
+        "cutoff": "Dưới 50% mục tiêu: việc ký phải xong trước {time} để chấp nhận hoàn tất trước 15:00. Sau đó khoản gọi vốn được xem là từ chối.",
+        "day13Body": "Nhà đầu tư đã cam kết {pledged} trên {target}. Hãy chấp nhận bằng cách ký số từng hợp đồng cho vay dưới đây bằng chữ ký số doanh nghiệp, hoặc từ chối. Hạn chót: {deadline}.",
+        "day13Title": "Quyết định của bạn, trước 15:00 hôm nay",
+        "decisionFailed": "Chưa ghi nhận được quyết định",
+        "decline": "Từ chối",
+        "declineConfirm": "Xác nhận: từ chối khoản gọi vốn",
+        "declinedBody": "Bạn đã từ chối. Không có khoản vay, không có tiền chuyển và không có phí. Bạn có thể nộp hồ sơ lại.",
+        "declinedTitle": "Khoản gọi vốn không được thực hiện",
+        "declinedToast": "Đã từ chối. Không có khoản vay, không có tiền chuyển, không có phí.",
+        "download": "Tải xuống",
+        "downloadFailed": "Không tải được hợp đồng",
+        "errors": {
+          "CONTRACTS_NOT_SIGNED": "Hãy ký và tải lên hợp đồng của từng nhà đầu tư trước: chấp nhận nghĩa là ký.",
+          "CONTRACT_SIGNING_NOT_OPEN": "Các hợp đồng được ký vào Ngày 13.",
+          "DECISION_DEADLINE_PASSED": "Đã quá hạn 15:00; kết quả tự động được giữ nguyên.",
+          "DECISION_NOT_OPEN": "Khoản gọi vốn không ở bước chờ bạn quyết định.",
+          "GUARANTOR_ALREADY_SIGNED": "Người bảo lãnh đã ký rồi. Hãy tải lại trang.",
+          "NEAC_UNAVAILABLE": "Hiện chưa kiểm tra được chữ ký với NEAC. Vui lòng thử lại sau ít phút.",
+          "SIGNING_ALREADY_SIGNED": "Hợp đồng này đã được ký. Hãy tải lại trang.",
+          "SIGNING_CUTOFF_PASSED": "Dưới 50% mục tiêu, việc ký đã đóng lúc 12:00 hôm nay.",
+          "SIGNING_DOCUMENT_OUTDATED": "Bản đã ký không khớp với hợp đồng đã tạo. Hãy tải lại và ký bản đó.",
+          "SIGNING_NOT_PDF": "Hãy tải hợp đồng đã ký lên dưới dạng PDF.",
+          "SIGNING_SIGNATURE_INVALID": "NEAC không chấp nhận chữ ký số trên hợp đồng.",
+          "SIGNING_SIGNER_MISMATCH": "Hợp đồng không được ký bằng chữ ký số doanh nghiệp của bạn.",
+          "SIGNING_UNSIGNED": "Tệp PDF chưa có chữ ký số. Hãy ký bằng chữ ký số doanh nghiệp.",
+          "SIGNING_WRONG_DOCUMENT": "Đây không phải hợp đồng của nhà đầu tư này. Hãy tải lại từ đúng dòng.",
+          "generic": "Đã có lỗi xảy ra. Vui lòng thử lại."
+        },
+        "guarantorBody": "Người bảo lãnh ký mọi hợp đồng của nhà đầu tư bằng một mã gửi qua Zalo. Đây không phải điều kiện để bạn chấp nhận.",
+        "guarantorConfirm": "Ký các hợp đồng với tư cách Người bảo lãnh",
+        "guarantorDone": "Người bảo lãnh đã ký các hợp đồng",
+        "guarantorSend": "Gửi mã cho Người bảo lãnh",
+        "guarantorSigned": "Người bảo lãnh đã ký mọi hợp đồng lúc {time}.",
+        "guarantorTitle": "Người bảo lãnh",
+        "openBody": "Đã có {pledged} trên {target} được cam kết. Việc cam kết kết thúc lúc {closes} (hết Ngày 12); sau đó danh sách được chốt và bạn quyết định trước {deadline} (Ngày 13).",
+        "openTitle": "Nhà đầu tư đang cam kết",
+        "signedAt": "đã ký lúc {time}",
+        "silenceAccepts": "Nếu bạn không quyết định trước 15:00, khoản gọi vốn được xem là chấp nhận (từ 50% mục tiêu trở lên) và doanh nghiệp bị ràng buộc bởi mọi hợp đồng mà không cần ký.",
+        "silenceRule": "Vào Ngày 13, bạn chấp nhận bằng cách ký số hợp đồng cho vay của từng nhà đầu tư bằng chữ ký số doanh nghiệp, hoặc từ chối. Nếu không quyết định, từ 50% mục tiêu trở lên được xem là chấp nhận và doanh nghiệp bị ràng buộc bởi mọi hợp đồng; dưới 50% được xem là từ chối.",
+        "toSign": "cần ký",
+        "upload": "Tải bản đã ký",
+        "uploadFailed": "Hợp đồng đã ký chưa được chấp nhận",
+        "uploaded": "Hợp đồng đã ký được chấp nhận"
+      },
       "documentsStillUploadingDescription": "Vui lòng đợi tất cả tài liệu tải lên xong trước khi gửi hồ sơ.",
       "documentsStillUploadingTitle": "Tài liệu đang được tải lên",
       "eInvoiceData": "Dữ liệu hóa đơn điện tử trong 12 tháng gần nhất",
@@ -2765,6 +2842,7 @@
           "SIGNING_DOCUMENT_OUTDATED": "Bản đã ký không khớp với điều kiện và thông tin hiện tại (mã đối chiếu khác): có thông tin đã thay đổi sau khi bạn tải văn bản, hoặc tệp đã bị sửa. Hãy tải lại văn bản tại bước này, ký và tải lên.",
           "SIGNING_FILE_TOO_LARGE": "Tệp PDF đã ký vượt quá 25 MB.",
           "SIGNING_GUARANTOR_MISSING": "Văn bản này cần hai chữ ký số: chữ ký số doanh nghiệp và chữ ký số cá nhân của Người bảo lãnh, mỗi chữ ký vào một ô.",
+          "SIGNING_GUARANTOR_NOT_READY": "Việc ký được mở khi Người bảo lãnh đã sẵn sàng: đã xác minh danh tính (eKYC) và đã xác minh số điện thoại để nhận mã Zalo.",
           "SIGNING_GUARANTOR_UNVERIFIED": "Người bảo lãnh chưa xác minh danh tính. Hãy hoàn tất xác minh danh tính (eKYC) trước.",
           "SIGNING_NOT_OPEN": "Chưa có văn bản để ký cho đến khi FundLok duyệt hồ sơ và chốt điều kiện gọi vốn.",
           "SIGNING_NOT_PDF": "Hãy tải lên bản đã ký dưới dạng tệp PDF.",
@@ -2776,16 +2854,39 @@
           "generic": "Đã có lỗi khi tải văn bản đã ký lên. Vui lòng thử lại."
         },
         "failed": "Chưa thể nhận văn bản đã ký",
+        "guarantor": {
+          "confirm": "Ký với tư cách Người bảo lãnh",
+          "errors": {
+            "GUARANTOR_ALREADY_SIGNED": "Người bảo lãnh đã ký rồi. Hãy tải lại trang.",
+            "GUARANTOR_SIGNS_AFTER_UPLOAD": "Hãy tải lên bản đã ký của Đề nghị giao kết và Hợp đồng cho vay trước.",
+            "SIGNING_GUARANTOR_NOT_READY": "Người bảo lãnh cần được duyệt eKYC và xác minh số điện thoại trước."
+          },
+          "failed": "Chữ ký của Người bảo lãnh chưa được chấp nhận",
+          "fix": "Hoàn tất",
+          "intro": "Người bảo lãnh (là bạn, chủ sở hữu đã xác minh trên tài khoản này) ký Đề nghị giao kết và Hợp đồng cho vay bằng một mã gửi qua Zalo. Bước này mở khi bản đã ký của cả hai văn bản được tải lên.",
+          "missing": {
+            "EKYC": "Xác minh danh tính (eKYC) đã được duyệt",
+            "PHONE": "Số điện thoại đã xác minh để nhận mã Zalo"
+          },
+          "notReady": "Người bảo lãnh chưa sẵn sàng để ký:",
+          "send": "Gửi mã cho Người bảo lãnh",
+          "sendFailed": "Chưa gửi được mã",
+          "signedByCode": "Đã ký bằng mã Zalo lúc {time}.",
+          "signedInPdf": "Đã ký bằng chữ ký số cá nhân trong văn bản.",
+          "signedTitle": "Người bảo lãnh đã ký",
+          "title": "Chữ ký của Người bảo lãnh",
+          "waiting": "Hãy tải lên bản đã ký của Đề nghị giao kết và Hợp đồng cho vay trước; sau đó Người bảo lãnh ký tại đây."
+        },
         "how1": "Kiểm tra thông tin trong bản xem trước: doanh nghiệp, tài khoản ngân hàng, số tiền, lãi suất, thời hạn và kết quả thẩm định.",
         "how2": "Tải bản PDF và ký bằng chữ ký số (USB Token, hoặc ký số từ xa của nhà cung cấp chứng thư số) vào đúng ô chữ ký có sẵn trong tệp.",
         "how3": "Tải bản PDF đã ký lên tại đây. Hệ thống tự kiểm tra chữ ký với NEAC và đối chiếu các con số với kết quả thẩm định. Bản in ra rồi scan sẽ không được chấp nhận.",
         "howTitle": "Cách ký",
-        "intro": "Hồ sơ của bạn đã được duyệt. Để đăng khoản gọi vốn tới nhà đầu tư, hãy ký số ba văn bản dưới đây và tải bản đã ký lên. Khoản gọi vốn được đăng ngay khi cả ba văn bản được xác minh.",
+        "intro": "Hồ sơ của bạn đã được duyệt. Để đăng khoản gọi vốn tới nhà đầu tư, hãy ký ba văn bản dưới đây bằng chữ ký số doanh nghiệp và tải bản đã ký lên; sau đó Người bảo lãnh ký Đề nghị giao kết và Hợp đồng cho vay bằng mã gửi qua Zalo. Khoản gọi vốn được đăng ngay khi tất cả được xác minh.",
         "loadFailed": "Chưa thể tải tình trạng ký hồ sơ.",
         "loading": "Đang chuẩn bị văn bản…",
         "loanContract": {
           "description": "Mẫu hợp đồng cho vay giữa doanh nghiệp và từng nhà đầu tư, theo điều kiện gọi vốn đã được duyệt. Khi một nhà đầu tư cam kết, hợp đồng riêng của họ được tạo từ mẫu này và nhà đầu tư ký số khi đó.",
-          "signers": "Cần hai chữ ký số, mỗi chữ ký vào một ô: ô Doanh nghiệp (chữ ký số doanh nghiệp) và ô Người bảo lãnh (chữ ký số cá nhân của bạn). Những gì bản của từng nhà đầu tư điền vào (thông tin nhà đầu tư, số tiền và các khoản tính từ đó) được ghi theo quy tắc áp dụng, kèm ví dụ ở mức vé tối thiểu.",
+          "signers": "Ký ô Doanh nghiệp bằng chữ ký số doanh nghiệp; Người bảo lãnh ký bằng cùng mã Zalo với Đề nghị giao kết. Những gì bản của từng nhà đầu tư điền vào (thông tin nhà đầu tư, số tiền và các khoản tính từ đó) được ghi theo quy tắc áp dụng, kèm ví dụ ở mức vé tối thiểu.",
           "title": "Hợp đồng cho vay (mẫu)"
         },
         "missing": {
@@ -2811,7 +2912,7 @@
         "pending": "Điều kiện gọi vốn của bạn đang được hoàn tất. Các văn bản cần ký sẽ xuất hiện tại đây ngay khi sẵn sàng.",
         "previewLabel": "Bản xem trước, đã điền thông tin của bạn",
         "progress": "Đã ký {count}/{total}",
-        "publishedBody": "Cả ba văn bản đã được ký và xác minh với NEAC. Việc có đầu tư hay không do nhà đầu tư quyết định.",
+        "publishedBody": "Cả ba văn bản đã được ký và xác minh với NEAC, và Người bảo lãnh đã ký. Việc có đầu tư hay không do nhà đầu tư quyết định.",
         "publishedTitle": "Khoản gọi vốn đã được đăng",
         "publishedToast": "Đã ký đủ — khoản gọi vốn của bạn đã được đăng",
         "remove": "Bỏ tệp",
@@ -2827,7 +2928,7 @@
         "signedLabel": "Bản PDF đã ký số",
         "standingOffer": {
           "description": "Đề nghị của doanh nghiệp gửi tới các nhà đầu tư đã xác minh, theo điều kiện gọi vốn và kết quả thẩm định đã được duyệt. Mỗi nhà đầu tư chấp nhận sẽ giao kết một hợp đồng cho vay riêng với doanh nghiệp.",
-          "signers": "Cần hai chữ ký số, mỗi chữ ký vào một ô: ô Doanh nghiệp (chữ ký số doanh nghiệp) và ô Người bảo lãnh (chữ ký số cá nhân của bạn, đúng với danh tính đã xác minh eKYC trên tài khoản này).",
+          "signers": "Ký ô Doanh nghiệp bằng chữ ký số doanh nghiệp. Người bảo lãnh ký riêng ở bên dưới bằng mã gửi qua Zalo (không cần chữ ký số cá nhân ở ô Người bảo lãnh).",
           "title": "Đề nghị giao kết hợp đồng cho vay"
         },
         "statusLocked": "Ký Đề nghị trước",
@@ -3386,6 +3487,24 @@
       "title": "Xác nhận đầu tư (Phụ lục)"
     },
     "confirming": "Khoản chuyển của bạn đã được báo và đang được xác nhận.",
+    "day14": {
+      "agree": "Tôi đã đọc hợp đồng cho vay và ký bằng mã gửi tới điện thoại của tôi.",
+      "confirm": "Ký hợp đồng cho vay",
+      "download": "Tải hợp đồng (PDF)",
+      "errors": {
+        "CLICK_REQUIRED": "Hãy đánh dấu rằng bạn ký hợp đồng cho vay.",
+        "CONTRACT_DEADLINE_PASSED": "Việc ký đã đóng lúc 14:45 hôm nay.",
+        "CONTRACT_UNAVAILABLE": "Hợp đồng cho vay của bạn chưa sẵn sàng. Hãy thử lại sau ít phút.",
+        "TRANCHE_NOT_SIGNABLE": "Hợp đồng này đã được ký hoặc không còn mở. Hãy tải lại trang."
+      },
+      "firstTime": "Đây là hợp đồng cho vay đầu tiên của bạn: cùng mã này cũng ký Hợp đồng dịch vụ dành cho Nhà đầu tư của FundLok.",
+      "intro": "Doanh nghiệp đã chấp nhận. Hãy đọc hợp đồng cho vay {amount} của bạn, rồi ký bằng mã gửi qua Zalo. Thông tin chuyển khoản hiện ngay sau đó. Việc ký đóng lúc {time}.",
+      "loadFailed": "Không tải được hợp đồng cho vay. Hãy tải lại trang.",
+      "previewLabel": "Hợp đồng cho vay của bạn",
+      "send": "Gửi mã ký cho tôi",
+      "signed": "Đã ký hợp đồng. Hãy chuyển khoản ngay, trước 14:45.",
+      "title": "Ký hợp đồng cho vay"
+    },
     "errors": {
       "ACCOUNT_NOT_APPROVED": "Bạn cần một tài khoản ngân hàng đã được duyệt, tại ngân hàng có trong danh sách, để đầu tư.",
       "ALREADY_HAS_LIVE_TRANCHE": "Bạn đã có một khoản đầu tư trong đợt gọi vốn này.",
@@ -3413,6 +3532,61 @@
     },
     "notOpenBody": "Dự án này hiện không nhận đầu tư.",
     "notOpenTitle": "Chưa mở nhận đầu tư",
+    "pledge": {
+      "acceptedBody": "Vào Ngày 14, hãy ký hợp đồng cho vay bằng mã Zalo và chuyển khoản trước {time}.",
+      "acceptedTitle": "Doanh nghiệp đã chấp nhận",
+      "agree": "Tôi đã đọc điều khoản đầu tư và cam kết số tiền này theo các điều kiện trên. Tôi hiểu khoản đầu tư của tôi không được bảo đảm.",
+      "amountBody": "Mỗi cam kết tối thiểu {min}, hoặc đúng số còn lại ({left}).",
+      "amountTitle": "Hãy chọn số tiền khác",
+      "awaitingSmeBody": "{business} chấp nhận hoặc từ chối tổng số tiền cam kết trước {time}. Chúng tôi sẽ báo bạn ngay khi doanh nghiệp quyết định.",
+      "awaitingSmeTitle": "Danh sách cam kết đã chốt",
+      "confirm": "Xác nhận cam kết {amount}",
+      "declinedBody": "Doanh nghiệp đã từ chối, hoặc số tiền cam kết chưa đủ. Cam kết của bạn đã chấm dứt; chưa có tiền nào được chuyển và bạn không nợ gì.",
+      "declinedTitle": "Khoản gọi vốn không được thực hiện",
+      "errors": {
+        "ACCOUNT_NOT_APPROVED": "Tài khoản ngân hàng của bạn chưa được duyệt.",
+        "BELOW_MIN_TICKET": "Số tiền thấp hơn mức cam kết tối thiểu.",
+        "CAPACITY_EXCEEDED": "Số tiền vượt quá phần còn lại của khoản gọi vốn.",
+        "COMMITMENT_NOT_PLEDGED": "Cam kết này đã chấm dứt.",
+        "INVESTOR_FEE_UNPAID": "Một hóa đơn của FundLok đã quá hạn 7 ngày. Hãy thanh toán để cam kết tiếp.",
+        "LENDER_CLOSED": "Tài khoản của bạn đã bị đóng sau hai lần không chuyển khoản.",
+        "LENDER_LOCKED": "Tài khoản của bạn đang bị khóa do không chuyển khoản. Hãy mở khóa trước.",
+        "TERMS_OUTDATED": "Điều khoản đầu tư vừa thay đổi. Hãy tải lại trang và đọc lại.",
+        "WINDOW_FULL": "Khoản gọi vốn đã đủ cam kết. Sẽ mở lại nếu có nhà đầu tư rút cam kết trước khi hết Ngày 12.",
+        "WINDOW_NOT_OPEN": "Khoản gọi vốn này đã ngừng nhận cam kết.",
+        "WITHDRAW_CLOSED": "Danh sách cam kết đã chốt từ khi hết Ngày 12.",
+        "generic": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      },
+      "fullBody": "Hiện không nhận thêm cam kết. Khoản gọi vốn mở lại nếu có nhà đầu tư rút cam kết trước khi hết Ngày 12.",
+      "fullTitle": "Khoản gọi vốn đã đủ cam kết",
+      "mineTitle": "Cam kết của bạn",
+      "mineTotal": "Tổng {amount}",
+      "noAccount": "Hãy thêm và xác minh tài khoản ngân hàng trước: đây là tài khoản bạn sẽ chuyển khoản.",
+      "pledgeFailed": "Chưa ghi nhận được cam kết",
+      "pledged": "Đã ghi nhận cam kết",
+      "rules": {
+        "day14": "Nếu chấp nhận, vào Ngày 14 bạn ký một hợp đồng cho vay cho tổng số tiền bằng mã gửi qua Zalo, rồi chuyển khoản vào tài khoản của chính doanh nghiệp trước 14:45. Không chuyển khoản sẽ bị khóa tài khoản.",
+        "decision": "Vào Ngày 13, doanh nghiệp chấp nhận hoặc từ chối tổng số tiền cam kết. Nếu từ chối, cam kết của bạn chấm dứt và bạn không nợ gì.",
+        "noMoney": "Bạn cam kết {amount} cho {business}. Đây không phải thanh toán: chưa có tiền nào được chuyển và chưa ký gì lúc này.",
+        "risk": "Khoản đầu tư không được bảo đảm: bạn có thể mất một phần hoặc toàn bộ số tiền.",
+        "withdraw": "Bạn có thể rút cam kết đến hết Ngày 12. Sau đó danh sách cam kết là cuối cùng."
+      },
+      "status": {
+        "FOLDED": "Đã vào hợp đồng cho vay",
+        "PLEDGED": "Đã cam kết",
+        "VOID": "Đã rút hoặc chấm dứt"
+      },
+      "timeline": {
+        "decision": "Doanh nghiệp chấp nhận hoặc từ chối tổng số tiền cam kết trước {time} (Ngày 13).",
+        "pledges": "Cam kết hoặc rút cam kết đến {time} (hết Ngày 12). Chưa ký gì và chưa có tiền nào được chuyển.",
+        "sign": "Nếu doanh nghiệp chấp nhận: vào Ngày 14, bạn ký hợp đồng cho vay bằng mã Zalo và chuyển khoản trước {time}."
+      },
+      "timelineTitle": "Khoản gọi vốn này diễn ra thế nào",
+      "title": "Xác nhận cam kết",
+      "withdraw": "Rút cam kết",
+      "withdrawFailed": "Chưa rút được cam kết",
+      "withdrawn": "Đã rút cam kết"
+    },
     "receipt": {
       "body": "Sau khi chuyển khoản, hãy tải lên biên lai mà ứng dụng ngân hàng hiển thị (ảnh chụp màn hình hoặc PDF). FundLok sẽ đối chiếu với lượt giữ chỗ này: số tiền, tài khoản của doanh nghiệp và nội dung chuyển khoản.",
       "choose": "Chọn tệp",
@@ -3511,6 +3685,9 @@
     "steps": {
       "agreement": "Hợp đồng dịch vụ",
       "amount": "Số tiền",
+      "decision": "Doanh nghiệp quyết định",
+      "pledge": "Cam kết",
+      "sign": "Ký hợp đồng",
       "terms": "Điều khoản",
       "transfer": "Chuyển khoản"
     },

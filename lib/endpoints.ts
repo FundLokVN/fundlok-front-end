@@ -95,6 +95,30 @@ export const FUNDING_ENDPOINTS = {
   // Reserves the amount and signs the acceptance in one call; needs an
   // Idempotency-Key header.
   reserve: (windowId: string) => `/funding/windows/${windowId}/reservations`,
+  // Commit-then-accept rounds (Money flow FINAL v1.0): a pledge is pressing
+  // Confirm (nothing signed, no money moves), withdrawable until the end of
+  // Day 12; needs an Idempotency-Key header.
+  commit: (windowId: string) => `/funding/windows/${windowId}/commitments`,
+  // ?window_id= : the investor's own pledges to a round, newest first.
+  myCommitments: "/funding/me/commitments",
+  withdrawCommitment: (commitmentId: string) =>
+    `/funding/commitments/${commitmentId}/withdraw`,
+  // The business accepts or declines on Day 13 (Idempotency-Key header).
+  windowDecision: (windowId: string) => `/funding/windows/${windowId}/decision`,
+  // Day 13 (Money flow FINAL v1.0): each investor's loan contract, generated
+  // at 00:00 from the final pledge list. The business downloads each one,
+  // signs it with its enterprise digital signature and uploads it back
+  // (accepting means signing); the guarantor signs them all with one Zalo code.
+  windowLoanContracts: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts`,
+  windowLoanContractDocument: (windowId: string, contractId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/${contractId}/document`,
+  windowLoanContractSigned: (windowId: string, contractId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/${contractId}/signed`,
+  windowGuarantorCode: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/guarantor-code`,
+  windowGuarantorSignature: (windowId: string) =>
+    `/funding/windows/${windowId}/loan-contracts/guarantor-signature`,
   // The Investor Service Agreement (Contract 4): GET whether it must still be
   // confirmed with the next commitment; POST {version, tranche_id, code} to
   // confirm it with the one-time code (the investor's signature). The PDF to
@@ -118,6 +142,14 @@ export const FUNDING_ENDPOINTS = {
   payment: (trancheId: string) => `/funding/tranches/${trancheId}/payment`,
   // POST: a new QR with a new code, valid 15 minutes (Day-14 transfer rule).
   newQr: (trancheId: string) => `/funding/tranches/${trancheId}/qr`,
+  // Day 14 on a commit-then-accept round (Money flow FINAL v1.0): the
+  // investor's own loan contract; POST .../code sends a Zalo code; POST
+  // {code, click_to_sign} signs it (and the Investor Service Agreement the
+  // first time). The VietQR opens only after.
+  trancheContract: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/contract`,
+  trancheContractCode: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/contract/code`,
   // The investor's standing (GOOD / LOCKED / CLOSED) and top-up pledges, and
   // POST {acknowledgement} to unlock after a fresh eKYC.
   standing: "/funding/me/standing",
@@ -242,6 +274,17 @@ export const LOANS_ENDPOINTS = {
   /** GET: where signing the three listing documents stands. */
   listingDocuments: (applicationId: string) =>
     `/loans/applications/${applicationId}/listing-documents`,
+  /**
+   * POST: send the Personal Guarantor the Zalo one-time code that signs the
+   * Standing Offer and the Loan Contract template on file (Money flow FINAL
+   * v1.0, Day 0). 409 GUARANTOR_SIGNS_AFTER_UPLOAD until the SME's signed
+   * copies of both are on file.
+   */
+  guarantorSignatureCode: (applicationId: string) =>
+    `/loans/applications/${applicationId}/guarantor-signature/code`,
+  /** POST { code }: the guarantor signs with the code; publishes when complete. */
+  guarantorSignature: (applicationId: string) =>
+    `/loans/applications/${applicationId}/guarantor-signature`,
   /** POST (multipart `file`): the signed copy, checked with NEAC. */
   signListingDocument: (applicationId: string, kind: ListingDocumentKind) =>
     `/loans/applications/${applicationId}/listing-documents/${kind}`,

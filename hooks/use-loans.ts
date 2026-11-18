@@ -5,6 +5,7 @@ import type { ApiError } from "@/lib/types";
 import type { ListingDocumentKind } from "@/lib/endpoints";
 import {
   loansService,
+  type GuarantorCode,
   type ListingDocuments,
   type LoanApplicationFiguresPayload,
   type LoanApplicationSubmitResponse,
@@ -168,6 +169,37 @@ export function useSignListingDocument(applicationId: string) {
   >({
     mutationFn: ({ kind, file }) =>
       loansService.uploadSignedListingDocument(applicationId, kind, file),
+    onSuccess: (status) => {
+      queryClient.setQueryData(
+        loanKeys.listingDocuments(applicationId),
+        status,
+      );
+      if (status.published) {
+        void queryClient.invalidateQueries({ queryKey: projectKeys.mine() });
+        void queryClient.invalidateQueries({
+          queryKey: fundingKeys.myRounds(),
+        });
+      }
+    },
+  });
+}
+
+/** Sending the Personal Guarantor the Zalo code (Money flow FINAL v1.0, Day 0). */
+export function useSendGuarantorCode(applicationId: string) {
+  return useMutation<GuarantorCode, ApiError, void>({
+    mutationFn: () => loansService.sendGuarantorCode(applicationId),
+  });
+}
+
+/**
+ * The Personal Guarantor signs the Standing Offer and the Loan Contract with
+ * the Zalo code. With the three documents on file this publishes the listing,
+ * so the dashboard's project and its funding round are refetched then.
+ */
+export function useSignAsGuarantor(applicationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<ListingDocuments, ApiError, string>({
+    mutationFn: (code) => loansService.signAsGuarantor(applicationId, code),
     onSuccess: (status) => {
       queryClient.setQueryData(
         loanKeys.listingDocuments(applicationId),
