@@ -226,6 +226,9 @@ export interface SmeTicket {
   attested_at: string | null;
   confirm_deadline: string | null;
   review_cause: string | null;
+  /** Confirmed automatically (24 hours of silence): the business may dispute
+   * it with its bank statement until then. Null otherwise. */
+  dispute_until?: string | null;
 }
 
 // Mirrors backend SmeRoundOut: the business's own round and its tickets.
@@ -696,6 +699,29 @@ export const fundingService = {
     return apiClient.post<SmeTicket>(
       FUNDING_ENDPOINTS.reportMissingTransfer(trancheId),
       { statement },
+    );
+  },
+
+  // POST /funding/tranches/{id}/sme-receipt — the business confirms a transfer
+  // with its own screenshot of the money arriving (within its 24 hours).
+  confirmTransferWithReceipt(trancheId: string, file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post<SmeTicket>(
+      FUNDING_ENDPOINTS.smeReceipt(trancheId),
+      form,
+    );
+  },
+
+  // POST /funding/tranches/{id}/dispute — the business disputes a transfer
+  // confirmed by its silence, with its bank statement, until dispute_until.
+  disputeConfirmedTransfer(trancheId: string, statement: string, file: File) {
+    const form = new FormData();
+    form.append("statement", statement);
+    form.append("file", file);
+    return apiClient.post<SmeTicket>(
+      FUNDING_ENDPOINTS.disputeTransfer(trancheId),
+      form,
     );
   },
 

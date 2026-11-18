@@ -11,6 +11,8 @@ import type {
 
 const closeMock = vi.fn();
 const reportMissingMock = vi.fn();
+const confirmMock = vi.fn();
+const disputeMock = vi.fn();
 let rounds: SmeRound[] = [];
 let today: TodaysPayments | undefined;
 let plan: SmeRepaymentPlan | undefined;
@@ -20,6 +22,14 @@ vi.mock("@/hooks/use-funding", () => ({
   useCloseRoundEarly: () => ({ mutate: closeMock, isPending: false }),
   useReportMissingTransfer: () => ({
     mutate: reportMissingMock,
+    isPending: false,
+  }),
+  useConfirmTransferWithReceipt: () => ({
+    mutate: confirmMock,
+    isPending: false,
+  }),
+  useDisputeConfirmedTransfer: () => ({
+    mutate: disputeMock,
     isPending: false,
   }),
   useRepaymentPlan: () => ({ data: plan, isLoading: false }),
@@ -87,6 +97,8 @@ const round = (over: Partial<SmeRound> = {}): SmeRound => ({
 beforeEach(() => {
   closeMock.mockReset();
   reportMissingMock.mockReset();
+  confirmMock.mockReset();
+  disputeMock.mockReset();
   rounds = [];
   today = undefined;
   plan = undefined;
@@ -162,6 +174,106 @@ describe("FundingStatus", () => {
       {
         trancheId: "tr-sent",
         statement: "No money arrived under FL9SENT123",
+      },
+      expect.anything(),
+    );
+  });
+
+  it("lets the business confirm a checked transfer with its own screenshot, and shows its 24-hour deadline", () => {
+    rounds = [
+      round({
+        tickets: [
+          {
+            id: "tr-checked",
+            amount_vnd: 15_000_000,
+            status: "ATTESTED",
+            reference_code: "FL9CHECK12",
+            investor_display: "N. A***",
+            receipt_submitted_at: "2026-11-16T03:00:00Z",
+            attested_at: "2026-11-16T03:30:00Z",
+            confirm_deadline: "2026-11-17T03:30:00Z",
+            review_cause: null,
+          },
+        ],
+      }),
+    ];
+    render(<FundingStatus projectId="p-1" t={t} />);
+
+    const tickets = screen.getByTestId("round-tickets");
+    // 24 hours from the check, in Vietnam time; silence counts as received.
+    expect(tickets).toHaveTextContent(
+      'dashboard.sme.funding.confirmHint:{"date":"11/17/2026 10:30"}',
+    );
+    // Not received stays available beside Received.
+    expect(
+      within(tickets).getByRole("button", {
+        name: "dashboard.sme.funding.report",
+      }),
+    ).toBeInTheDocument();
+    const shot = new File(["%PDF-1.4"], "arrived.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.change(
+      within(tickets).getByLabelText("dashboard.sme.funding.confirmReceived"),
+      { target: { files: [shot] } },
+    );
+    expect(confirmMock).toHaveBeenCalledWith(
+      { trancheId: "tr-checked", file: shot },
+      expect.anything(),
+    );
+  });
+
+  it("shows the dispute deadline beside an automatic confirmation and sends a dispute with the bank statement", () => {
+    const until = new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString();
+    rounds = [
+      round({
+        tickets: [
+          {
+            id: "tr-silent",
+            amount_vnd: 10_000_000,
+            status: "CONFIRMED",
+            reference_code: "FL9SILENT1",
+            investor_display: "N. B***",
+            attested_at: "2026-11-16T03:30:00Z",
+            confirm_deadline: "2026-11-17T03:30:00Z",
+            review_cause: null,
+            dispute_until: until,
+          },
+        ],
+      }),
+    ];
+    render(<FundingStatus projectId="p-1" t={t} />);
+
+    const tickets = screen.getByTestId("round-tickets");
+    expect(tickets).toHaveTextContent("dashboard.sme.funding.autoConfirmed");
+    fireEvent.click(
+      within(tickets).getByRole("button", {
+        name: "dashboard.sme.funding.dispute",
+      }),
+    );
+    const send = within(tickets).getByRole("button", {
+      name: "dashboard.sme.funding.disputeSend",
+    });
+    expect(send).toBeDisabled(); // a reason and the bank statement first
+    fireEvent.change(
+      within(tickets).getByRole("textbox", {
+        name: "dashboard.sme.funding.disputePlaceholder",
+      }),
+      { target: { value: "Not on our statement" } },
+    );
+    const statement = new File(["%PDF-1.4"], "statement.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.change(
+      within(tickets).getByLabelText("dashboard.sme.funding.disputeFile"),
+      { target: { files: [statement] } },
+    );
+    fireEvent.click(send);
+    expect(disputeMock).toHaveBeenCalledWith(
+      {
+        trancheId: "tr-silent",
+        statement: "Not on our statement",
+        file: statement,
       },
       expect.anything(),
     );
