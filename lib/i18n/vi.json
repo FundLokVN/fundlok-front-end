@@ -3395,6 +3395,7 @@
       "HOLD_EXPIRED": "Lượt giữ chỗ đó đã hết thời gian chuyển khoản. Hãy đồng ý lại để giữ chỗ mới.",
       "INVESTOR_AGREEMENT_REQUIRED": "Hãy ký số Hợp đồng dịch vụ dành cho Nhà đầu tư và tải bản đã ký lên trước khoản đầu tư đầu tiên.",
       "INVESTOR_FEE_UNPAID": "Bạn có hóa đơn FundLok chưa thanh toán. Hãy thanh toán trước khi đầu tư tiếp.",
+      "LENDER_LOCKED": "Tài khoản của bạn đã bị khóa sau ngày giải ngân. Hãy mở khóa trước khi đầu tư tiếp.",
       "TERMS_OUTDATED": "Điều khoản đầu tư vừa được cập nhật. Hãy tải lại trang, đọc lại và đồng ý.",
       "WINDOW_NOT_OPEN": "Đợt gọi vốn này đã ngừng nhận đầu tư.",
       "generic": "Đã có lỗi xảy ra. Vui lòng thử lại sau."
@@ -3415,7 +3416,10 @@
     "receipt": {
       "body": "Sau khi chuyển khoản, hãy tải lên biên lai mà ứng dụng ngân hàng hiển thị (ảnh chụp màn hình hoặc PDF). FundLok sẽ đối chiếu với lượt giữ chỗ này: số tiền, tài khoản của doanh nghiệp và nội dung chuyển khoản.",
       "choose": "Chọn tệp",
+      "closedBody": "Biên lai của đợt gọi vốn này chỉ được tải lên đến {time}. Nếu bạn đã chuyển khoản, hãy liên hệ bộ phận hỗ trợ FundLok kèm biên lai ngân hàng.",
+      "closedTitle": "Đã hết thời gian tải lên biên lai",
       "confirmedBody": "Bạn đã tải lên biên lai lúc {date}. Biên lai khớp với lượt giữ chỗ nên khoản chuyển của bạn đã được xác nhận.",
+      "deadline": "Hãy tải lên biên lai trước {time} hôm nay (giờ Việt Nam).",
       "errors": {
         "DUPLICATE_FILE": "Tệp này đã được tải lên trước đó. Hãy tải lên biên lai của khoản chuyển này.",
         "FILE_TOO_LARGE": "Tệp lớn hơn 10 MB.",
@@ -3472,6 +3476,35 @@
       "title": "Xác nhận đầu tư (Phụ lục) đã ký",
       "view": "Xem"
     },
+    "standing": {
+      "closedBody": "Tài khoản của bạn đã bị đóng sau lần thứ hai không chuyển tiền đúng hạn vào ngày giải ngân. Nếu bạn cho rằng có nhầm lẫn, hãy liên hệ bộ phận hỗ trợ FundLok.",
+      "closedTitle": "Tài khoản của bạn đã bị đóng",
+      "ekycAction": "Xác minh danh tính",
+      "ekycDone": "Đã xong: bạn đã xác minh danh tính lại.",
+      "errors": {
+        "ACKNOWLEDGEMENT_MISMATCH": "Câu bạn gõ chưa khớp. Hãy gõ lại chính xác như hiển thị.",
+        "EKYC_REQUIRED": "Hãy xác minh danh tính lại trước, rồi mở khóa.",
+        "LENDER_CLOSED": "Tài khoản của bạn đã bị đóng và không thể mở khóa.",
+        "NOT_LOCKED": "Tài khoản của bạn không còn bị khóa.",
+        "generic": "Không mở khóa được tài khoản. Vui lòng thử lại."
+      },
+      "lockedBody": "Bạn chưa chuyển tiền đúng hạn vào ngày giải ngân nên tài khoản đã bị khóa lúc {time}. Tiền chuyển muộn sẽ không được hoàn lại mà được giữ làm khoản bổ sung của bạn. Hãy mở khóa tài khoản để đầu tư tiếp và tham gia khoản bổ sung.",
+      "lockedTitle": "Tài khoản của bạn đã bị khóa",
+      "pledgeStatus": {
+        "AWAITING_SIGNING": "FundLok sẽ mở ký khoản bổ sung trong 7 ngày mở lại",
+        "AWAITING_UNLOCK": "Hãy mở khóa tài khoản để tham gia khoản bổ sung",
+        "SIGNED": "Đã ký: doanh nghiệp đang xác nhận đã nhận tiền",
+        "SME_CONFIRMED": "Doanh nghiệp đã xác nhận",
+        "VOID": "Đã hủy",
+        "other": "Đang xử lý"
+      },
+      "pledgeUntitled": "Đợt gọi vốn",
+      "pledgesTitle": "Khoản bổ sung của bạn",
+      "sentenceLabel": "Câu cam kết bạn gõ lại",
+      "stepEkyc": "1. Xác minh danh tính lại",
+      "stepSentence": "2. Gõ lại chính xác câu cam kết dưới đây",
+      "unlock": "Mở khóa tài khoản"
+    },
     "steps": {
       "agreement": "Hợp đồng dịch vụ",
       "amount": "Số tiền",
@@ -3506,6 +3539,8 @@
       "accountNumber": "Số tài khoản",
       "amount": "Số tiền",
       "bank": "Ngân hàng",
+      "closedBody": "Đã đóng giải ngân. Hãy mở khóa tài khoản để tham gia khoản bổ sung. Nếu bạn đã chuyển khoản, hãy tải lên biên lai bên dưới trước 15:30.",
+      "closedTitle": "Đã đóng giải ngân",
       "copied": "Đã sao chép",
       "copy": "Sao chép",
       "copyLabel": "Sao chép {field}",
@@ -3515,6 +3550,8 @@
       "loadFailed": "Không tải được thông tin chuyển khoản. Hãy tải lại trang để thử lại.",
       "memo": "Nội dung chuyển khoản",
       "newQr": "Lấy mã QR mới",
+      "newQrFailed": "Không tạo được mã QR mới. Vui lòng thử lại.",
+      "newQrTooSoon": "Bạn vừa lấy mã QR mới. Hãy thử lại sau {seconds} giây.",
       "qrExpiredBody": "Mỗi mã QR chỉ có hiệu lực trong {minutes} phút. Nếu bạn đã chuyển khoản bằng mã này, hãy tải lên biên lai bên dưới. Nếu chưa, hãy lấy mã QR mới trước khi chuyển khoản.",
       "qrExpiredTitle": "Mã QR này đã hết hạn",
       "qrHint": "Quét bằng ứng dụng ngân hàng: số tài khoản, số tiền và nội dung sẽ tự điền.",
@@ -3811,6 +3848,8 @@
     "actions": {
       "confirmRepayment": "Kiểm tra & xác nhận",
       "payAgain": "Trả lại",
+      "payNow": "Chuyển ngay",
+      "unlock": "Mở khóa",
       "verify": "Xác minh ngay",
       "viewRound": "Kiểm tra & báo cáo"
     },
@@ -3827,11 +3866,15 @@
       "applicationApproved": "Hồ sơ đề nghị vay của bạn đã được duyệt. Hãy ký các văn bản gọi vốn để đăng khoản gọi vốn.",
       "applicationRejected": "Hồ sơ đề nghị vay của bạn chưa được duyệt.",
       "investmentReceiptSubmitted": "Nhà đầu tư {investor} đã tải lên biên lai chuyển khoản {amount} (nội dung {memo}). Hãy kiểm tra tài khoản ngân hàng hoặc báo cáo nếu chưa nhận được tiền.",
+      "lenderLockedLate": "Khoản chuyển của bạn cho {project} đến muộn nên tài khoản đã bị khóa.",
+      "lenderLockedNoShow": "Bạn chưa chuyển tiền cho {project} trước 15:00 ngày giải ngân nên tài khoản đã bị khóa.",
       "repaymentReceiptConfirmed": "Nhà đầu tư {investor} đã xác nhận nhận được khoản trả nợ {amount} của bạn (nội dung {memo}).",
       "repaymentReceiptRejected": "FundLok chưa xác nhận được khoản trả nợ {amount} cho nhà đầu tư {investor}: “{reason}”. Các ngày đó đến hạn lại.",
       "repaymentReceiptSubmitted": "{project} đã tải lên biên lai cho khoản trả nợ {amount} (nội dung {memo}). Hãy kiểm tra tài khoản ngân hàng và xác nhận đã nhận được.",
+      "topUpPledgeRecorded": "Khoản chuyển muộn {amount} của bạn cho {project} đã được giữ làm khoản bổ sung.",
       "transferApproved": "FundLok đã duyệt khoản chuyển {amount} từ nhà đầu tư {investor} (nội dung {memo}). Nếu tiền chưa vào tài khoản của bạn, hãy liên hệ FundLok trong vòng 2 ngày làm việc.",
       "transferConfirmed": "FundLok đã xác nhận khoản chuyển {amount} từ nhà đầu tư {investor} (nội dung {memo}) cho doanh nghiệp của bạn.",
+      "transferDueToday": "Hôm nay là ngày giải ngân của {project}: hãy ký và chuyển {amount} trước {time}.",
       "transferRepaying": "FundLok đã xác nhận khoản chuyển {amount} từ nhà đầu tư {investor} (nội dung {memo}). Bạn trả nợ nhà đầu tư này mỗi ngày làm việc, bắt đầu từ ngày làm việc tiếp theo.",
       "unknown": "Tài khoản của bạn có cập nhật mới.",
       "verificationRequiredKyb": "Hãy xác minh doanh nghiệp (KYB) để có thể gửi hồ sơ đề nghị vay.",

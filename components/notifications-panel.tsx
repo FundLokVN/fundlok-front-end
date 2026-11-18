@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatCurrency } from "@/lib/format-currency";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDateTime, formatTimeIct } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CONTROL_HOVER, CONTROL_IDLE } from "@/lib/ui-tokens";
@@ -184,6 +184,46 @@ const EVENT_PRESENTATION: Record<
       labelKey: "notifications.actions.confirmRepayment",
       href: "/dashboard",
     },
+  },
+  // To the investor on disbursement day: sign and pay by 14:45 (Vietnam time).
+  TRANSFER_DUE_TODAY: {
+    messageKey: "notifications.items.transferDueToday",
+    values: (notification, locale) => ({
+      amount: formatCurrency(Number(notification.data.amount_vnd ?? 0), locale),
+      project: String(notification.data.listing_title ?? ""),
+      time:
+        formatTimeIct(String(notification.data.pay_deadline_at ?? "")) ||
+        "14:45",
+    }),
+    tone: "action",
+    icon: Banknote,
+    action: { labelKey: "notifications.actions.payNow", href: "/dashboard" },
+  },
+  // To the investor at 15:00: locked after not paying on time.
+  LENDER_LOCKED: {
+    messageKey: (notification) =>
+      notification.data.reason === "LATE_MONEY"
+        ? "notifications.items.lenderLockedLate"
+        : "notifications.items.lenderLockedNoShow",
+    values: (notification) => ({
+      project: String(notification.data.listing_title ?? ""),
+    }),
+    tone: "negative",
+    icon: CircleX,
+    action: {
+      labelKey: "notifications.actions.unlock",
+      href: "/dashboard/invest",
+    },
+  },
+  // To the investor: their late money became their top-up.
+  TOP_UP_PLEDGE_RECORDED: {
+    messageKey: "notifications.items.topUpPledgeRecorded",
+    values: (notification, locale) => ({
+      amount: formatCurrency(Number(notification.data.amount_vnd ?? 0), locale),
+      project: String(notification.data.listing_title ?? ""),
+    }),
+    tone: "info",
+    icon: ReceiptText,
   },
   // To the business: the investor confirmed the repayment reached them.
   REPAYMENT_RECEIPT_CONFIRMED: {

@@ -3395,6 +3395,7 @@
       "HOLD_EXPIRED": "The time to transfer for that reservation has passed. Agree again to reserve a new one.",
       "INVESTOR_AGREEMENT_REQUIRED": "Sign the Investor Service Agreement digitally and upload the signed copy before your first investment.",
       "INVESTOR_FEE_UNPAID": "You have an unpaid FundLok invoice. Pay it before investing again.",
+      "LENDER_LOCKED": "Your account is locked after disbursement day. Unlock it before investing again.",
       "TERMS_OUTDATED": "The investing terms have just changed. Reload the page, read them again and agree.",
       "WINDOW_NOT_OPEN": "This round is no longer taking investments.",
       "generic": "Something went wrong. Try again in a moment."
@@ -3415,7 +3416,10 @@
     "receipt": {
       "body": "After you transfer, upload the receipt your bank app shows (a screenshot or PDF). FundLok checks it against this reservation: the amount, the business's account and the payment memo.",
       "choose": "Choose file",
+      "closedBody": "Receipts for this round could be uploaded until {time}. If you transferred, contact FundLok support with your bank receipt.",
+      "closedTitle": "Receipt uploads are closed",
       "confirmedBody": "You uploaded your receipt on {date}. It matches your reservation, so your transfer is confirmed.",
+      "deadline": "Upload your receipt by {time} today (Vietnam time).",
       "errors": {
         "DUPLICATE_FILE": "This file was already uploaded. Upload the receipt for this transfer.",
         "FILE_TOO_LARGE": "The file is larger than 10 MB.",
@@ -3472,6 +3476,35 @@
       "title": "Signed Investment Confirmation (Annex)",
       "view": "View"
     },
+    "standing": {
+      "closedBody": "Your account was closed after a second missed disbursement day. Contact FundLok support if you think this is wrong.",
+      "closedTitle": "Your account is closed",
+      "ekycAction": "Verify my identity",
+      "ekycDone": "Done: your identity was verified again.",
+      "errors": {
+        "ACKNOWLEDGEMENT_MISMATCH": "The sentence doesn't match. Type it exactly as shown.",
+        "EKYC_REQUIRED": "Verify your identity again first, then unlock.",
+        "LENDER_CLOSED": "Your account is closed and cannot be unlocked.",
+        "NOT_LOCKED": "Your account is not locked any more.",
+        "generic": "We couldn't unlock your account. Please try again."
+      },
+      "lockedBody": "You did not pay on time on disbursement day, so your account was locked at {time}. Money that arrived late is not returned: it is kept as your top-up. Unlock your account to invest again and to join the top-up.",
+      "lockedTitle": "Your account is locked",
+      "pledgeStatus": {
+        "AWAITING_SIGNING": "FundLok will open top-up signing during the 7-day reopening",
+        "AWAITING_UNLOCK": "Unlock your account to join the top-up",
+        "SIGNED": "Signed: the business is confirming the money arrived",
+        "SME_CONFIRMED": "Confirmed by the business",
+        "VOID": "Cancelled",
+        "other": "In progress"
+      },
+      "pledgeUntitled": "Funding round",
+      "pledgesTitle": "Your top-ups",
+      "sentenceLabel": "The undertaking, typed out",
+      "stepEkyc": "1. Verify your identity again",
+      "stepSentence": "2. Type this undertaking exactly as shown",
+      "unlock": "Unlock my account"
+    },
     "steps": {
       "agreement": "Service agreement",
       "amount": "Amount",
@@ -3506,6 +3539,8 @@
       "accountNumber": "Account number",
       "amount": "Amount",
       "bank": "Bank",
+      "closedBody": "Disbursement closed. Unlock your account to join the top-up. If you already transferred, upload your receipt below before 15:30.",
+      "closedTitle": "Disbursement closed",
       "copied": "Copied",
       "copy": "Copy",
       "copyLabel": "Copy {field}",
@@ -3515,6 +3550,8 @@
       "loadFailed": "We couldn't load the transfer details. Refresh the page to try again.",
       "memo": "Payment memo",
       "newQr": "Get a new QR",
+      "newQrFailed": "We couldn't make a new QR. Please try again.",
+      "newQrTooSoon": "You just got a new QR. Try again in {seconds} seconds.",
       "qrExpiredBody": "Each QR is valid for {minutes} minutes. If you already paid with this one, upload your bank receipt below. If not, get a new QR before you transfer.",
       "qrExpiredTitle": "This QR has expired",
       "qrHint": "Scan with your bank app: the account, amount and memo fill in by themselves.",
@@ -3811,6 +3848,8 @@
     "actions": {
       "confirmRepayment": "Check & confirm",
       "payAgain": "Pay again",
+      "payNow": "Pay now",
+      "unlock": "Unlock",
       "verify": "Verify now",
       "viewRound": "Check & report"
     },
@@ -3827,11 +3866,15 @@
       "applicationApproved": "Your funding request has been approved. Sign your listing documents to publish it.",
       "applicationRejected": "Your funding request was not approved.",
       "investmentReceiptSubmitted": "Investor {investor} uploaded a transfer receipt of {amount} (memo {memo}). Check your bank account or report if it hasn't arrived.",
+      "lenderLockedLate": "Your transfer for {project} arrived late, so your account is locked.",
+      "lenderLockedNoShow": "You did not pay for {project} by 15:00 on disbursement day, so your account is locked.",
       "repaymentReceiptConfirmed": "Investor {investor} confirmed receiving your repayment of {amount} (memo {memo}).",
       "repaymentReceiptRejected": "FundLok couldn't confirm your repayment of {amount} to investor {investor}: “{reason}”. Those days are due again.",
       "repaymentReceiptSubmitted": "{project} uploaded a receipt for a repayment of {amount} (memo {memo}). Check your bank account and confirm it arrived.",
+      "topUpPledgeRecorded": "Your late transfer of {amount} for {project} was kept as your top-up.",
       "transferApproved": "FundLok approved a transfer of {amount} from investor {investor} (memo {memo}). If it hasn't reached your account, contact FundLok within 2 working days.",
       "transferConfirmed": "FundLok confirmed a transfer of {amount} from investor {investor} (memo {memo}) to your business.",
+      "transferDueToday": "Today is disbursement day for {project}: sign and pay {amount} by {time}.",
       "transferRepaying": "FundLok confirmed a transfer of {amount} from investor {investor} (memo {memo}). You repay this investor every working day, from the next working day.",
       "unknown": "You have an update on your account.",
       "verificationRequiredKyb": "Verify your business (KYB) so you can submit a funding request.",

@@ -25,4 +25,9 @@ export interface ApiError {
    * back to `message`.
    */
   code?: string;
+  /**
+   * Seconds to wait before trying again, from the response's `Retry-After`
+   * header (a 429, e.g. QR_TOO_SOON). Absent when the response has none.
+   */
+  retryAfterSeconds?: number;
 }

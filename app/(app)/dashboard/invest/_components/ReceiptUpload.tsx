@@ -1,11 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { CheckCircle2, FileUp, Loader2, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileUp,
+  Loader2,
+  Upload,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUploadReceipt } from "@/hooks/use-funding";
 import { useToast } from "@/hooks/use-toast";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDateTime, formatTimeIct } from "@/lib/format-date";
 import { RECEIPT_MAX_BYTES, RECEIPT_TYPES } from "@/services/funding.service";
 
 const K = "investConfirm.receipt";
@@ -17,6 +24,7 @@ const KNOWN_ERRORS = new Set([
   "DUPLICATE_FILE",
   "RECEIPT_ALREADY_SUBMITTED",
   "TRANCHE_NOT_SIGNED",
+  "RECEIPT_DEADLINE_PASSED",
 ]);
 
 interface ReceiptUploadProps {
@@ -25,6 +33,11 @@ interface ReceiptUploadProps {
   submittedAt: string | null;
   locale: string;
   t: (key: string, vars?: Record<string, string | number>) => string;
+  /**
+   * Day-14 transfer rule: the last moment a receipt is taken (15:30 on
+   * disbursement day). Absent on rounds without Day-14 cut-offs.
+   */
+  receiptDeadlineAt?: string | null;
 }
 
 function sizeLabel(bytes: number): string {
@@ -46,12 +59,23 @@ export function ReceiptUpload({
   submittedAt,
   locale,
   t,
+  receiptDeadlineAt = null,
 }: ReceiptUploadProps) {
   const { toast } = useToast();
   const upload = useUploadReceipt();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Re-read the clock every 15 s so the 15:30 cut-off closes the form on time.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!receiptDeadlineAt) return;
+    const id = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(id);
+  }, [receiptDeadlineAt]);
+  const deadlinePassed =
+    upload.error?.code === "RECEIPT_DEADLINE_PASSED" ||
+    (receiptDeadlineAt != null && now > new Date(receiptDeadlineAt).getTime());
   // One key per chosen file: a retry of the same file replays, a new file is a
   // new upload.
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
@@ -83,6 +107,28 @@ export function ReceiptUpload({
               : t(confirmed ? `${K}.confirmedBody` : `${K}.receivedBody`, {
                   date: formatDateTime(submittedAt ?? new Date(), locale),
                 })}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (deadlinePassed) {
+    return (
+      <div
+        className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
+        data-testid="receipt-closed"
+        role="status"
+      >
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="space-y-1">
+          <p className="font-semibold text-foreground">
+            {t(`${K}.closedTitle`)}
+          </p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {t(`${K}.closedBody`, {
+              time: formatTimeIct(receiptDeadlineAt) || "15:30",
+            })}
           </p>
         </div>
       </div>
@@ -152,6 +198,14 @@ export function ReceiptUpload({
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t(`${K}.body`)}
         </p>
+        {receiptDeadlineAt && (
+          <p
+            className="text-xs font-semibold text-foreground"
+            data-testid="receipt-deadline"
+          >
+            {t(`${K}.deadline`, { time: formatTimeIct(receiptDeadlineAt) })}
+          </p>
+        )}
       </div>
 
       <input

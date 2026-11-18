@@ -116,6 +116,12 @@ export const FUNDING_ENDPOINTS = {
     `/funding/windows/${windowId}/investment-confirmation`,
   // The business's account, the exact amount, the memo and the VietQR.
   payment: (trancheId: string) => `/funding/tranches/${trancheId}/payment`,
+  // POST: a new QR with a new code, valid 15 minutes (Day-14 transfer rule).
+  newQr: (trancheId: string) => `/funding/tranches/${trancheId}/qr`,
+  // The investor's standing (GOOD / LOCKED / CLOSED) and top-up pledges, and
+  // POST {acknowledgement} to unlock after a fresh eKYC.
+  standing: "/funding/me/standing",
+  standingUnlock: "/funding/me/standing/unlock",
   // The Investment Confirmation (Annex) kept when the investor agreed to this
   // ticket: its values, and the filled-in PDF.
   trancheConfirmation: (trancheId: string) =>

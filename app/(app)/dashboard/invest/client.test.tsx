@@ -72,6 +72,7 @@ vi.mock("@/hooks/use-funding", () => ({
     isPending: false,
     data: undefined,
   }),
+  useStanding: () => ({ data: undefined, isLoading: false }),
 }));
 // Steps that fetch on their own: not under test here.
 vi.mock("./_components/SignedLoanContractCard", () => ({

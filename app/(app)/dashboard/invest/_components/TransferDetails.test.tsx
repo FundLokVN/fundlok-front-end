@@ -1,12 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { PaymentInstructions } from "@/services/funding.service";
+import type { ApiError } from "@/lib/types";
 import { TransferDetails } from "./TransferDetails";
 import { t } from "./test-t";
 
-let payment: { isLoading: boolean; data?: PaymentInstructions };
+let payment: {
+  isLoading: boolean;
+  data?: PaymentInstructions;
+  error?: ApiError | null;
+};
+let newQr: {
+  mutate: ReturnType<typeof vi.fn>;
+  isPending: boolean;
+  error: ApiError | null;
+};
 vi.mock("@/hooks/use-funding", () => ({
   usePaymentInstructions: () => payment,
+  useNewQr: () => newQr,
 }));
 
 const instructions = (holdMs: number): PaymentInstructions => ({
@@ -20,9 +31,103 @@ const instructions = (holdMs: number): PaymentInstructions => ({
   hold_expires_at: new Date(Date.now() + holdMs).toISOString(),
 });
 
+/** The backend's Day-14 fields: a QR issued `ageMs` ago, valid 15 minutes. */
+const withServerQr = (
+  ageMs = 0,
+  extra: Partial<PaymentInstructions> = {},
+): PaymentInstructions => ({
+  ...instructions(2 * 3600 * 1000),
+  qr_code: "FLAB12CD344821",
+  qr_issued_at: new Date(Date.now() - ageMs).toISOString(),
+  qr_expires_at: new Date(Date.now() - ageMs + 15 * 60 * 1000).toISOString(),
+  pay_deadline_at: null,
+  receipt_deadline_at: null,
+  ...extra,
+});
+
 describe("TransferDetails", () => {
   beforeEach(() => {
     payment = { isLoading: false, data: instructions(2 * 3600 * 1000) };
+    newQr = { mutate: vi.fn(), isPending: false, error: null };
+  });
+
+  describe("Day-14 rule with the server's QR code", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("shows the QR's own code as the memo and counts down to its expiry", () => {
+      payment = { isLoading: false, data: withServerQr(5 * 60 * 1000) };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+
+      expect(screen.getByTestId("transfer-details")).toHaveTextContent(
+        "FLAB12CD344821",
+      );
+      expect(screen.getByTestId("transfer-deadline")).toHaveTextContent(
+        "10:00 left",
+      );
+    });
+
+    it("asks the server for a new QR once the code expires", () => {
+      payment = { isLoading: false, data: withServerQr(16 * 60 * 1000) };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+
+      expect(screen.getByText("This QR has expired")).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Get a new QR" }));
+      expect(newQr.mutate).toHaveBeenCalledOnce();
+    });
+
+    it("says how long to wait when a new QR comes too soon", () => {
+      payment = { isLoading: false, data: withServerQr(16 * 60 * 1000) };
+      newQr.error = {
+        message: "too soon",
+        code: "QR_TOO_SOON",
+        status: 429,
+        retryAfterSeconds: 42,
+      } as ApiError;
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Try again in 42 seconds",
+      );
+    });
+
+    it("closes after 14:45 on disbursement day: no QR, unlock to join the top-up", () => {
+      payment = {
+        isLoading: false,
+        data: withServerQr(0, {
+          pay_deadline_at: new Date(Date.now() + 60 * 1000).toISOString(),
+        }),
+      };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      expect(screen.getByTestId("transfer-qr")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(61 * 1000);
+      });
+      expect(screen.getByTestId("transfer-closed")).toHaveTextContent(
+        "Disbursement closed. Unlock your account to join the top-up",
+      );
+      expect(screen.queryByTestId("transfer-qr")).toBeNull();
+    });
+
+    it("shows the closed state when the server says payments closed", () => {
+      payment = {
+        isLoading: false,
+        data: undefined,
+        error: {
+          message: "closed",
+          code: "PAY_DEADLINE_PASSED",
+          status: 409,
+        } as ApiError,
+      };
+      render(<TransferDetails trancheId="tr-1" locale="en" t={t} />);
+      expect(screen.getByTestId("transfer-closed")).toBeInTheDocument();
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
   });
 
   it("shows the business's account, the amount, the memo and the QR", () => {

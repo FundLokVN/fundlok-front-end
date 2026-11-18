@@ -7,6 +7,7 @@ import {
   type InvestmentConfirmation,
   type AgreementCodeSent,
   type InvestorAgreementStatus,
+  type LenderStanding,
   type PaymentInstructions,
   type ReceiptResult,
   type ReserveRequest,
@@ -39,6 +40,7 @@ export const fundingKeys = {
     [...fundingKeys.all, "investor-agreement", "signed", signedAt] as const,
   windowLoanContract: (windowId: string) =>
     [...fundingKeys.all, "loan-contract", windowId] as const,
+  standing: () => [...fundingKeys.all, "standing"] as const,
   investmentConfirmation: (windowId: string, amountVnd: number) =>
     [
       ...fundingKeys.all,
@@ -208,9 +210,45 @@ export function usePaymentInstructions(trancheId: string | null) {
     queryKey: fundingKeys.payment(trancheId ?? ""),
     queryFn: () => fundingService.getPayment(trancheId as string),
     enabled: Boolean(trancheId),
-    // The account and amount never change for a ticket.
+    // The account and amount never change for a ticket. A new QR replaces
+    // the cached answer (useNewQr) rather than refetching it.
     staleTime: Infinity,
     retry: false,
+  });
+}
+
+/**
+ * "Get a new QR" (Day-14 transfer rule): a new code valid 15 minutes. The
+ * answer replaces the ticket's payment instructions in the cache.
+ */
+export function useNewQr(trancheId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<PaymentInstructions, ApiError, void>({
+    mutationFn: () => fundingService.issueNewQr(trancheId),
+    onSuccess: (instructions) => {
+      queryClient.setQueryData(fundingKeys.payment(trancheId), instructions);
+    },
+  });
+}
+
+/** Whether the investor is locked after Day 14, and their top-up pledges. */
+export function useStanding(enabled = true) {
+  return useQuery<LenderStanding, ApiError>({
+    queryKey: fundingKeys.standing(),
+    queryFn: () => fundingService.getStanding(),
+    enabled,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useUnlockStanding() {
+  const queryClient = useQueryClient();
+  return useMutation<LenderStanding, ApiError, string>({
+    mutationFn: (acknowledgement) =>
+      fundingService.unlockStanding(acknowledgement),
+    onSuccess: (standing) => {
+      queryClient.setQueryData(fundingKeys.standing(), standing);
+    },
   });
 }
 

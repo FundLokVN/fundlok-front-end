@@ -12,9 +12,9 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { usePaymentInstructions } from "@/hooks/use-funding";
+import { useNewQr, usePaymentInstructions } from "@/hooks/use-funding";
 import { formatCurrency } from "@/lib/format-currency";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDateTimeIct } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 
 const K = "investConfirm.transfer";
@@ -22,11 +22,12 @@ const K = "investConfirm.transfer";
 /**
  * How long one QR stays valid (Day-14 transfer rule, 18 Nov). The investor
  * can ask for a new QR, which starts a fresh window, for as long as the
- * reservation hold lasts. A window never runs past the hold.
+ * reservation hold lasts, and never after 14:45 on disbursement day.
  *
- * The window is kept here, in the browser, for now: the backend does not yet
- * give each QR its own code and expiry (SCRUM-612), so a new QR carries the
- * same payment memo. Read the expiry from the API once it does.
+ * The backend gives each QR its own code and expiry (`qr_code`,
+ * `qr_expires_at`; backend day14-transfer-rule.md 4.1) and the screen follows
+ * them. An older backend sends neither: the window is then kept here, in the
+ * browser, and a new QR carries the same memo.
  */
 export const QR_VALIDITY_MS = 15 * 60 * 1000;
 
@@ -113,19 +114,49 @@ export function TransferDetails({
   onReserveAgain,
 }: TransferDetailsProps) {
   const payment = usePaymentInstructions(trancheId);
+  const newQr = useNewQr(trancheId);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
-  // When the current QR was shown. Another ticket starts with a fresh QR.
+  // When the current QR was shown (only used without the server's expiry).
+  // Another ticket starts with a fresh QR.
   const [qr, setQr] = useState(() => ({ trancheId, shownAt: Date.now() }));
   if (qr.trancheId !== trancheId) setQr({ trancheId, shownAt: now });
+  // A "new QR" refused for a cut-off the clock had not reached yet.
+  const [closedByServer, setClosedByServer] = useState(false);
 
   if (payment.isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  const payDeadlinePassed =
+    payment.error?.code === "PAY_DEADLINE_PASSED" ||
+    closedByServer ||
+    (payment.data?.pay_deadline_at != null &&
+      now >= new Date(payment.data.pay_deadline_at).getTime());
+  if (payDeadlinePassed) {
+    // 14:45 on disbursement day: no QR any more (Loc, 18 Nov). The receipt
+    // upload beside this stays open until 15:30.
+    return (
+      <div
+        className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
+        data-testid="transfer-closed"
+        role="status"
+      >
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="space-y-1">
+          <p className="font-semibold text-foreground">
+            {t(`${K}.closedTitle`)}
+          </p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {t(`${K}.closedBody`)}
+          </p>
+        </div>
       </div>
     );
   }
@@ -138,12 +169,35 @@ export function TransferDetails({
   }
 
   const details = payment.data;
+  const serverQr = Boolean(details.qr_expires_at);
   const holdEndsAt = new Date(details.hold_expires_at).getTime();
   const expired = holdEndsAt - now <= 0;
-  const qrEndsAt = Math.min(qr.shownAt + QR_VALIDITY_MS, holdEndsAt);
+  const payDeadline = details.pay_deadline_at
+    ? new Date(details.pay_deadline_at).getTime()
+    : Infinity;
+  const qrEndsAt = serverQr
+    ? new Date(details.qr_expires_at as string).getTime()
+    : Math.min(qr.shownAt + QR_VALIDITY_MS, holdEndsAt, payDeadline);
   const qrLeft = qrEndsAt - now;
   const qrExpired = !expired && qrLeft <= 0;
   const amount = formatCurrency(details.amount_vnd, locale);
+  const memo = details.qr_code ?? details.reference_code;
+  const retryIn =
+    newQr.error?.code === "QR_TOO_SOON"
+      ? (newQr.error.retryAfterSeconds ?? 60)
+      : null;
+
+  const getNewQr = () => {
+    if (!serverQr) {
+      setQr({ trancheId, shownAt: Date.now() });
+      return;
+    }
+    newQr.mutate(undefined, {
+      onError: (error) => {
+        if (error.code === "PAY_DEADLINE_PASSED") setClosedByServer(true);
+      },
+    });
+  };
 
   return (
     <section
@@ -200,11 +254,26 @@ export function TransferDetails({
               type="button"
               size="sm"
               className="mt-2 gap-2"
-              onClick={() => setQr({ trancheId, shownAt: Date.now() })}
+              onClick={getNewQr}
+              disabled={newQr.isPending}
             >
-              <QrCode className="h-4 w-4" />
+              {newQr.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <QrCode className="h-4 w-4" />
+              )}
               {t(`${K}.newQr`)}
             </Button>
+            {retryIn !== null && (
+              <p role="alert" className="text-xs text-destructive">
+                {t(`${K}.newQrTooSoon`, { seconds: retryIn })}
+              </p>
+            )}
+            {newQr.error && retryIn === null && (
+              <p role="alert" className="text-xs text-destructive">
+                {t(`${K}.newQrFailed`)}
+              </p>
+            )}
           </div>
         </div>
       ) : (
@@ -215,7 +284,7 @@ export function TransferDetails({
           <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
           <span className="text-foreground">
             {t(`${K}.deadline`, {
-              time: formatDateTime(new Date(qrEndsAt), locale),
+              time: formatDateTimeIct(new Date(qrEndsAt), locale),
             })}
           </span>
           <span className="ml-auto font-mono font-semibold tabular-nums text-foreground">
@@ -268,12 +337,7 @@ export function TransferDetails({
             display={amount}
             t={t}
           />
-          <CopyRow
-            label={t(`${K}.memo`)}
-            value={details.reference_code}
-            mono
-            t={t}
-          />
+          <CopyRow label={t(`${K}.memo`)} value={memo} mono t={t} />
         </div>
       </div>
 
