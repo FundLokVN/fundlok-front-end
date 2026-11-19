@@ -16,7 +16,11 @@ import {
   Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { isProjectOpen, type Project } from "@/services/projects.service";
+import {
+  isProjectOpen,
+  repeatSource,
+  type Project,
+} from "@/services/projects.service";
 import { useTranslations } from "@/lib/i18n";
 import { industryLabel } from "@/lib/industry-label";
 import { cn } from "@/lib/utils";
@@ -125,7 +129,11 @@ export function SmeDashboard({ projects }: SmeDashboardProps) {
               {t("dashboard.sme.applyAgainTitle")}
             </h2>
             <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-              {t("dashboard.sme.applyAgainDescription")}
+              {t(
+                repeatSource(projects)
+                  ? "dashboard.sme.applyAgainRepeatDescription"
+                  : "dashboard.sme.applyAgainDescription",
+              )}
             </p>
           </div>
           <ApplyButton label={t("dashboard.sme.applyAgainCta")} />

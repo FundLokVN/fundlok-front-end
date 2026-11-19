@@ -60,6 +60,19 @@ describe("SmeDashboard", () => {
     ).toHaveAttribute("href", "/project-application");
   });
 
+  it("says the documents carry over when the last request was approved", () => {
+    const repaid = project("repaid", "CLOSED");
+    repaid.loan_application = {
+      ...repaid.loan_application,
+      approval: {},
+    } as Project["loan_application"];
+    render(<SmeDashboard projects={[repaid]} />);
+
+    expect(
+      screen.getByText(/you only choose the new amount and term/),
+    ).toBeInTheDocument();
+  });
+
   it("offers no new request while one is in progress", () => {
     render(
       <SmeDashboard

@@ -32,7 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/use-authentication";
 import { useCreateProject, useMyProjects } from "@/hooks/use-projects";
-import { isProjectOpen } from "@/services/projects.service";
+import { isProjectOpen, repeatSource } from "@/services/projects.service";
 import { useGVerifyKybStatus } from "@/hooks/use-gverify";
 import { splitKybAddress } from "@/lib/kyb-address";
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -61,6 +61,7 @@ import {
 } from "@/lib/constants/company-size";
 import { apiErrorMessage } from "@/lib/api-error-message";
 import { CREATE_ERRORS, isTaxCode } from "./tax-code";
+import { RepeatRequestForm } from "./repeat-request-form";
 
 type ProjectApplicationValues = {
   legal_name: string;
@@ -468,6 +469,11 @@ export default function ProjectApplicationClient() {
       </div>
     );
   }
+
+  // Borrowing again with an approved request behind it: only the amount and
+  // the term are asked; everything else is copied from that request.
+  const copyFrom = repeatSource(projects);
+  if (copyFrom) return <RepeatRequestForm source={copyFrom} />;
 
   return (
     <div className="mx-auto grid w-full max-w-[96rem] gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-14">

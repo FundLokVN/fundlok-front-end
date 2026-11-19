@@ -5,6 +5,7 @@ import type { ApiError } from "@/lib/types";
 import {
   projectsService,
   type CreateProjectPayload,
+  type RepeatProjectPayload,
   type Project,
 } from "@/services/projects.service";
 
@@ -31,6 +32,17 @@ export function usePublicProjects(enabled = true) {
     staleTime: 2 * 60 * 1000,
     retry: false,
     enabled,
+  });
+}
+
+export function useRepeatProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Project, ApiError, RepeatProjectPayload>({
+    mutationFn: (payload) => projectsService.repeatProject(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.mine() });
+    },
   });
 }
 

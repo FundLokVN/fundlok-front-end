@@ -208,6 +208,7 @@ export const REPAYMENT_ENDPOINTS = {
 export const PROJECT_ENDPOINTS = {
   list: "/projects",
   create: "/projects",
+  repeat: "/projects/repeat",
   public: "/projects/public",
 } as const;
 

@@ -2414,6 +2414,7 @@
       "applicationSubmittedTitle": "Application submitted",
       "applyAgainCta": "Start a new request",
       "applyAgainDescription": "You can apply for new funding now. Your verified business and bank account carry over. The new request needs its own documents and agreements, and it is reviewed afresh.",
+      "applyAgainRepeatDescription": "You can apply for new funding now. Your business details and the documents from your last approved request carry over, so you only choose the new amount and term. The new request is reviewed afresh.",
       "applyAgainTitle": "Your last request has ended",
       "approval": {
         "amount": "Amount requested",
@@ -4210,6 +4211,15 @@
     },
     "repaymentOptions": {
       "daily": "Fixed amount each business day"
+    },
+    "repeat": {
+      "eyebrow": "New funding request",
+      "reused": "Your business details and the documents from your last approved request (charter, business registration, e-invoices, tax filings and CIC report) are reused. The new request is reviewed afresh, and once it is approved you sign the agreements with its new terms.",
+      "submit": "Send request for review",
+      "submittedDescription": "Your new request is with our team for review.",
+      "submittedTitle": "Request sent",
+      "submitting": "Sending…",
+      "title": "How much do you need this time?"
     },
     "subtitle": "A few basic details to set up your application. You can review everything before it goes to our team.",
     "title": "Tell us about your business",

@@ -130,6 +130,23 @@ export function isProjectOpen(project: Pick<Project, "status">): boolean {
   return project.status !== "CLOSED" && project.status !== "ARCHIVED";
 }
 
+/**
+ * The earlier request a business borrowing again copies (POST /projects/repeat):
+ * none while one of its requests is still open, otherwise its newest request
+ * staff approved (`approval` is set only then). Projects arrive newest first.
+ */
+export function repeatSource(projects: Project[]): Project | undefined {
+  if (projects.some(isProjectOpen)) return undefined;
+  return projects.find((project) => project.loan_application?.approval);
+}
+
+// A repeat request asks only for these; the company, its documents and figures
+// are copied from the last approved request and it goes straight to review.
+export interface RepeatProjectPayload {
+  requested_amount: number;
+  duration_months: number;
+}
+
 // Mirrors backend LoanApplicationCreateInline: a DRAFT loan application is
 // created in the same request as the project.
 export interface CreateLoanApplicationPayload {
@@ -177,5 +194,9 @@ export const projectsService = {
 
   createProject(payload: CreateProjectPayload) {
     return apiClient.post<Project>(PROJECT_ENDPOINTS.create, payload);
+  },
+
+  repeatProject(payload: RepeatProjectPayload) {
+    return apiClient.post<Project>(PROJECT_ENDPOINTS.repeat, payload);
   },
 };
