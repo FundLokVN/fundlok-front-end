@@ -32,6 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/use-authentication";
 import { useCreateProject, useMyProjects } from "@/hooks/use-projects";
+import { isProjectOpen } from "@/services/projects.service";
 import { useGVerifyKybStatus } from "@/hooks/use-gverify";
 import { splitKybAddress } from "@/lib/kyb-address";
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -361,10 +362,12 @@ export default function ProjectApplicationClient() {
       return;
     }
 
-    if (!isLoading && projects.length > 0) {
+    // One request at a time: back to the dashboard while one is in progress.
+    // A business whose requests have all ended starts a new one here.
+    if (!isLoading && projects.some(isProjectOpen)) {
       router.replace("/dashboard");
     }
-  }, [isAuthLoading, isLoading, projects.length, router, user]);
+  }, [isAuthLoading, isLoading, projects, router, user]);
 
   const handleNextStep = async () => {
     let fieldsToValidate: Path<ProjectApplicationValues>[] = [];

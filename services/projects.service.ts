@@ -121,6 +121,15 @@ export interface Project {
   loan_application?: ProjectLoanApplication | null;
 }
 
+/**
+ * Still in progress. The backend sets CLOSED once a request ends (repaid in
+ * full, its round failed or was cancelled, or it was refused) and staff set
+ * ARCHIVED; the business may then start a new request.
+ */
+export function isProjectOpen(project: Pick<Project, "status">): boolean {
+  return project.status !== "CLOSED" && project.status !== "ARCHIVED";
+}
+
 // Mirrors backend LoanApplicationCreateInline: a DRAFT loan application is
 // created in the same request as the project.
 export interface CreateLoanApplicationPayload {

@@ -2412,6 +2412,9 @@
       "applicationSubmitted": "Đã gửi hồ sơ",
       "applicationSubmittedDescription": "Hồ sơ vay và tài liệu của bạn đã được tải lên thành công.",
       "applicationSubmittedTitle": "Đã gửi hồ sơ",
+      "applyAgainCta": "Tạo yêu cầu vay mới",
+      "applyAgainDescription": "Bạn có thể đăng ký khoản vay mới ngay bây giờ. Doanh nghiệp đã xác minh và tài khoản ngân hàng được giữ nguyên. Yêu cầu mới cần hồ sơ và hợp đồng riêng, và sẽ được thẩm định lại từ đầu.",
+      "applyAgainTitle": "Yêu cầu vay trước của bạn đã kết thúc",
       "approval": {
         "amount": "Số tiền đề nghị",
         "celebrateBody": "Đề nghị tài trợ của {company} đã được duyệt.",
@@ -2644,6 +2647,7 @@
           "CONFIRMED": "Đã nhận",
           "EXPIRED": "Hết hạn",
           "RECEIPT_SUBMITTED": "Đã tải biên lai",
+          "REPAID": "Đã trả xong",
           "REPORTED_MISSING": "Đã báo chưa nhận tiền",
           "RESERVED": "Đã giữ chỗ",
           "SIGNED": "Chờ chuyển khoản",
@@ -2818,6 +2822,9 @@
       "postalCode": "Mã bưu chính",
       "preview": "Xem trước",
       "previewUnavailable": "Không thể xem trước loại tệp này. Bạn vẫn có thể gửi.",
+      "previousDescription": "Mỗi yêu cầu giữ nguyên vòng gọi vốn, nhà đầu tư và lịch trả nợ của nó.",
+      "previousRequested": "Đề nghị {amount}",
+      "previousTitle": "Các yêu cầu vay trước",
       "priorYear": {
         "needsInvoices": "Đã đọc các tờ khai thuế GTGT. Hãy thêm hóa đơn điện tử, chúng tôi sẽ tính doanh thu 12 tháng trước đó từ các tờ khai này.",
         "needsVat": "Hồ sơ thuế này không có tờ khai thuế GTGT theo tháng nên chưa tính được doanh thu 12 tháng trước kỳ hóa đơn. Hãy thêm các tờ khai vào thư mục rồi tải lên lại.",
@@ -3327,6 +3334,8 @@
     },
     "projectStatus": {
       "ACTIVE": "Đang hoạt động",
+      "ARCHIVED": "Đã lưu trữ",
+      "CLOSED": "Đã kết thúc",
       "DRAFT": "Bản nháp"
     },
     "role": {
@@ -4109,7 +4118,7 @@
   "projectApplication": {
     "card": {
       "back": "Quay lại",
-      "description": "Điền vào các trường bên dưới để tạo dự án đầu tiên của bạn.",
+      "description": "Điền vào các trường bên dưới để tạo yêu cầu vay vốn của bạn.",
       "next": "Tiếp theo",
       "submit": "Gửi đơn đăng ký dự án",
       "submitting": "Đang gửi đơn đăng ký...",

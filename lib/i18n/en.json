@@ -2412,6 +2412,9 @@
       "applicationSubmitted": "Application submitted",
       "applicationSubmittedDescription": "Your loan application and documents have been uploaded successfully.",
       "applicationSubmittedTitle": "Application submitted",
+      "applyAgainCta": "Start a new request",
+      "applyAgainDescription": "You can apply for new funding now. Your verified business and bank account carry over. The new request needs its own documents and agreements, and it is reviewed afresh.",
+      "applyAgainTitle": "Your last request has ended",
       "approval": {
         "amount": "Amount requested",
         "celebrateBody": "The funding request for {company} has been approved.",
@@ -2644,6 +2647,7 @@
           "CONFIRMED": "Received",
           "EXPIRED": "Expired",
           "RECEIPT_SUBMITTED": "Receipt uploaded",
+          "REPAID": "Repaid",
           "REPORTED_MISSING": "Reported not received",
           "RESERVED": "Reserved",
           "SIGNED": "Awaiting transfer",
@@ -2818,6 +2822,9 @@
       "postalCode": "Postal code",
       "preview": "Preview",
       "previewUnavailable": "Preview isn't available for this file type. You can still send it.",
+      "previousDescription": "Each one keeps its own funding round, investors and repayments.",
+      "previousRequested": "Requested {amount}",
+      "previousTitle": "Previous requests",
       "priorYear": {
         "needsInvoices": "Your VAT declarations are read. Add your e-invoices and we'll work out the 12 months before them from these declarations.",
         "needsVat": "These filings have no monthly VAT declarations, so the revenue of the 12 months before your invoices can't be worked out. Add the declarations to the folder and upload it again.",
@@ -3327,6 +3334,8 @@
     },
     "projectStatus": {
       "ACTIVE": "Active",
+      "ARCHIVED": "Archived",
+      "CLOSED": "Ended",
       "DRAFT": "Draft"
     },
     "role": {
@@ -4109,7 +4118,7 @@
   "projectApplication": {
     "card": {
       "back": "Back",
-      "description": "Fill in the fields below to create your first project.",
+      "description": "Fill in the fields below to create your funding request.",
       "next": "Next",
       "submit": "Submit project application",
       "submitting": "Submitting application...",

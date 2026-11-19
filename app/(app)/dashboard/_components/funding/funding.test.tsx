@@ -365,6 +365,26 @@ describe("FundingStatus", () => {
       "dashboard.sme.repayments.none",
     );
   });
+
+  it("shows a repaid round's investments as repaid, not repaying", () => {
+    const [received] = round().tickets;
+    rounds = [
+      round({
+        status: "REPAID",
+        repayment_start_date: "2026-08-05",
+        tickets: [{ ...received, status: "ACTIVE" }],
+      }),
+    ];
+    render(<FundingStatus projectId="p-1" t={t} />);
+
+    const tickets = screen.getByTestId("round-tickets");
+    expect(tickets).toHaveTextContent(
+      "dashboard.sme.funding.ticketStatus.REPAID",
+    );
+    expect(tickets).not.toHaveTextContent(
+      "dashboard.sme.funding.ticketStatus.ACTIVE",
+    );
+  });
 });
 
 describe("TodaysRepayments", () => {

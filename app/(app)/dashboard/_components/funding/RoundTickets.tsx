@@ -71,7 +71,11 @@ export function RoundTickets({ round }: { round: SmeRound }) {
       ) : (
         <ul className="divide-y rounded-lg border" data-testid="round-tickets">
           {tickets.map((ticket) => (
-            <TicketRow key={ticket.id} ticket={ticket} />
+            <TicketRow
+              key={ticket.id}
+              ticket={ticket}
+              repaid={round.status === "REPAID"}
+            />
           ))}
         </ul>
       )}
@@ -79,7 +83,14 @@ export function RoundTickets({ round }: { round: SmeRound }) {
   );
 }
 
-function TicketRow({ ticket }: { ticket: SmeTicket }) {
+function TicketRow({
+  ticket,
+  repaid,
+}: {
+  ticket: SmeTicket;
+  /** The round is repaid in full: its tickets stay ACTIVE on the backend. */
+  repaid: boolean;
+}) {
   const { t, locale } = useTranslations();
   const { toast } = useToast();
   const report = useReportMissingTransfer();
@@ -113,7 +124,9 @@ function TicketRow({ ticket }: { ticket: SmeTicket }) {
     ? "REPORTED_MISSING"
     : receiptSubmitted
       ? "RECEIPT_SUBMITTED"
-      : ticket.status;
+      : repaid && ticket.status === "ACTIVE"
+        ? "REPAID"
+        : ticket.status;
 
   const sendReport = () =>
     report.mutate(
