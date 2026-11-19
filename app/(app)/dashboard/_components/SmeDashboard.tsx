@@ -16,13 +16,19 @@ import {
   Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/services/projects.service";
+import {
+  isProjectOpen,
+  repeatSource,
+  type Project,
+} from "@/services/projects.service";
 import { useTranslations } from "@/lib/i18n";
 import { industryLabel } from "@/lib/industry-label";
 import { cn } from "@/lib/utils";
 import { getIndustryChrome, getIndustryTheme } from "./sme-dashboard-config";
 import { formatDate, formatDateTime } from "@/lib/format-date";
 import { enumLabel } from "@/lib/enum-labels";
+import { formatCurrency } from "@/lib/format-currency";
+import { CONTROL_HOVER } from "@/lib/ui-tokens";
 import { useVerificationGate } from "@/hooks/use-verification-gate";
 import { LoanApplicationSection } from "./loan-application/LoanApplicationSection";
 
@@ -38,11 +44,37 @@ interface SmeDashboardProps {
   projects: Project[];
 }
 
-export function SmeDashboard({ projects }: SmeDashboardProps) {
-  const project = projects[0];
-  const { locale, t } = useTranslations();
+/**
+ * To the application form. An SME without an approved KYB verifies in a new
+ * tab; this one continues to the application once it's approved.
+ */
+function ApplyButton({ label, tour }: { label: string; tour?: string }) {
   const { needsVerification, openVerification } = useVerificationGate();
+  return (
+    <Button asChild size="lg" className="gap-2" data-tour={tour}>
+      <Link
+        href="/project-application"
+        onClick={(event) => {
+          if (needsVerification("/project-application")) {
+            event.preventDefault();
+            openVerification("/project-application");
+          }
+        }}
+      >
+        {label}
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </Button>
+  );
+}
+
+export function SmeDashboard({ projects }: SmeDashboardProps) {
+  // Newest first (GET /projects): the current request, then earlier ones.
+  const [project, ...previous] = projects;
+  const { locale, t } = useTranslations();
   const [copied, setCopied] = useState(false);
+  // Every request has ended (repaid, round failed or cancelled, or refused).
+  const canApplyAgain = !!project && !projects.some(isProjectOpen);
 
   // No project yet → invite the SME to apply. "Apply for funding" links to
   // /project-application, which the proxy KYB-gates: an unverified SME is sent
@@ -67,22 +99,7 @@ export function SmeDashboard({ projects }: SmeDashboardProps) {
               {t("dashboard.sme.emptyDescription")}
             </p>
           </div>
-          <Button asChild size="lg" className="gap-2" data-tour="sme-apply">
-            <Link
-              href="/project-application"
-              onClick={(event) => {
-                // An SME without an approved KYB verifies in a new tab; this
-                // one continues to the application once it's approved.
-                if (needsVerification("/project-application")) {
-                  event.preventDefault();
-                  openVerification("/project-application");
-                }
-              }}
-            >
-              {t("dashboard.sme.emptyCta")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <ApplyButton label={t("dashboard.sme.emptyCta")} tour="sme-apply" />
         </Card>
       </m.div>
     );
@@ -105,6 +122,24 @@ export function SmeDashboard({ projects }: SmeDashboardProps) {
       transition={{ duration: 0.3, ease: EASE_OUT }}
       className="flex-1 space-y-6 md:space-y-8 relative"
     >
+      {canApplyAgain && (
+        <Card className="flex flex-col gap-4 rounded-2xl border border-dashed bg-card p-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-foreground">
+              {t("dashboard.sme.applyAgainTitle")}
+            </h2>
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {t(
+                repeatSource(projects)
+                  ? "dashboard.sme.applyAgainRepeatDescription"
+                  : "dashboard.sme.applyAgainDescription",
+              )}
+            </p>
+          </div>
+          <ApplyButton label={t("dashboard.sme.applyAgainCta")} />
+        </Card>
+      )}
+
       {/* Unified Responsive Hero Card */}
       <Card
         className={cn(
@@ -392,6 +427,71 @@ export function SmeDashboard({ projects }: SmeDashboardProps) {
         theme={theme}
         t={t}
       />
+
+      {/* Earlier requests: each page keeps its own round, investors and
+          repayments. */}
+      {previous.length > 0 && (
+        <section aria-labelledby="sme-previous-requests" className="space-y-3">
+          <div className="space-y-1">
+            <h2
+              id="sme-previous-requests"
+              className="text-base font-semibold text-foreground"
+            >
+              {t("dashboard.sme.previousTitle")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.sme.previousDescription")}
+            </p>
+          </div>
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border bg-card">
+            {previous.map((earlier) => {
+              const amount = earlier.loan_application?.requested_amount;
+              return (
+                <li key={earlier.id}>
+                  <Link
+                    href={`/dashboard/projects/${earlier.id}`}
+                    className={cn(
+                      "flex items-center justify-between gap-4 p-4",
+                      CONTROL_HOVER,
+                    )}
+                  >
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {earlier.legal_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {[
+                          earlier.created_at &&
+                            formatDate(earlier.created_at, locale),
+                          amount != null &&
+                            t("dashboard.sme.previousRequested").replace(
+                              "{amount}",
+                              formatCurrency(Number(amount), locale),
+                            ),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                      <Badge
+                        variant="outline"
+                        className="border-border bg-muted/60 text-[11px] font-semibold text-muted-foreground"
+                      >
+                        {enumLabel(t, "projectStatus", earlier.status)}
+                      </Badge>
+                      <ArrowRight
+                        className="h-4 w-4 text-muted-foreground"
+                        aria-hidden
+                      />
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </m.div>
   );
 }
