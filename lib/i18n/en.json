@@ -2597,28 +2597,28 @@
         "disputeSend": "Send dispute",
         "disputedToast": "Dispute sent: FundLok staff will review it",
         "extension": {
-          "heading": "Monthly revenue filing",
-          "hint": "Revenue short of this month's repayments? File {month}'s revenue by the 5th with its tax declaration or bank inflow statement. If it falls short, every investor's loan gets the same extra working days and your daily amount never rises. No fee.",
-          "revenue": "Revenue in {month} (VND)",
-          "kind": "Evidence",
-          "kinds": {
-            "TAX_DECLARATION": "Tax declaration",
-            "BANK_INFLOW": "Bank inflow statement"
-          },
-          "file": "Evidence file (PDF or image)",
-          "submit": "File revenue",
-          "result": {
-            "EXTENDED": "Extended by {days} working days from {date}. Your daily amount does not rise.",
-            "NO_SHORTFALL": "Your revenue covered the month: no extension needed.",
-            "NO_ROOM": "No days are left before the backstop: no extension."
-          },
-          "failed": "Couldn't file your revenue",
           "errors": {
-            "FILING_CLOSED": "Filing for this month is closed (1st to 5th only).",
             "ALREADY_FILED": "This month was already filed.",
+            "FILING_CLOSED": "Filing for this month is closed (1st to 5th only).",
             "LATE_DAY_BLOCKS_FILING": "A repayment day is overdue or in dispute: settle it first.",
             "REVENUE_SHARE_UNKNOWN": "Your loan's revenue share is not set yet: contact FundLok."
-          }
+          },
+          "failed": "Couldn't file your revenue",
+          "file": "Evidence file (PDF or image)",
+          "heading": "Monthly revenue filing",
+          "hint": "Revenue short of this month's repayments? File {month}'s revenue by the 5th with its tax declaration or bank inflow statement. If it falls short, every investor's loan gets the same extra working days and your daily amount never rises. No fee.",
+          "kind": "Evidence",
+          "kinds": {
+            "BANK_INFLOW": "Bank inflow statement",
+            "TAX_DECLARATION": "Tax declaration"
+          },
+          "result": {
+            "EXTENDED": "Extended by {days} working days from {date}. Your daily amount does not rise.",
+            "NO_ROOM": "No days are left before the backstop: no extension.",
+            "NO_SHORTFALL": "Your revenue covered the month: no extension needed."
+          },
+          "revenue": "Revenue in {month} (VND)",
+          "submit": "File revenue"
         },
         "failedNote": "The round closed without any investment received.",
         "heading": "Funding",
