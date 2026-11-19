@@ -61,7 +61,18 @@ export type NotificationEvent =
    * To the investor: their late money was kept as their top-up. `data` has
    * `pledge_id`, `window_id`, `listing_title` and `amount_vnd`.
    */
-  | "TOP_UP_PLEDGE_RECORDED";
+  | "TOP_UP_PLEDGE_RECORDED"
+  /**
+   * To the investor: a repayment day had no payment proof by 18:00 on its due
+   * date, so it is overdue. `data` has `tranche_id`, `repayment_day_id`,
+   * `due_date`, `net_vnd` and `memo`.
+   */
+  | "REPAYMENT_DAY_LATE"
+  /**
+   * To the business, once per run: repayment days now overdue. `data` has
+   * `days`, `net_vnd` and `oldest_due_date`.
+   */
+  | "REPAYMENT_DAY_OVERDUE_SME";
 
 export interface AppNotification {
   id: string;

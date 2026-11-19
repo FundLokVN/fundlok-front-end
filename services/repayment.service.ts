@@ -6,7 +6,7 @@ import { REPAYMENT_ENDPOINTS } from "@/lib/endpoints";
 // The business pays each investor directly, one transfer per investor and day.
 
 export type RepaymentDayStatus =
-  "DUE" | "PRESUMED_PAID" | "REPORTED_MISSED" | "MATCHED";
+  "DUE" | "LATE" | "PRESUMED_PAID" | "REPORTED_MISSED" | "MATCHED";
 
 export interface RepaymentPayee {
   bank_name: string;

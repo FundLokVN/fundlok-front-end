@@ -40,7 +40,8 @@ export function byInvestment(rows: RepaymentRow[]): InvestorDue[] {
       rows: [],
     };
     entry.rows.push(row);
-    if (row.status === "DUE") entry.due.push(row);
+    // A LATE day (no proof by 18:00 on its due date) is still owed: oldest first.
+    if (row.status === "DUE" || row.status === "LATE") entry.due.push(row);
     out.set(row.tranche_id, entry);
   }
   return [...out.values()];
@@ -161,6 +162,7 @@ function InvestorLine({ investor }: { investor: InvestorDue }) {
   const shown = owing ? investor.due : investor.rows;
   const dates = [...new Set(shown.map((row) => row.due_date))];
   const missing = investor.rows.some((row) => row.status === "REPORTED_MISSED");
+  const late = investor.due.some((row) => row.status === "LATE");
   const net = sum(shown, "net_vnd");
   const gross = sum(shown, "gross_vnd");
 
@@ -185,9 +187,13 @@ function InvestorLine({ investor }: { investor: InvestorDue }) {
           {owing && (
             <Badge
               variant="outline"
-              className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+              className={
+                late
+                  ? "border-destructive/40 bg-destructive/10 text-destructive"
+                  : "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+              }
             >
-              {t(`${K}.status.DUE`)}
+              {t(`${K}.status.${late ? "LATE" : "DUE"}`)}
             </Badge>
           )}
         </div>
