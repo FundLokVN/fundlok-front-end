@@ -10,6 +10,7 @@ import {
   BellOff,
   CircleCheck,
   CircleX,
+  Clock,
   FileCheck2,
   Loader2,
   ShieldCheck,
@@ -28,7 +29,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatCurrency } from "@/lib/format-currency";
-import { formatDateTime, formatTimeIct } from "@/lib/format-date";
+import { formatDate, formatDateTime, formatTimeIct } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CONTROL_HOVER, CONTROL_IDLE } from "@/lib/ui-tokens";
@@ -241,6 +242,28 @@ const EVENT_PRESENTATION: Record<
     }),
     tone: "positive",
     icon: Banknote,
+  },
+  // To the investor: a repayment day had no payment proof by 18:00 on its due date.
+  REPAYMENT_DAY_LATE: {
+    messageKey: "notifications.items.repaymentDayLate",
+    values: (notification, locale) => ({
+      amount: formatCurrency(Number(notification.data.net_vnd ?? 0), locale),
+      date: formatDate(String(notification.data.due_date ?? ""), locale),
+      memo: String(notification.data.memo ?? ""),
+    }),
+    tone: "negative",
+    icon: Clock,
+  },
+  // To the business: repayment days are overdue; pay the oldest first.
+  REPAYMENT_DAY_OVERDUE_SME: {
+    messageKey: "notifications.items.repaymentDayOverdueSme",
+    values: (notification, locale) => ({
+      count: Number(notification.data.days ?? 0),
+      amount: formatCurrency(Number(notification.data.net_vnd ?? 0), locale),
+      date: formatDate(String(notification.data.oldest_due_date ?? ""), locale),
+    }),
+    tone: "negative",
+    icon: Clock,
   },
 };
 

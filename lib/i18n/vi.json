@@ -1021,6 +1021,7 @@
       "repayments": {
         "dayStatus": {
           "DUE": "Đến hạn",
+          "LATE": "Quá hạn",
           "MATCHED": "Đã xác nhận",
           "PRESUMED_PAID": "Đã đánh dấu đã trả",
           "REPORTED_MISSED": "Bị báo chưa nhận"
@@ -1841,6 +1842,7 @@
         "continue": "Tiếp tục",
         "dayStatus": {
           "DUE": "Đến hạn",
+          "LATE": "Quá hạn",
           "MATCHED": "Đã xác nhận",
           "PRESUMED_PAID": "Đã trả (theo doanh nghiệp)",
           "REPORTED_MISSED": "Bạn đã báo chưa nhận"
@@ -2813,6 +2815,7 @@
         "qrHint": "Quét bằng ứng dụng ngân hàng: tài khoản, số tiền và nội dung sẽ tự điền.",
         "status": {
           "DUE": "Đến hạn",
+          "LATE": "Quá hạn",
           "MATCHED": "Đã xác nhận",
           "PRESUMED_PAID": "Đã đánh dấu đã trả",
           "REPORTED_MISSED": "Bị báo chưa nhận"
@@ -4061,6 +4064,8 @@
       "investmentReceiptSubmitted": "Nhà đầu tư {investor} đã tải lên biên lai chuyển khoản {amount} (nội dung {memo}). Hãy kiểm tra tài khoản ngân hàng hoặc báo cáo nếu chưa nhận được tiền.",
       "lenderLockedLate": "Khoản chuyển của bạn cho {project} đến muộn nên tài khoản đã bị khóa.",
       "lenderLockedNoShow": "Bạn chưa chuyển tiền cho {project} trước 15:00 ngày giải ngân nên tài khoản đã bị khóa.",
+      "repaymentDayLate": "Khoản trả nợ {amount} đến hạn ngày {date} (nội dung {memo}) chưa được thanh toán: đã quá hạn.",
+      "repaymentDayOverdueSme": "{count} ngày trả nợ, tổng {amount}, đã quá hạn từ {date}. Hãy trả ngày cũ nhất trước.",
       "repaymentReceiptConfirmed": "Nhà đầu tư {investor} đã xác nhận nhận được khoản trả nợ {amount} của bạn (nội dung {memo}).",
       "repaymentReceiptRejected": "FundLok chưa xác nhận được khoản trả nợ {amount} cho nhà đầu tư {investor}: “{reason}”. Các ngày đó đến hạn lại.",
       "repaymentReceiptSubmitted": "{project} đã tải lên biên lai cho khoản trả nợ {amount} (nội dung {memo}). Hãy kiểm tra tài khoản ngân hàng và xác nhận đã nhận được.",

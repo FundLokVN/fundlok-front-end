@@ -335,7 +335,7 @@ export interface AdminRepaymentDay {
   gross_vnd: number;
   tax_withheld_vnd: number;
   net_vnd: number;
-  status: "DUE" | "PRESUMED_PAID" | "REPORTED_MISSED" | "MATCHED";
+  status: "DUE" | "LATE" | "PRESUMED_PAID" | "REPORTED_MISSED" | "MATCHED";
   check_status: string;
 }
 

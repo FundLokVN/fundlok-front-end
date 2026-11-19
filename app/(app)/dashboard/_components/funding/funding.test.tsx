@@ -438,6 +438,22 @@ describe("TodaysRepayments", () => {
       'dashboard.sme.repayments.total:{"net":"₫144,080"}',
     );
   });
+
+  it("still asks for a day that went overdue (no proof by 18:00), marked as overdue", () => {
+    today = {
+      date: "2026-11-04",
+      rows: [{ ...row, status: "LATE" }],
+      totals: { gross_vnd: 125_397, tax_withheld_vnd: 317, net_vnd: 125_080 },
+    };
+    render(<TodaysRepayments />);
+
+    const [late] = screen.getAllByTestId("repayment-ticket");
+    expect(late).toHaveTextContent("dashboard.sme.repayments.status.LATE");
+    expect(late).toHaveTextContent("₫125,080");
+    expect(
+      within(late).getByRole("link", { name: "dashboard.sme.repayments.pay" }),
+    ).toHaveAttribute("href", "/dashboard/repayments/tr-1");
+  });
 });
 
 describe("RepaymentPlan", () => {

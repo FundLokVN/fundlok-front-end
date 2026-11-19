@@ -1021,6 +1021,7 @@
       "repayments": {
         "dayStatus": {
           "DUE": "Due",
+          "LATE": "Overdue",
           "MATCHED": "Confirmed",
           "PRESUMED_PAID": "Marked paid",
           "REPORTED_MISSED": "Reported missing"
@@ -1841,6 +1842,7 @@
         "continue": "Continue",
         "dayStatus": {
           "DUE": "Due",
+          "LATE": "Overdue",
           "MATCHED": "Confirmed",
           "PRESUMED_PAID": "Paid (per the business)",
           "REPORTED_MISSED": "You reported it missing"
@@ -2813,6 +2815,7 @@
         "qrHint": "Scan with your bank app: account, amount and memo fill in.",
         "status": {
           "DUE": "Due",
+          "LATE": "Overdue",
           "MATCHED": "Confirmed",
           "PRESUMED_PAID": "Marked paid",
           "REPORTED_MISSED": "Reported missing"
@@ -4061,6 +4064,8 @@
       "investmentReceiptSubmitted": "Investor {investor} uploaded a transfer receipt of {amount} (memo {memo}). Check your bank account or report if it hasn't arrived.",
       "lenderLockedLate": "Your transfer for {project} arrived late, so your account is locked.",
       "lenderLockedNoShow": "You did not pay for {project} by 15:00 on disbursement day, so your account is locked.",
+      "repaymentDayLate": "Your repayment of {amount} due {date} (memo {memo}) has not been paid: it is overdue.",
+      "repaymentDayOverdueSme": "{count} repayment day(s) totalling {amount} are overdue since {date}. Pay the oldest first.",
       "repaymentReceiptConfirmed": "Investor {investor} confirmed receiving your repayment of {amount} (memo {memo}).",
       "repaymentReceiptRejected": "FundLok couldn't confirm your repayment of {amount} to investor {investor}: “{reason}”. Those days are due again.",
       "repaymentReceiptSubmitted": "{project} uploaded a receipt for a repayment of {amount} (memo {memo}). Check your bank account and confirm it arrived.",
