@@ -1,6 +1,7 @@
 import { Loader2, Users } from "lucide-react";
 import { useMyRounds } from "@/hooks/use-funding";
 import { RoundProgress } from "../funding/RoundProgress";
+import { ExtensionFiling } from "../funding/ExtensionFiling";
 import { RepaymentPlan } from "../funding/RepaymentPlan";
 import { SmeDecision } from "../funding/SmeDecision";
 import { RoundTickets } from "../funding/RoundTickets";
@@ -72,7 +73,10 @@ export function FundingStatus({
           the round is still open. */}
       {(round.status === "REPAYING" ||
         round.tickets.some((ticket) => ticket.status === "ACTIVE")) && (
-        <TodaysRepayments />
+        <>
+          <TodaysRepayments />
+          <ExtensionFiling round={round} />
+        </>
       )}
       {(round.confirmed_vnd > 0 ||
         round.status === "REPAYING" ||

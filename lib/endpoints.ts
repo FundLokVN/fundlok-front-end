@@ -195,6 +195,9 @@ export const REPAYMENT_ENDPOINTS = {
   // with the transfer receipt.
   due: (trancheId: string) => `/repayment/tranches/${trancheId}/due`,
   pay: (trancheId: string) => `/repayment/tranches/${trancheId}/pay`,
+  // The business's monthly revenue filing for an automatic extension.
+  extensionFilings: (windowId: string) =>
+    `/repayment/rounds/${windowId}/extension-filings`,
   // The investor's side: the receipts businesses uploaded for paying them,
   // and confirming the money arrived.
   receipts: "/repayment/receipts",

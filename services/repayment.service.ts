@@ -122,6 +122,23 @@ export interface InvestmentDue {
   rejection: { reason: string; decided_at: string } | null;
 }
 
+/** Mirrors backend ExtensionFilingOut: a month's revenue filing and the
+ *  automatic extension it gave (EXTENDED: every investor's loan is
+ *  `delta_days` working days longer from `start_date`). */
+export interface ExtensionFiling {
+  id: string;
+  window_id: string;
+  period_month: string;
+  evidence_kind: "TAX_DECLARATION" | "BANK_INFLOW";
+  revenue_vnd: number;
+  due_vnd: number;
+  shortfall_vnd: number;
+  status: "EXTENDED" | "NO_SHORTFALL" | "NO_ROOM";
+  delta_days: number;
+  start_date: string | null;
+  filed_at: string;
+}
+
 /** A bank account a repayment moved between. */
 export interface RepaymentReceiptAccount {
   bank_name: string;
@@ -219,6 +236,28 @@ export const repaymentService = {
 
   // POST /repayment/tranches/{id}/pay — the business's transfer receipt; the
   // days are marked paid in the same step. Replaying the key repeats nothing.
+  // POST /repayment/rounds/{id}/extension-filings — month `periodMonth`
+  // (YYYY-MM), filed by the 5th of the next month with its evidence.
+  fileExtension(
+    windowId: string,
+    filing: {
+      periodMonth: string;
+      revenueVnd: number;
+      evidenceKind: ExtensionFiling["evidence_kind"];
+      file: File;
+    },
+  ) {
+    const form = new FormData();
+    form.append("period_month", filing.periodMonth);
+    form.append("revenue_vnd", String(filing.revenueVnd));
+    form.append("evidence_kind", filing.evidenceKind);
+    form.append("file", filing.file);
+    return apiClient.post<ExtensionFiling>(
+      REPAYMENT_ENDPOINTS.extensionFilings(windowId),
+      form,
+    );
+  },
+
   payWithReceipt(
     trancheId: string,
     repaymentDayIds: string[],

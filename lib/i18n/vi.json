@@ -2596,6 +2596,30 @@
         "disputePlaceholder": "Có vấn đề gì? VD: sao kê ngân hàng của chúng tôi không có khoản này",
         "disputeSend": "Gửi khiếu nại",
         "disputedToast": "Đã gửi khiếu nại: nhân viên FundLok sẽ xem xét",
+        "extension": {
+          "heading": "Kê khai doanh thu hằng tháng",
+          "hint": "Doanh thu không đủ cho khoản trả nợ tháng này? Kê khai doanh thu tháng {month} trước ngày 5, kèm tờ khai thuế hoặc sao kê tiền vào. Nếu thiếu hụt, khoản vay của mọi nhà đầu tư được thêm cùng số ngày làm việc và số tiền trả hằng ngày không bao giờ tăng. Không thu phí.",
+          "revenue": "Doanh thu tháng {month} (VND)",
+          "kind": "Chứng từ",
+          "kinds": {
+            "TAX_DECLARATION": "Tờ khai thuế",
+            "BANK_INFLOW": "Sao kê tiền vào"
+          },
+          "file": "Tệp chứng từ (PDF hoặc ảnh)",
+          "submit": "Kê khai doanh thu",
+          "result": {
+            "EXTENDED": "Đã gia hạn thêm {days} ngày làm việc từ {date}. Số tiền trả hằng ngày không tăng.",
+            "NO_SHORTFALL": "Doanh thu đủ cho tháng này: không cần gia hạn.",
+            "NO_ROOM": "Không còn ngày nào trước ngày chặn: không gia hạn."
+          },
+          "failed": "Không kê khai được doanh thu",
+          "errors": {
+            "FILING_CLOSED": "Đã hết hạn kê khai cho tháng này (chỉ từ ngày 1 đến ngày 5).",
+            "ALREADY_FILED": "Tháng này đã được kê khai.",
+            "LATE_DAY_BLOCKS_FILING": "Có ngày trả nợ quá hạn hoặc đang khiếu nại: hãy xử lý trước.",
+            "REVENUE_SHARE_UNKNOWN": "Tỷ lệ doanh thu của khoản vay chưa được thiết lập: hãy liên hệ FundLok."
+          }
+        },
         "failedNote": "Đợt gọi vốn đã đóng mà không nhận được khoản đầu tư nào.",
         "heading": "Huy động vốn",
         "lastTicketCloseEarly": "Bạn cũng có thể đóng đợt gọi vốn ngay bây giờ.",
