@@ -288,6 +288,15 @@ describe("RepaymentClient", () => {
     );
   });
 
+  it("shows the late interest to pay the investor apart from the QR amount", () => {
+    due = { ...owing([schedule![3]]), late_interest_vnd: 6_712 };
+    open();
+
+    expect(screen.getByTestId("pay-late-interest")).toHaveTextContent(
+      'dashboard.sme.investment.pay.lateInterest:{"amount":"₫6,712"}',
+    );
+  });
+
   it("refuses a file that is not a receipt before sending it", () => {
     open();
     fireEvent.click(

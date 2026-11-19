@@ -2668,6 +2668,7 @@
           "failed": "Không ghi nhận được khoản trả nợ",
           "heading": "Trả nợ hôm nay",
           "includes": "{count} ngày làm việc: {dates}",
+          "lateInterest": "Lãi chậm trả phải trả cho nhà đầu tư này: {amount}. Hãy chuyển trực tiếp cho nhà đầu tư, ngoài số tiền trong mã QR. FundLok không thu khoản này.",
           "mismatch": {
             "AMOUNT_MISMATCH": "Số tiền không đúng số tiền đến hạn.",
             "DUPLICATE_BANK_TXN": "Giao dịch chuyển khoản này đã được dùng cho một khoản trả nợ khác.",
