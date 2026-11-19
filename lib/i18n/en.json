@@ -2694,6 +2694,7 @@
           "failed": "Couldn't record the repayment",
           "heading": "Today's repayment",
           "includes": "{count} working days: {dates}",
+          "lateInterest": "Late interest owed to this investor: {amount}. Pay it to them directly, on top of the amount in the QR. FundLok does not collect it.",
           "mismatch": {
             "AMOUNT_MISMATCH": "The amount isn't the amount due.",
             "DUPLICATE_BANK_TXN": "This bank transfer was already used for another repayment.",

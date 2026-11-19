@@ -120,6 +120,9 @@ export interface InvestmentDue {
   /** Set when a day here is due again because staff denied its receipt
    *  (before investors confirmed repayments themselves). */
   rejection: { reason: string; decided_at: string } | null;
+  /** Late interest on the days here past their due date, to today: paid to
+   *  the investor directly, not in the QR amount. FundLok never collects it. */
+  late_interest_vnd?: number;
 }
 
 /** Mirrors backend ExtensionFilingOut: a month's revenue filing and the
