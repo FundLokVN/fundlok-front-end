@@ -36,6 +36,7 @@ vi.mock("@/hooks/use-funding", () => ({
 }));
 vi.mock("@/hooks/use-repayment", () => ({
   useTodaysPayments: () => ({ data: today, isLoading: false }),
+  useFileExtension: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
 vi.mock("@/lib/i18n", () => ({

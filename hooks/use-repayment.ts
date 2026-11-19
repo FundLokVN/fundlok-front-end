@@ -5,6 +5,7 @@ import type { ApiError } from "@/lib/types";
 import { fundingKeys } from "@/hooks/use-funding";
 import {
   repaymentService,
+  type ExtensionFiling,
   type InvestmentDue,
   type ProjectedSchedule,
   type RepaymentReceipt,
@@ -132,6 +133,23 @@ export function useConfirmRepaymentReceipt() {
   const queryClient = useQueryClient();
   return useMutation<RepaymentReceipt, ApiError, string>({
     mutationFn: (receiptId) => repaymentService.confirmReceipt(receiptId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: repaymentKeys.all });
+      void queryClient.invalidateQueries({ queryKey: fundingKeys.all });
+    },
+  });
+}
+
+// The business's monthly revenue filing: an extension moves every investor's
+// schedule, so everything repayment-related is read again.
+export function useFileExtension(windowId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    ExtensionFiling,
+    ApiError,
+    Parameters<typeof repaymentService.fileExtension>[1]
+  >({
+    mutationFn: (filing) => repaymentService.fileExtension(windowId, filing),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: repaymentKeys.all });
       void queryClient.invalidateQueries({ queryKey: fundingKeys.all });
