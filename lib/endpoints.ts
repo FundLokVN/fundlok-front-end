@@ -172,6 +172,13 @@ export const FUNDING_ENDPOINTS = {
   closeEarly: (windowId: string) => `/funding/windows/${windowId}/close-early`,
   reportMissingTransfer: (trancheId: string) =>
     `/funding/tranches/${trancheId}/report-missing`,
+  // The business's own screenshot of the money arriving (multipart `file`).
+  smeReceipt: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/sme-receipt`,
+  // The 30-day dispute after an automatic confirmation (multipart
+  // `statement`, `file`: the bank statement).
+  disputeTransfer: (trancheId: string) =>
+    `/funding/tranches/${trancheId}/dispute`,
 } as const;
 
 // Daily repayment once a round has formed its loan: what the business owes each

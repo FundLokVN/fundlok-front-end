@@ -518,6 +518,22 @@ export function useReportMissingTransfer() {
   );
 }
 
+export function useConfirmTransferWithReceipt() {
+  return useRoundMutation<{ trancheId: string; file: File }, SmeTicket>(
+    ({ trancheId, file }) =>
+      fundingService.confirmTransferWithReceipt(trancheId, file),
+  );
+}
+
+export function useDisputeConfirmedTransfer() {
+  return useRoundMutation<
+    { trancheId: string; statement: string; file: File },
+    SmeTicket
+  >(({ trancheId, statement, file }) =>
+    fundingService.disputeConfirmedTransfer(trancheId, statement, file),
+  );
+}
+
 // The business's daily repayments: projected until the loan forms, then real.
 export function useRepaymentPlan(windowId: string, enabled = true) {
   return useQuery<SmeRepaymentPlan, ApiError>({
