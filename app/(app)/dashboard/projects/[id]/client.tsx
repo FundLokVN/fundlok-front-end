@@ -9,7 +9,7 @@ import { useRequireAuth } from "@/hooks/use-authentication";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { InvestmentKpis } from "./_components/InvestmentKpis";
 import { RiskAssessmentTab } from "./_components/RiskAssessmentTab";
@@ -17,6 +17,7 @@ import { DueDiligenceTab } from "./_components/DueDiligenceTab";
 import { ScoreLabel } from "./_components/ScoreLabel";
 import { useTranslations } from "@/lib/i18n";
 import { industryLabel } from "@/lib/industry-label";
+import { formatSharePct } from "@/lib/listing-figures";
 import {
   pageTransitionProps,
   fadeInUpProps,
@@ -89,7 +90,7 @@ export default function ProjectDetailsClient({
     () => true,
     () => false,
   );
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   const { user, isLoading: isAuthLoading } = useRequireAuth();
 
@@ -201,18 +202,41 @@ export default function ProjectDetailsClient({
       </m.div>
 
       {/* KPI Cards Row. Real terms only: the asking amount and term from the
-          request; the investor return and revenue share read "n/a" until the
-          listing carries them (they used to be sample figures). Not rendered
-          without a request, where InvestmentKpis would fall back to its demo
-          set. */}
+          request, DRR and s from the locked assessment (each "n/a" until a run
+          is locked). Not rendered without a request, where InvestmentKpis
+          would fall back to its demo set. */}
       {loanApplication && (
-        <m.div {...fadeInUpProps}>
+        <m.div {...fadeInUpProps} className="space-y-3">
           <InvestmentKpis
             loanAmountVnd={Number(loanApplication.requested_amount)}
             interestRatePct={loanApplication.bank_rate_pct ?? undefined}
             paybackMonths={loanApplication.duration_months ?? undefined}
+            dailyRepaymentRate={
+              loanApplication.daily_repayment_rate != null
+                ? formatSharePct(loanApplication.daily_repayment_rate, locale)
+                : undefined
+            }
+            extensionShare={
+              loanApplication.revenue_share != null
+                ? formatSharePct(loanApplication.revenue_share, locale)
+                : undefined
+            }
             minTicketVnd={listing?.min_ticket}
           />
+          {/* The Personal Guarantor the signed Standing Offer names: the name
+              only, never their ID number or address. */}
+          {loanApplication.guarantor_name && (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <UserCheck className="h-4 w-4 shrink-0" aria-hidden />
+              <span>
+                {t("investment.kpis.guarantor")}:{" "}
+                <span className="font-medium text-foreground">
+                  {loanApplication.guarantor_name}
+                </span>{" "}
+                · {t("investment.kpis.guarantorSource")}
+              </span>
+            </p>
+          )}
         </m.div>
       )}
 

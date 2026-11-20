@@ -73,6 +73,23 @@ export interface ProjectLoanApplication {
    * a promise.
    */
   bank_rate_pct?: number | null;
+  /**
+   * Investor listing only: DRR, the locked assessment's daily repayment rate —
+   * the daily instalment over the average daily revenue, as a fraction (0.085
+   * = 8.5%). Null until a run is locked.
+   */
+  daily_repayment_rate?: number | null;
+  /**
+   * Investor listing only: s, the revenue share for extensions that the
+   * Standing Offer prints, as a fraction. Today the same figure as DRR; the
+   * backend keeps it as its own field so the screen never assumes that.
+   */
+  revenue_share?: number | null;
+  /**
+   * Investor listing only: the Personal Guarantor the signed Standing Offer
+   * names (the name only). Null until the Offer is on file.
+   */
+  guarantor_name?: string | null;
 }
 
 /** Backend MarketplaceListingOut: real funding figures for a marketplace card. */

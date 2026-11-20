@@ -39,6 +39,18 @@ export function listingDaysLeft(
 export const INVESTOR_TARGET_RETURN_PCT = 2.5;
 
 /**
+ * A share given as a fraction (0.085), as a percentage in the UI locale:
+ * "8.5%" (en) / "8,5%" (vi), at most two decimals — how the Standing Offer
+ * prints the revenue share s.
+ */
+export function formatSharePct(fraction: number, locale?: string): string {
+  return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", {
+    style: "percent",
+    maximumFractionDigits: 2,
+  }).format(fraction);
+}
+
+/**
  * The target return in VND on the business's whole request: what investing
  * the full asking amount would return, at INVESTOR_TARGET_RETURN_PCT. A
  * target, never a promise; the caller shows that beside it.

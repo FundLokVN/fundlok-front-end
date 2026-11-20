@@ -291,6 +291,21 @@ export interface AdminKybReview {
 export interface AdminKybResolvePayload extends AdminDecisionPayload {
   business_name?: string | null;
   tax_code?: string | null;
+  /**
+   * What the SME's contracts print for its legal representative and head
+   * office (AM-E17). A provider read fills them from the certificate; on a
+   * manual attempt staff type them. Optional, never blank when sent, and a
+   * position needs a name.
+   */
+  legal_representative_name?: string | null;
+  legal_representative_position?: string | null;
+  company_address?: string | null;
+}
+
+/** The resolved attempt, plus what the contracts would still print blank. */
+export interface AdminKybResolveResult extends AdminKybVerification {
+  /** e.g. ["LEGAL_REPRESENTATIVE", "COMPANY_ADDRESS"]; empty on a rejection. */
+  missing_signing_details?: string[];
 }
 
 export interface AdminKybCertificateUrl {
@@ -606,7 +621,7 @@ export const adminService = {
   // Admin only. Settles a KYB attempt the engine parked in MANUAL_REVIEW;
   // 409 if it was already decided by the provider.
   resolveKybVerification(verificationId: string, body: AdminKybResolvePayload) {
-    return apiClient.post<AdminKybVerification>(
+    return apiClient.post<AdminKybResolveResult>(
       ADMIN_ENDPOINTS.resolveKybVerification(verificationId),
       body,
     );

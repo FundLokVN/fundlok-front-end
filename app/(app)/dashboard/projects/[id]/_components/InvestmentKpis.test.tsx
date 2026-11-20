@@ -92,6 +92,39 @@ describe("InvestmentKpis", () => {
     }
   });
 
+  it("shows the listing's DRR and its revenue share for extensions (s)", () => {
+    render(
+      <InvestmentKpis
+        loanAmountVnd={80_000_000}
+        interestRatePct={12}
+        paybackMonths={4}
+        dailyRepaymentRate="8.5%"
+        extensionShare="8.5%"
+      />,
+    );
+    expect(screen.getByText("investment.kpis.drr")).toBeInTheDocument();
+    expect(screen.getByText("8.5%")).toBeInTheDocument();
+    expect(
+      screen.getByText('investment.kpis.extensionShare:{"rate":"8.5%"}'),
+    ).toBeInTheDocument();
+    // The rate passed in is the investor's target return: the SME's daily
+    // repayment is never worked out from it on a real listing.
+    expect(
+      screen.getByText("investment.kpis.ofDailyRevenue"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/investment\.kpis\.dailyObligation/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("reads n/a, with no s line, until the assessment is locked", () => {
+    render(<InvestmentKpis loanAmountVnd={80_000_000} paybackMonths={4} />);
+    expect(screen.getByText("common.na")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/investment\.kpis\.extensionShare/),
+    ).not.toBeInTheDocument();
+  });
+
   it("localises the payback period instead of hardcoding 'mo'", () => {
     render(<InvestmentKpis paybackMonths={9} />);
     expect(

@@ -3,11 +3,21 @@ import type { FundingWindow } from "@/services/funding.service";
 import type { MarketplaceListing } from "@/services/projects.service";
 import {
   INVESTOR_TARGET_RETURN_PCT,
+  formatSharePct,
   lastTicketVnd,
   listingLastTicketVnd,
   targetReturnVnd,
   ticketBounds,
 } from "./listing-figures";
+
+describe("formatSharePct", () => {
+  it("prints a fraction as the Standing Offer prints s", () => {
+    expect(formatSharePct(0.085, "en")).toBe("8.5%");
+    expect(formatSharePct(0.085, "vi")).toBe("8,5%");
+    expect(formatSharePct(0.1234, "en")).toBe("12.34%");
+    expect(formatSharePct(0.1, "en")).toBe("10%");
+  });
+});
 
 describe("targetReturnVnd", () => {
   it("is 2.5% of the whole request, for the whole loan", () => {
