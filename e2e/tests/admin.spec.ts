@@ -69,6 +69,37 @@ test.describe("as an admin", () => {
     ).toHaveAttribute("aria-selected", "true");
   });
 
+  test("a lead from the /rate quiz is tagged and shows its answers and ad source", async ({
+    page,
+  }) => {
+    await page.goto("/admin");
+    const sme = page.getByTestId("recent-sme-leads");
+    const quizLead = sme
+      .getByRole("listitem")
+      .filter({ hasText: "Phạm Văn Quiz" });
+    await expect(quizLead).toContainText(t("admin.ratesTable.sourceQuiz"));
+    await expect(
+      sme.getByRole("listitem").filter({ hasText: "Lê Thị Chủ Shop" }),
+    ).not.toContainText(t("admin.ratesTable.sourceQuiz"));
+
+    await page.goto("/admin/rates?tab=sme");
+    await page.getByText("Phạm Văn Quiz").first().click();
+    const sheet = page.getByRole("dialog");
+    await expect(sheet).toContainText(t("admin.ratesDetail.quizAnswersTitle"));
+    await expect(sheet).toContainText(t("ratePage.quiz.bandY1_3"));
+    await expect(sheet).toContainText("1.21% / mo");
+    await expect(sheet).toContainText(
+      t("admin.ratesDetail.quizNote").replace("{version}", "sme-quiz-v1"),
+    );
+    // A quiz lead has no calculator financials to show.
+    await expect(sheet).not.toContainText(
+      t("admin.ratesDetail.financialsTitle"),
+    );
+    await expect(sheet).toContainText(t("admin.ratesDetail.adSourceTitle"));
+    await expect(sheet).toContainText("sme-rate-quiz-nov");
+    await expect(sheet).toContainText("IwAR0stub");
+  });
+
   test("the users page lists users from the API", async ({ page }) => {
     await page.goto("/admin/users");
 

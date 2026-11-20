@@ -6,6 +6,8 @@ interface TurnstileInstance {
       callback: (token: string) => void;
       "error-callback"?: () => void;
       "expired-callback"?: () => void;
+      /** "interaction-only": hidden unless Cloudflare needs a click. */
+      appearance?: "always" | "execute" | "interaction-only";
     },
   ) => string;
   reset: (widgetId?: string) => void;

@@ -50,7 +50,26 @@ export function RateInquiryDetailSheet({
     }
   };
 
+  // A lead from the illustrative quiz: no calculator figures, its own answers.
+  const isQuiz = inquiry.source === "QUIZ";
+  const tracking = [
+    ["utm_source", inquiry.utm_source],
+    ["utm_medium", inquiry.utm_medium],
+    ["utm_campaign", inquiry.utm_campaign],
+    ["utm_content", inquiry.utm_content],
+    ["utm_term", inquiry.utm_term],
+    ["fbclid", inquiry.fbclid],
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]));
+
   const getTierBadge = (tier: string | null) => {
+    if (isQuiz) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          {t("admin.ratesTable.sourceQuiz")}
+        </span>
+      );
+    }
     const tUpper = (tier ?? "").toUpperCase();
     if (tUpper.includes("A")) {
       return (
@@ -209,205 +228,269 @@ export function RateInquiryDetailSheet({
             </div>
           </div>
 
-          {/* Business & Operation */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Building2 className="h-3.5 w-3.5 text-primary" />
-              <span>{t("admin.ratesDetail.businessProfileTitle")}</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border p-3">
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesTable.industry")}
-                </span>
-                <span className="font-medium text-sm">
-                  {inquiry.industry_display || inquiry.industry}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.operatingMonths")}
-                </span>
-                <span className="font-medium text-sm">
-                  {inquiry.operating_months} {t("ratePage.months")}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.employeeCount")}
-                </span>
-                <span className="font-medium text-sm">
-                  {inquiry.employee_count} {t("admin.ratesDetail.staff")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Financials & Growth */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <TrendingUp className="h-3.5 w-3.5 text-primary" />
-              <span>{t("admin.ratesDetail.financialsTitle")}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 rounded-lg border p-3">
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesTable.revenueL12m")}
-                </span>
-                <span className="font-bold text-sm">
-                  {inquiry.revenue_l12m_formatted ||
-                    formatCurrency(inquiry.revenue_l12m, locale)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.revenuePrior")}
-                </span>
-                <span className="font-medium text-sm">
-                  {formatCurrency(inquiry.revenue_prev_12m, locale)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesTable.yoyGrowth")}
-                </span>
-                <span
-                  className={cn(
-                    "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold mt-0.5",
-                    inquiry.yoy_growth_pct >= 0
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-                  )}
-                >
-                  {inquiry.yoy_growth_display ||
-                    `${inquiry.yoy_growth_pct >= 0 ? "+" : ""}${inquiry.yoy_growth_pct}%`}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.cogs")}
-                </span>
-                <span className="font-medium text-sm">
-                  {formatCurrency(inquiry.cogs_l12m, locale)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.fixedCost")}
-                </span>
-                <span className="font-medium text-sm">
-                  {formatCurrency(inquiry.fixed_costs_l12m, locale)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("ratePage.variableCost")}
-                </span>
-                <span className="font-medium text-sm">
-                  {formatCurrency(inquiry.variable_costs_l12m, locale)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Risk Metrics */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 text-primary" />
-              <span>{t("admin.ratesDetail.riskMetricsTitle")}</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border p-3">
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesDetail.ebitdaMargin")}
-                </span>
-                <span className="font-semibold text-sm">
-                  {inquiry.ebitda_margin_pct != null
-                    ? `${inquiry.ebitda_margin_pct}%`
-                    : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesDetail.debtToRevenue")}
-                </span>
-                <span className="font-semibold text-sm">
-                  {inquiry.debt_to_revenue_pct != null
-                    ? `${inquiry.debt_to_revenue_pct}%`
-                    : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted-foreground block">
-                  {t("admin.ratesDetail.operatingStatus")}
-                </span>
-                <span
-                  className={cn(
-                    "text-xs font-semibold",
-                    inquiry.is_operating_loss
-                      ? "text-rose-500"
-                      : "text-emerald-500",
-                  )}
-                >
-                  {inquiry.is_operating_loss
-                    ? t("admin.ratesDetail.operatingLoss")
-                    : t("admin.ratesDetail.operatingProfit")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Seasonality & Customer Concentration */}
-          {(inquiry.peak_month_revenue ||
-            inquiry.lowest_month_revenue ||
-            inquiry.top_1_customer_share ||
-            inquiry.top_3_customer_share) && (
+          {isQuiz ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
-                <span>{t("admin.ratesDetail.seasonalityTitle")}</span>
+                <Building2 className="h-3.5 w-3.5 text-primary" />
+                <span>{t("admin.ratesDetail.quizAnswersTitle")}</span>
               </div>
-              <div className="grid grid-cols-2 gap-3 rounded-lg border p-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border p-3">
                 <div>
                   <span className="text-[11px] text-muted-foreground block">
-                    {t("ratePage.bestMonth")}
+                    {t("admin.ratesTable.industry")}
                   </span>
                   <span className="font-medium text-sm">
-                    {inquiry.peak_month_revenue
-                      ? formatCurrency(inquiry.peak_month_revenue, locale)
+                    {inquiry.industry_display || inquiry.industry}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-muted-foreground block">
+                    {t("admin.ratesDetail.operatingBand")}
+                  </span>
+                  <span className="font-medium text-sm">
+                    {inquiry.operating_band
+                      ? t(`ratePage.quiz.band${inquiry.operating_band}`)
                       : "—"}
                   </span>
                 </div>
                 <div>
                   <span className="text-[11px] text-muted-foreground block">
-                    {t("ratePage.worstMonth")}
+                    {t("admin.ratesDetail.monthlyRevenue")}
                   </span>
                   <span className="font-medium text-sm">
-                    {inquiry.lowest_month_revenue
-                      ? formatCurrency(inquiry.lowest_month_revenue, locale)
+                    {inquiry.monthly_revenue
+                      ? formatCurrency(inquiry.monthly_revenue, locale)
                       : "—"}
                   </span>
                 </div>
-                <div>
-                  <span className="text-[11px] text-muted-foreground block">
-                    {t("ratePage.top1")}
-                  </span>
-                  <span className="font-medium text-sm">
-                    {inquiry.top_1_customer_share != null
-                      ? `${inquiry.top_1_customer_share}%`
-                      : "—"}
-                  </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("admin.ratesDetail.quizNote").replace(
+                  "{version}",
+                  inquiry.quiz_params_version ?? "—",
+                )}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Business & Operation */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Building2 className="h-3.5 w-3.5 text-primary" />
+                  <span>{t("admin.ratesDetail.businessProfileTitle")}</span>
                 </div>
-                <div>
-                  <span className="text-[11px] text-muted-foreground block">
-                    {t("ratePage.top3")}
-                  </span>
-                  <span className="font-medium text-sm">
-                    {inquiry.top_3_customer_share != null
-                      ? `${inquiry.top_3_customer_share}%`
-                      : "—"}
-                  </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border p-3">
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesTable.industry")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {inquiry.industry_display || inquiry.industry}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.operatingMonths")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {inquiry.operating_months} {t("ratePage.months")}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.employeeCount")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {inquiry.employee_count} {t("admin.ratesDetail.staff")}
+                    </span>
+                  </div>
                 </div>
+              </div>
+
+              {/* Financials & Growth */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                  <span>{t("admin.ratesDetail.financialsTitle")}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 rounded-lg border p-3">
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesTable.revenueL12m")}
+                    </span>
+                    <span className="font-bold text-sm">
+                      {inquiry.revenue_l12m_formatted ||
+                        formatCurrency(inquiry.revenue_l12m ?? 0, locale)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.revenuePrior")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {formatCurrency(inquiry.revenue_prev_12m ?? 0, locale)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesTable.yoyGrowth")}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold mt-0.5",
+                        (inquiry.yoy_growth_pct ?? 0) >= 0
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                      )}
+                    >
+                      {inquiry.yoy_growth_display ||
+                        `${(inquiry.yoy_growth_pct ?? 0) >= 0 ? "+" : ""}${inquiry.yoy_growth_pct}%`}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.cogs")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {formatCurrency(inquiry.cogs_l12m ?? 0, locale)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.fixedCost")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {formatCurrency(inquiry.fixed_costs_l12m ?? 0, locale)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("ratePage.variableCost")}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {formatCurrency(inquiry.variable_costs_l12m ?? 0, locale)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Risk Metrics */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Shield className="h-3.5 w-3.5 text-primary" />
+                  <span>{t("admin.ratesDetail.riskMetricsTitle")}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border p-3">
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesDetail.ebitdaMargin")}
+                    </span>
+                    <span className="font-semibold text-sm">
+                      {inquiry.ebitda_margin_pct != null
+                        ? `${inquiry.ebitda_margin_pct}%`
+                        : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesDetail.debtToRevenue")}
+                    </span>
+                    <span className="font-semibold text-sm">
+                      {inquiry.debt_to_revenue_pct != null
+                        ? `${inquiry.debt_to_revenue_pct}%`
+                        : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-muted-foreground block">
+                      {t("admin.ratesDetail.operatingStatus")}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-xs font-semibold",
+                        inquiry.is_operating_loss
+                          ? "text-rose-500"
+                          : "text-emerald-500",
+                      )}
+                    >
+                      {inquiry.is_operating_loss
+                        ? t("admin.ratesDetail.operatingLoss")
+                        : t("admin.ratesDetail.operatingProfit")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seasonality & Customer Concentration */}
+              {(inquiry.peak_month_revenue ||
+                inquiry.lowest_month_revenue ||
+                inquiry.top_1_customer_share ||
+                inquiry.top_3_customer_share) && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
+                    <span>{t("admin.ratesDetail.seasonalityTitle")}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 rounded-lg border p-3">
+                    <div>
+                      <span className="text-[11px] text-muted-foreground block">
+                        {t("ratePage.bestMonth")}
+                      </span>
+                      <span className="font-medium text-sm">
+                        {inquiry.peak_month_revenue
+                          ? formatCurrency(inquiry.peak_month_revenue, locale)
+                          : "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-muted-foreground block">
+                        {t("ratePage.worstMonth")}
+                      </span>
+                      <span className="font-medium text-sm">
+                        {inquiry.lowest_month_revenue
+                          ? formatCurrency(inquiry.lowest_month_revenue, locale)
+                          : "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-muted-foreground block">
+                        {t("ratePage.top1")}
+                      </span>
+                      <span className="font-medium text-sm">
+                        {inquiry.top_1_customer_share != null
+                          ? `${inquiry.top_1_customer_share}%`
+                          : "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-muted-foreground block">
+                        {t("ratePage.top3")}
+                      </span>
+                      <span className="font-medium text-sm">
+                        {inquiry.top_3_customer_share != null
+                          ? `${inquiry.top_3_customer_share}%`
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Where the visitor came from (ad tracking on the landing URL) */}
+          {tracking.length > 0 && (
+            <div className="rounded-lg border p-3 space-y-2 text-xs">
+              <div className="font-medium text-foreground">
+                {t("admin.ratesDetail.adSourceTitle")}
+              </div>
+              <div className="grid grid-cols-1 gap-1 font-mono text-[11px] sm:grid-cols-2">
+                {tracking.map(([key, value]) => (
+                  <div key={key} className="truncate">
+                    <span className="text-muted-foreground">{key}: </span>
+                    <span className="text-foreground">{value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}

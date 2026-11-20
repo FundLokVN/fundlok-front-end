@@ -37,6 +37,44 @@ export interface RateCalculateRequest {
   turnstile_token?: string | null;
 }
 
+/** Ad tracking parameters read from the landing URL. */
+export interface QuizTracking {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  fbclid?: string | null;
+}
+
+/**
+ * A lead from the illustrative SME quiz. The rate was computed in the browser
+ * (lib/rate-quiz.ts); the backend stores it as shown after a bounds check and
+ * never prices anything itself.
+ */
+export interface SmeQuizLeadRequest {
+  requested_amount: number;
+  tenor_months: number;
+  operating_band: "LT_1Y" | "Y1_3" | "GT_3Y";
+  industry: string;
+  monthly_revenue: number;
+  quiz_params_version: string;
+  outcome: "QUOTED" | "DECLINED";
+  /** The monthly rate the visitor saw; null when the quiz declined. */
+  monthly_rate_pct: number | null;
+  full_name: string;
+  phone: string;
+  /** Must be literally true (Decree 13/2023). */
+  consent_contact: true;
+  session_id?: string | null;
+  turnstile_token?: string | null;
+  tracking?: QuizTracking | null;
+}
+
+export interface SmeQuizLeadResponse {
+  inquiry_id: string;
+}
+
 export interface RateCalculateResponse {
   inquiry_id: string;
   status: "success";
@@ -85,22 +123,29 @@ export interface RateInquiryAdminItem {
   created_at_formatted: string; // e.g. "26/09/2026 22:45"
   industry: string;
   industry_display: string; // e.g. "Retail FMCG"
-  operating_months: number;
-  employee_count: number;
-  tenure_staff_display: string; // e.g. "36 mos / 25 staff"
-  revenue_l12m: number;
-  revenue_l12m_formatted: string; // e.g. "4.000.000.000 ₫"
-  revenue_prev_12m: number;
-  cogs_l12m: number;
-  fixed_costs_l12m: number;
-  variable_costs_l12m: number;
-  yoy_growth_pct: number;
-  yoy_growth_display: string; // e.g. "+25.0%"
+  /**
+   * CALCULATOR: the long form priced by the engine. QUIZ: the illustrative
+   * quiz — no calculator figures (they are null), its answers are in the
+   * quiz fields below and the `*_display` strings.
+   */
+  source?: "CALCULATOR" | "QUIZ";
+  operating_months: number | null;
+  employee_count: number | null;
+  tenure_staff_display: string; // e.g. "36 mos / 25 staff", "1–3 yrs (quiz)"
+  revenue_l12m: number | null;
+  revenue_l12m_formatted: string; // e.g. "4.000.000.000 ₫", quiz: "100.000.000 ₫ / mo"
+  revenue_prev_12m: number | null;
+  cogs_l12m: number | null;
+  fixed_costs_l12m: number | null;
+  variable_costs_l12m: number | null;
+  yoy_growth_pct: number | null;
+  yoy_growth_display: string; // e.g. "+25.0%", quiz: "—"
   requested_amount: number;
   tenor_months: number;
   loan_ask_display: string; // e.g. "800M ₫ / 6 mos"
-  estimated_rate_min: number;
-  estimated_rate_max: number;
+  /** Quiz: both are the monthly rate the visitor saw; null when declined. */
+  estimated_rate_min: number | null;
+  estimated_rate_max: number | null;
   calculated_rate_display: string; // e.g. "1.2% - 1.8% / mo"
   risk_tier: string | null;
   tier_display: string; // e.g. "Tier A"
@@ -115,6 +160,18 @@ export interface RateInquiryAdminItem {
   email?: string | null;
   phone?: string | null;
   consented_contact_at?: string | null;
+  // Quiz rows only
+  monthly_revenue?: number | null;
+  operating_band?: "LT_1Y" | "Y1_3" | "GT_3Y" | null;
+  quiz_outcome?: "QUOTED" | "DECLINED" | null;
+  quiz_params_version?: string | null;
+  // Ad tracking parameters from the landing URL
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  fbclid?: string | null;
   // Breakdown & additional risk metrics
   peak_month_revenue?: number | null;
   lowest_month_revenue?: number | null;
@@ -141,6 +198,7 @@ export interface RateInquiriesQueryParams {
   industry?: string;
   risk_tier?: string;
   search?: string;
+  source?: "CALCULATOR" | "QUIZ";
 }
 
 // --------------------------------------------------------------------------
@@ -250,6 +308,13 @@ export const ratesService = {
   calculate(payload: RateCalculateRequest) {
     return apiClient.post<RateCalculateResponse>(
       RATE_CALCULATOR_ENDPOINTS.calculate,
+      payload,
+    );
+  },
+
+  submitSmeQuizLead(payload: SmeQuizLeadRequest) {
+    return apiClient.post<SmeQuizLeadResponse>(
+      RATE_CALCULATOR_ENDPOINTS.smeQuizLeads,
       payload,
     );
   },

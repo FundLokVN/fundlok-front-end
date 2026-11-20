@@ -3,10 +3,23 @@ import { useState, useEffect, useRef } from "react";
 export const isTurnstileDisabled =
   process.env.NEXT_PUBLIC_DISABLE_TURNSTILE === "true";
 
-export function useTurnstile() {
+export interface UseTurnstileOptions {
+  /**
+   * "interaction-only" keeps the widget invisible unless Cloudflare actually
+   * needs the visitor to click (the rate quiz uses it). Default: always shown,
+   * as before.
+   */
+  appearance?: "always" | "interaction-only";
+}
+
+export function useTurnstile(options: UseTurnstileOptions = {}) {
+  const { appearance } = options;
   const [turnstileToken, setTurnstileToken] = useState<string | null>(
     isTurnstileDisabled ? "mock-token" : null,
   );
+  // Set when the widget reports an error, so a page can say why its button is
+  // waiting instead of leaving it grey with no explanation.
+  const [turnstileError, setTurnstileError] = useState(false);
   const turnstileContainerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
 
@@ -35,14 +48,17 @@ export function useTurnstile() {
             sitekey:
               process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY ||
               "0x4AAAAAAADgp22IT7NjMKXhN",
+            ...(appearance ? { appearance } : {}),
             callback: (token: string) => {
               setTurnstileToken(token);
+              setTurnstileError(false);
             },
             "expired-callback": () => {
               setTurnstileToken(null);
             },
             "error-callback": () => {
               setTurnstileToken(null);
+              setTurnstileError(true);
             },
           },
         );
@@ -69,7 +85,7 @@ export function useTurnstile() {
         }
       }
     };
-  }, []);
+  }, [appearance]);
 
   const reset = () => {
     if (isTurnstileDisabled) {
@@ -84,6 +100,7 @@ export function useTurnstile() {
           window.turnstile.reset();
         }
         setTurnstileToken(null);
+        setTurnstileError(false);
       } catch {
         // ignore
       }
@@ -95,5 +112,6 @@ export function useTurnstile() {
     turnstileContainerRef,
     reset,
     isTurnstileDisabled,
+    turnstileError,
   };
 }

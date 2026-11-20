@@ -18,6 +18,8 @@ import {
   type RateInquiryAdminItem,
   type RateInquiriesAdminListResponse,
   type RateInquiriesQueryParams,
+  type SmeQuizLeadRequest,
+  type SmeQuizLeadResponse,
 } from "@/services/rates.service";
 
 export const rateKeys = {
@@ -40,6 +42,18 @@ export const rateKeys = {
 export function useCalculateRate() {
   return useMutation<RateCalculateResponse, ApiError, RateCalculateRequest>({
     mutationFn: (payload) => ratesService.calculate(payload),
+    retry: false,
+  });
+}
+
+/**
+ * Sends a lead from the illustrative SME quiz on /rate
+ * (POST /api/v1/rates/sme/quiz-leads). The rate in it was computed in the
+ * browser by lib/rate-quiz.ts; the backend only stores it.
+ */
+export function useSubmitSmeQuizLead() {
+  return useMutation<SmeQuizLeadResponse, ApiError, SmeQuizLeadRequest>({
+    mutationFn: (payload) => ratesService.submitSmeQuizLead(payload),
     retry: false,
   });
 }

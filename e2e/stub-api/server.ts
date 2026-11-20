@@ -1129,6 +1129,33 @@ const server = createServer(async (req, res) => {
     });
   }
 
+  // --- SME quiz on /rate -----------------------------------------------------
+  // The rate is computed in the browser (lib/rate-quiz.ts); the backend only
+  // stores the lead. Like the real endpoint, the stub refuses a lead without
+  // consent and contact, or whose rate does not match its outcome, so a spec
+  // proves the page sends them.
+  if (path === "/api/v1/rates/sme/quiz-leads" && method === "POST") {
+    const body = await readBody(req);
+    const quoted = body.outcome === "QUOTED";
+    if (
+      body.consent_contact !== true ||
+      !body.full_name ||
+      !body.phone ||
+      (quoted
+        ? typeof body.monthly_rate_pct !== "number"
+        : body.monthly_rate_pct !== null)
+    ) {
+      return detail(
+        res,
+        422,
+        "consent, contact and a consistent rate are required",
+      );
+    }
+    return json(res, 201, {
+      inquiry_id: "5f3c9a2e-7b1d-4c8e-9f60-2a4b6c8d0e12",
+    });
+  }
+
   // --- Investor tab of /rate --------------------------------------------------
   // Figures are the prototype's locked scenario, so a spec can assert the
   // page renders the server's walk-down rather than computing its own.
@@ -2348,6 +2375,56 @@ const server = createServer(async (req, res) => {
           email: "owner@retail.vn",
           phone: "0912 345 678",
           consented_contact_at: "2026-09-26T15:45:00.000Z",
+        },
+        {
+          // A lead from the illustrative /rate quiz (FundLok #137): no
+          // calculator figures, its answers in the quiz fields and the
+          // display strings, plus the ad tracking from the landing URL.
+          id: "5d1f0c2e-8b7a-4e3c-9f10-2a6b7c8d9e01",
+          source: "QUIZ",
+          created_at: "2026-11-20T03:10:00.000Z",
+          created_at_formatted: "20/11/2026 10:10",
+          industry: "Food & Beverage",
+          industry_display: "Food & Beverage",
+          operating_months: null,
+          employee_count: null,
+          tenure_staff_display: "1–3 yrs (quiz)",
+          revenue_l12m: null,
+          revenue_l12m_formatted: "100.000.000 ₫ / mo",
+          revenue_prev_12m: null,
+          cogs_l12m: null,
+          fixed_costs_l12m: null,
+          variable_costs_l12m: null,
+          yoy_growth_pct: null,
+          yoy_growth_display: "—",
+          requested_amount: 50000000,
+          tenor_months: 3,
+          loan_ask_display: "50M ₫ / 3 mos",
+          estimated_rate_min: 1.21,
+          estimated_rate_max: 1.21,
+          calculated_rate_display: "1.21% / mo",
+          risk_tier: null,
+          tier_display: "Quiz",
+          calculated_monthly_payment: null,
+          calculated_monthly_payment_formatted: null,
+          session_id: "sess_stub_quiz",
+          ip_address: "127.0.0.1",
+          user_agent: "Mozilla/5.0",
+          full_name: "Phạm Văn Quiz",
+          company_name: null,
+          email: null,
+          phone: "0987 654 321",
+          consented_contact_at: "2026-11-20T03:10:00.000Z",
+          monthly_revenue: 100000000,
+          operating_band: "Y1_3",
+          quiz_outcome: "QUOTED",
+          quiz_params_version: "sme-quiz-v1",
+          utm_source: "facebook",
+          utm_medium: "paid_social",
+          utm_campaign: "sme-rate-quiz-nov",
+          utm_content: null,
+          utm_term: null,
+          fbclid: "IwAR0stub",
         },
       ];
       return json(res, 200, {
