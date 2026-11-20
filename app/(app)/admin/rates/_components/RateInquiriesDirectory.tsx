@@ -400,6 +400,10 @@ export function RateInquiriesDirectory() {
                     {t(`projectApplication.industries.${opt.labelKey}`)}
                   </SelectItem>
                 ))}
+                {/* Only the quiz offers "Other" (Khác); the calculator never stores it. */}
+                <SelectItem value="Other">
+                  {t("ratePage.quiz.industryOther")}
+                </SelectItem>
               </SelectContent>
             </Select>
 

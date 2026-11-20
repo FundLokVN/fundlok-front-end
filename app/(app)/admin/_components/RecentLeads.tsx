@@ -199,6 +199,11 @@ export function RecentLeads({
               )}
               <Contact email={item.email} phone={item.phone} />
               <p className="truncate text-[11px] text-muted-foreground">
+                {item.source === "QUIZ" && (
+                  <span className="mr-1.5 rounded bg-primary/10 px-1.5 py-px font-semibold text-primary">
+                    {t("admin.ratesTable.sourceQuiz")}
+                  </span>
+                )}
                 {item.industry_display || item.industry} ·{" "}
                 {item.loan_ask_display}
               </p>
