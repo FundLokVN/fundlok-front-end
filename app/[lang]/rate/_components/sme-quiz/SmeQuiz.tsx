@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { INDUSTRY_OPTIONS } from "@/lib/constants/industries";
-import { EASE_OUT } from "@/lib/motion";
 import {
   OPERATING_BANDS,
   SME_QUIZ_PARAMS,
@@ -40,7 +38,6 @@ export function SmeQuiz({ getSessionId }: { getSessionId: () => string }) {
 
 function QuizCard() {
   const { state, t, back } = useSmeQuizContext();
-  const reduceMotion = useReducedMotion();
   const onResult = state.step >= RESULT_STEP;
 
   return (
@@ -84,17 +81,18 @@ function QuizCard() {
           </div>
         )}
 
-        <AnimatePresence mode="wait" initial={false}>
-          <m.div
-            key={onResult ? "result" : `q${state.step}`}
-            initial={reduceMotion ? false : { opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, x: -16 }}
-            transition={{ duration: 0.2, ease: EASE_OUT }}
-          >
-            {onResult ? <QuizResult /> : <Question step={state.step} />}
-          </m.div>
-        </AnimatePresence>
+        {/* The step swaps immediately; the entrance is a CSS animation.
+            Deliberately not AnimatePresence: waiting on an exit animation
+            stalled the quiz on the old question whenever the browser paused
+            animation frames (a backgrounded in-app browser, a busy device),
+            and a JS-driven entrance starts the new step at opacity 0 until
+            it runs. A CSS keyframe can't hold content back. */}
+        <div
+          key={onResult ? "result" : `q${state.step}`}
+          className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-4 motion-safe:duration-200"
+        >
+          {onResult ? <QuizResult /> : <Question step={state.step} />}
+        </div>
       </div>
     </div>
   );

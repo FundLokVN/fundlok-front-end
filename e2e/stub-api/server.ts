@@ -1129,6 +1129,33 @@ const server = createServer(async (req, res) => {
     });
   }
 
+  // --- SME quiz on /rate -----------------------------------------------------
+  // The rate is computed in the browser (lib/rate-quiz.ts); the backend only
+  // stores the lead. Like the real endpoint, the stub refuses a lead without
+  // consent and contact, or whose rate does not match its outcome, so a spec
+  // proves the page sends them.
+  if (path === "/api/v1/rates/sme/quiz-leads" && method === "POST") {
+    const body = await readBody(req);
+    const quoted = body.outcome === "QUOTED";
+    if (
+      body.consent_contact !== true ||
+      !body.full_name ||
+      !body.phone ||
+      (quoted
+        ? typeof body.monthly_rate_pct !== "number"
+        : body.monthly_rate_pct !== null)
+    ) {
+      return detail(
+        res,
+        422,
+        "consent, contact and a consistent rate are required",
+      );
+    }
+    return json(res, 201, {
+      inquiry_id: "5f3c9a2e-7b1d-4c8e-9f60-2a4b6c8d0e12",
+    });
+  }
+
   // --- Investor tab of /rate --------------------------------------------------
   // Figures are the prototype's locked scenario, so a spec can assert the
   // page renders the server's walk-down rather than computing its own.
