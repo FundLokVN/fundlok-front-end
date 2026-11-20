@@ -46,6 +46,10 @@ import type { AdminDecision, AdminKybReview } from "@/services/admin.service";
 //
 // A manual-mode attempt had no OCR or registry check: approving it needs the
 // business name and tax code as printed (the SME's declared code pre-fills).
+// The legal representative and head office address are asked for too: the
+// SME's contracts print them, and without them it cannot sign (AM-E17). They
+// are optional, so an approval still goes through without them, and the
+// response says what the contracts would still leave blank.
 // Unlike KYC, a rejection note is shown to the SME as the reason, so the
 // placeholder says so.
 
@@ -55,7 +59,16 @@ const TAX_CODE_PATTERN = /^\d{10}(-\d{3})?$/;
 interface CertificateDetails {
   businessName: string;
   taxCode: string;
+  representativeName: string;
+  representativePosition: string;
+  companyAddress: string;
 }
+
+// The backend's codes for what the contracts would still print blank.
+const SIGNING_DETAIL_KEYS: Record<string, string> = {
+  LEGAL_REPRESENTATIVE: "admin.kybReviews.signingDetails.LEGAL_REPRESENTATIVE",
+  COMPANY_ADDRESS: "admin.kybReviews.signingDetails.COMPANY_ADDRESS",
+};
 
 interface KybReviewSheetProps {
   verificationId: string | null;
@@ -83,6 +96,9 @@ export function KybReviewSheet({
   // Typed values win; until the reviewer types, show what is on file.
   const businessName = edit.businessName ?? data?.business_name ?? "";
   const taxCode = edit.taxCode ?? data?.tax_code ?? "";
+  const representativeName = edit.representativeName ?? "";
+  const representativePosition = edit.representativePosition ?? "";
+  const companyAddress = edit.companyAddress ?? data?.company_address ?? "";
 
   const setNote = (value: string) => {
     if (verificationId)
@@ -105,12 +121,20 @@ export function KybReviewSheet({
     cleanTaxCode.length > 0 && !TAX_CODE_PATTERN.test(cleanTaxCode);
   const detailsMissing =
     manualAttempt && (!businessName.trim() || !cleanTaxCode);
-  const approveBlocked = manualAttempt && (detailsMissing || taxCodeInvalid);
+  // The backend refuses a position with no name (422): say so here first.
+  const positionWithoutName =
+    manualAttempt &&
+    !!representativePosition.trim() &&
+    !representativeName.trim();
+  const approveBlocked =
+    manualAttempt && (detailsMissing || taxCodeInvalid || positionWithoutName);
+  // Sent only when typed: the backend refuses a blank value.
+  const typed = (value: string) => value.replace(/\s+/g, " ").trim() || null;
 
   const handleDecision = async (decision: AdminDecision) => {
     if (!data) return;
     try {
-      await resolve({
+      const result = await resolve({
         id: data.id,
         body: {
           decision,
@@ -119,12 +143,29 @@ export function KybReviewSheet({
             ? {
                 business_name: businessName.trim() || null,
                 tax_code: cleanTaxCode || null,
+                legal_representative_name: typed(representativeName),
+                legal_representative_position: typed(representativePosition),
+                company_address: typed(companyAddress),
               }
             : {}),
         },
       });
       setNote("");
-      toast({ title: t("admin.kycReviews.resolved") });
+      const stillBlank = result.missing_signing_details ?? [];
+      toast({
+        title: t("admin.kycReviews.resolved"),
+        description: stillBlank.length
+          ? t("admin.kybReviews.signingDetailsMissing", {
+              fields: stillBlank
+                .map((code) =>
+                  SIGNING_DETAIL_KEYS[code]
+                    ? t(SIGNING_DETAIL_KEYS[code])
+                    : code,
+                )
+                .join(", "),
+            })
+          : undefined,
+      });
       onOpenChange(false);
     } catch (err) {
       toast({
@@ -274,6 +315,63 @@ export function KybReviewSheet({
                             {t("admin.kybReviews.taxCodeInvalid")}
                           </p>
                         )}
+                      </div>
+                      <p className="pt-1 text-[11px] leading-relaxed text-muted-foreground">
+                        {t("admin.kybReviews.signingDetailsHint")}
+                      </p>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`kyb-rep-name-${data.id}`}>
+                          {t("admin.kybReviews.inputRepresentativeName")}
+                        </Label>
+                        <Input
+                          id={`kyb-rep-name-${data.id}`}
+                          autoComplete="off"
+                          maxLength={200}
+                          value={representativeName}
+                          disabled={isPending}
+                          onChange={(event) =>
+                            setEdit("representativeName", event.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`kyb-rep-position-${data.id}`}>
+                          {t("admin.kybReviews.inputRepresentativePosition")}
+                        </Label>
+                        <Input
+                          id={`kyb-rep-position-${data.id}`}
+                          autoComplete="off"
+                          maxLength={100}
+                          value={representativePosition}
+                          disabled={isPending}
+                          aria-invalid={positionWithoutName}
+                          onChange={(event) =>
+                            setEdit(
+                              "representativePosition",
+                              event.target.value,
+                            )
+                          }
+                        />
+                        {positionWithoutName && (
+                          <p className="text-[11px] text-destructive">
+                            {t("admin.kybReviews.positionNeedsName")}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`kyb-address-${data.id}`}>
+                          {t("admin.kybReviews.inputCompanyAddress")}
+                        </Label>
+                        <Textarea
+                          id={`kyb-address-${data.id}`}
+                          rows={2}
+                          maxLength={500}
+                          value={companyAddress}
+                          disabled={isPending}
+                          onChange={(event) =>
+                            setEdit("companyAddress", event.target.value)
+                          }
+                        />
                       </div>
                     </div>
                   )}

@@ -20,7 +20,10 @@ interface InvestmentKpisProps {
   interestRatePct?: number;
   /** Loan term in months; rendered per locale. */
   paybackMonths?: number;
-  revenueShareRate?: string;
+  /** DRR, formatted ("8.5%"): the daily instalment over average daily revenue. */
+  dailyRepaymentRate?: string;
+  /** s, formatted: the revenue share for extensions the Standing Offer prints. */
+  extensionShare?: string;
   /** The listing's minimum ticket, VND. Not shown when absent: it used to be
       derived as 1% of the amount, which disagreed with the real listing. */
   minTicketVnd?: number | null;
@@ -30,7 +33,8 @@ export function InvestmentKpis({
   loanAmountVnd,
   interestRatePct,
   paybackMonths,
-  revenueShareRate,
+  dailyRepaymentRate,
+  extensionShare,
   minTicketVnd,
 }: InvestmentKpisProps) {
   const { locale, t } = useTranslations();
@@ -42,20 +46,21 @@ export function InvestmentKpis({
     loanAmountVnd === undefined &&
     interestRatePct === undefined &&
     paybackMonths === undefined &&
-    revenueShareRate === undefined;
+    dailyRepaymentRate === undefined &&
+    extensionShare === undefined;
 
   const displayAmount = isDemo ? 800_000_000 : loanAmountVnd;
   const displayRate = isDemo ? 10.2 : interestRatePct;
   const displayMonths = isDemo ? 6 : paybackMonths;
-  const displayRevShare = isDemo ? "8.5%" : revenueShareRate;
+  const displayDrr = isDemo ? "8.5%" : dailyRepaymentRate;
+  const displayShare = isDemo ? "8.5%" : extensionShare;
 
-  // What the SME pays across the whole loan each business day — only derived
-  // when amount, rate and term are all present so figures strictly reconcile.
-  // Only with the deal's own revenue-share terms (today, the demo set): the
-  // rate shown above is the investor's target return, and the SME's daily
-  // repayment must not be derived from it.
+  // What the SME pays across the whole loan each business day — derived only
+  // for the demo set, whose rate is the deal's own. On a real listing the rate
+  // passed in is the investor's target return, and the SME's daily repayment
+  // must never be derived from it.
   const dailyObligationVnd =
-    displayRevShare !== undefined &&
+    isDemo &&
     displayAmount !== undefined &&
     displayRate !== undefined &&
     displayMonths !== undefined
@@ -154,24 +159,33 @@ export function InvestmentKpis({
         </Card>
       </m.div>
 
-      {/* Revenue Share Rate */}
+      {/* Daily repayment rate (DRR), and s: the revenue share for extensions
+          the Standing Offer prints. Today both are the locked run's one
+          figure; the backend sends them apart so this never assumes it. */}
       <m.div variants={springItemVariants} className="h-full">
         <Card className="p-5 md:p-6 bg-card border flex flex-col justify-between h-full min-h-32 rounded-2xl shadow-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <ShieldCheck className="h-4 w-4" />
             <span className="text-sm font-medium">
-              {t("investment.kpis.revenueShareRate")}
+              {t("investment.kpis.drr")}
             </span>
           </div>
           <div className="min-w-0 mt-2">
             <div className="truncate whitespace-nowrap text-2xl md:text-xl font-bold tracking-tight text-foreground">
-              {displayRevShare ?? t("common.na")}
+              {displayDrr ?? t("common.na")}
             </div>
             <p className="text-xs text-muted-foreground mt-1 truncate">
               {dailyObligationVnd !== null
                 ? `${t("investment.kpis.dailyObligation")}: ${formatCurrency(dailyObligationVnd, locale)}`
                 : t("investment.kpis.ofDailyRevenue")}
             </p>
+            {/* Wraps rather than truncates: the label is long in Vietnamese
+                and the value sits at its end. */}
+            {displayShare !== undefined && (
+              <p className="text-xs leading-snug text-muted-foreground mt-0.5">
+                {t("investment.kpis.extensionShare", { rate: displayShare })}
+              </p>
+            )}
           </div>
         </Card>
       </m.div>

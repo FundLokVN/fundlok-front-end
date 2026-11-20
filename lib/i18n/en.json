@@ -372,16 +372,26 @@
         "taxCode": "Tax code"
       },
       "inputBusinessName": "Business name as printed",
+      "inputCompanyAddress": "Head office address as printed",
+      "inputRepresentativeName": "Legal representative, full name as printed",
+      "inputRepresentativePosition": "Position (optional)",
       "inputTaxCode": "Tax code (MST)",
       "notePlaceholder": "Note (optional). If you reject, the business sees this note as the reason.",
       "ownerKycHeading": "Applicant's verified identity",
       "ownerKycHint": "Check that this person is listed as a legal representative on the certificate.",
       "ownerKycNone": "This account has no approved identity check yet. Check who the legal representatives are before approving.",
+      "positionNeedsName": "Enter the legal representative's name with the position.",
       "rejectHint": "If you reject, the business sees your note as the reason (or a general message if you leave it blank) and can submit again.",
       "rowLabel": "Review business check for {name}",
       "selfBlocked": "You can't review your own business check.",
       "sheetSubtitle": "Check the registration certificate against the details below.",
       "sheetTitle": "Business check",
+      "signingDetails": {
+        "COMPANY_ADDRESS": "head office address",
+        "LEGAL_REPRESENTATIVE": "legal representative"
+      },
+      "signingDetailsHint": "The business's contracts print the legal representative and head office address. Without them it can't sign.",
+      "signingDetailsMissing": "The contracts still have blanks: {fields}. The business can't sign until they're filled in.",
       "table": {
         "applicant": "Business",
         "check": "Why here",
@@ -3821,13 +3831,16 @@
     },
     "kpis": {
       "dailyObligation": "Daily obligation amount",
+      "drr": "Daily repayment rate (DRR)",
       "estPaybackPeriod": "Loan duration",
       "expectedRoi": "ROI",
+      "extensionShare": "Revenue share for extensions (s): {rate}",
+      "guarantor": "Personal Guarantor",
+      "guarantorSource": "named in the business's Standing Offer",
       "loanAmount": "Loan amount",
       "months": "{count} mo",
       "ofDailyRevenue": "of daily revenue",
-      "perBusinessDay": "Fixed, each business day",
-      "revenueShareRate": "Revenue share rate"
+      "perBusinessDay": "Fixed, each business day"
     },
     "lastTicket": {
       "body": "Only {amount} is left in this round, below the {min} minimum ticket. One investor can invest exactly {amount} to complete the round; no other amount is accepted.",

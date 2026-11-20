@@ -372,16 +372,26 @@
         "taxCode": "Mã số thuế"
       },
       "inputBusinessName": "Tên doanh nghiệp như in trên giấy",
+      "inputCompanyAddress": "Địa chỉ trụ sở chính như in trên giấy",
+      "inputRepresentativeName": "Họ tên người đại diện theo pháp luật như in trên giấy",
+      "inputRepresentativePosition": "Chức danh (không bắt buộc)",
       "inputTaxCode": "Mã số thuế (MST)",
       "notePlaceholder": "Ghi chú (không bắt buộc). Nếu từ chối, doanh nghiệp sẽ thấy ghi chú này là lý do.",
       "ownerKycHeading": "Danh tính đã xác minh của người gửi",
       "ownerKycHint": "Kiểm tra người này có tên là người đại diện theo pháp luật trên giấy chứng nhận.",
       "ownerKycNone": "Tài khoản này chưa có lượt xác minh danh tính được duyệt. Hãy kiểm tra người đại diện theo pháp luật trước khi duyệt.",
+      "positionNeedsName": "Nhập họ tên người đại diện theo pháp luật cùng với chức danh.",
       "rejectHint": "Nếu từ chối, doanh nghiệp sẽ thấy ghi chú của bạn là lý do (hoặc một thông báo chung nếu để trống) và có thể gửi lại.",
       "rowLabel": "Duyệt xác minh doanh nghiệp của {name}",
       "selfBlocked": "Bạn không thể tự duyệt lượt xác minh doanh nghiệp của mình.",
       "sheetSubtitle": "Đối chiếu giấy chứng nhận đăng ký với thông tin bên dưới.",
       "sheetTitle": "Xác minh doanh nghiệp",
+      "signingDetails": {
+        "COMPANY_ADDRESS": "địa chỉ trụ sở chính",
+        "LEGAL_REPRESENTATIVE": "người đại diện theo pháp luật"
+      },
+      "signingDetailsHint": "Các hợp đồng của doanh nghiệp in tên người đại diện theo pháp luật và địa chỉ trụ sở chính. Thiếu các thông tin này, doanh nghiệp không thể ký.",
+      "signingDetailsMissing": "Hợp đồng vẫn còn để trống: {fields}. Doanh nghiệp chưa thể ký cho đến khi các thông tin này được điền.",
       "table": {
         "applicant": "Doanh nghiệp",
         "check": "Lý do cần duyệt",
@@ -3821,13 +3831,16 @@
     },
     "kpis": {
       "dailyObligation": "Nghĩa vụ trả hằng ngày",
+      "drr": "Tỷ lệ trả nợ hằng ngày (DRR)",
       "estPaybackPeriod": "Thời hạn vay",
       "expectedRoi": "Lợi nhuận (ROI)",
+      "extensionShare": "Tỷ lệ doanh thu cho gia hạn (s): {rate}",
+      "guarantor": "Người bảo lãnh cá nhân",
+      "guarantorSource": "theo Đề nghị giao kết hợp đồng cho vay của doanh nghiệp",
       "loanAmount": "Số tiền vay",
       "months": "{count} tháng",
       "ofDailyRevenue": "trên doanh thu hằng ngày",
-      "perBusinessDay": "Cố định, mỗi ngày làm việc",
-      "revenueShareRate": "Tỷ lệ chia sẻ doanh thu"
+      "perBusinessDay": "Cố định, mỗi ngày làm việc"
     },
     "lastTicket": {
       "body": "Đợt gọi vốn này chỉ còn {amount}, thấp hơn mức đầu tư tối thiểu {min}. Một nhà đầu tư có thể đầu tư đúng {amount} để hoàn tất đợt gọi vốn; không nhận số tiền khác.",

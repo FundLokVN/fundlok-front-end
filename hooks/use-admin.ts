@@ -17,6 +17,7 @@ import {
   type AdminKybCertificateUrl,
   type AdminKybResolvePayload,
   type AdminKybReview,
+  type AdminKybResolveResult,
   type AdminKybVerification,
   type AdminKycImageName,
   type AdminKycImageUrl,
@@ -391,7 +392,7 @@ export function useAdminKybCertificateUrl(id: string | null) {
 // "registration verified" half of an application's gate.
 export function useResolveKybReview() {
   const queryClient = useQueryClient();
-  return useMutation<AdminKybVerification, ApiError, KybResolveInput>({
+  return useMutation<AdminKybResolveResult, ApiError, KybResolveInput>({
     mutationFn: ({ id, body }) => adminService.resolveKybVerification(id, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.all });
