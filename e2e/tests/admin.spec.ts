@@ -74,7 +74,9 @@ test.describe("as an admin", () => {
   }) => {
     await page.goto("/admin");
     const sme = page.getByTestId("recent-sme-leads");
-    const quizLead = sme.getByRole("listitem").filter({ hasText: "Phạm Văn Quiz" });
+    const quizLead = sme
+      .getByRole("listitem")
+      .filter({ hasText: "Phạm Văn Quiz" });
     await expect(quizLead).toContainText(t("admin.ratesTable.sourceQuiz"));
     await expect(
       sme.getByRole("listitem").filter({ hasText: "Lê Thị Chủ Shop" }),
@@ -90,7 +92,9 @@ test.describe("as an admin", () => {
       t("admin.ratesDetail.quizNote").replace("{version}", "sme-quiz-v1"),
     );
     // A quiz lead has no calculator financials to show.
-    await expect(sheet).not.toContainText(t("admin.ratesDetail.financialsTitle"));
+    await expect(sheet).not.toContainText(
+      t("admin.ratesDetail.financialsTitle"),
+    );
     await expect(sheet).toContainText(t("admin.ratesDetail.adSourceTitle"));
     await expect(sheet).toContainText("sme-rate-quiz-nov");
     await expect(sheet).toContainText("IwAR0stub");
