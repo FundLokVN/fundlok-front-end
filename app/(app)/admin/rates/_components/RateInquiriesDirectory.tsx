@@ -38,6 +38,9 @@ export function RateInquiriesDirectory() {
   const [page, setPage] = useState(1);
   const [industryFilter, setIndustryFilter] = useState<string>("ALL");
   const [tierFilter, setTierFilter] = useState<string>("ALL");
+  const [sourceFilter, setSourceFilter] = useState<
+    "ALL" | "QUIZ" | "CALCULATOR"
+  >("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInquiry, setSelectedInquiry] =
     useState<RateInquiryAdminItem | null>(null);
@@ -48,8 +51,9 @@ export function RateInquiriesDirectory() {
       page_size: PAGE_SIZE,
       industry: industryFilter !== "ALL" ? industryFilter : undefined,
       risk_tier: tierFilter !== "ALL" ? tierFilter : undefined,
+      source: sourceFilter !== "ALL" ? sourceFilter : undefined,
     }),
-    [page, industryFilter, tierFilter],
+    [page, industryFilter, tierFilter, sourceFilter],
   );
 
   const { data, isLoading, isFetching, refetch } =
@@ -89,12 +93,13 @@ export function RateInquiriesDirectory() {
     let totalDemand = 0;
 
     for (const item of all) {
+      totalDemand += item.requested_amount || 0;
+      // Quiz leads have no engine tier; counting them as C would skew it.
+      if (item.source === "QUIZ") continue;
       const tier = (item.risk_tier || "").toUpperCase();
       if (tier.includes("A")) tierA++;
       else if (tier.includes("B")) tierB++;
       else tierC++;
-
-      totalDemand += item.requested_amount || 0;
     }
 
     return { tierA, tierB, tierC, totalDemand };
@@ -163,7 +168,7 @@ export function RateInquiriesDirectory() {
       key: "tenure_staff",
       header: t("admin.ratesTable.tenureStaff"),
       cellClassName: "text-xs text-muted-foreground whitespace-nowrap",
-      sortValue: (item) => item.operating_months,
+      sortValue: (item) => item.operating_months ?? -1,
       render: (item) =>
         item.tenure_staff_display ||
         `${item.operating_months} mos / ${item.employee_count} staff`,
@@ -172,17 +177,24 @@ export function RateInquiriesDirectory() {
       key: "revenue",
       header: t("admin.ratesTable.revenueL12m"),
       cellClassName: "text-xs font-semibold text-foreground whitespace-nowrap",
-      sortValue: (item) => item.revenue_l12m,
+      // Quiz rows carry monthly revenue; the formatted string says "/ mo".
+      sortValue: (item) =>
+        item.revenue_l12m ?? (item.monthly_revenue ?? 0) * 12,
       render: (item) =>
         item.revenue_l12m_formatted ||
-        formatCurrency(item.revenue_l12m, locale),
+        (item.revenue_l12m !== null
+          ? formatCurrency(item.revenue_l12m, locale)
+          : "—"),
     },
     {
       key: "yoy_growth",
       header: t("admin.ratesTable.yoyGrowth"),
       cellClassName: "whitespace-nowrap",
-      sortValue: (item) => item.yoy_growth_pct,
+      sortValue: (item) => item.yoy_growth_pct ?? -Infinity,
       render: (item) => {
+        if (item.yoy_growth_pct === null) {
+          return <span className="text-xs text-muted-foreground">—</span>;
+        }
         const isPositive = (item.yoy_growth_pct ?? 0) >= 0;
         return (
           <span
@@ -212,7 +224,7 @@ export function RateInquiriesDirectory() {
       key: "rate",
       header: t("admin.ratesTable.calculatedRate"),
       cellClassName: "whitespace-nowrap text-xs font-medium text-primary",
-      sortValue: (item) => item.estimated_rate_min,
+      sortValue: (item) => item.estimated_rate_min ?? -1,
       render: (item) =>
         item.calculated_rate_display ||
         `${item.estimated_rate_min}% - ${item.estimated_rate_max}% / mo`,
@@ -223,6 +235,16 @@ export function RateInquiriesDirectory() {
       cellClassName: "whitespace-nowrap",
       filterType: "select",
       render: (item) => {
+        if (item.source === "QUIZ") {
+          return (
+            <Badge
+              variant="outline"
+              className="bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
+            >
+              {t("admin.ratesTable.sourceQuiz")}
+            </Badge>
+          );
+        }
         const tier = (item.risk_tier ?? "").toUpperCase();
         if (tier.includes("A")) {
           return (
@@ -399,6 +421,30 @@ export function RateInquiriesDirectory() {
                 <SelectItem value="TIER_A">Tier A</SelectItem>
                 <SelectItem value="TIER_B">Tier B</SelectItem>
                 <SelectItem value="TIER_C">Tier C</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Source: the illustrative quiz or the long calculator */}
+            <Select
+              value={sourceFilter}
+              onValueChange={(val) => {
+                setSourceFilter(val as "ALL" | "QUIZ" | "CALCULATOR");
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="h-9 w-36 text-xs">
+                <SelectValue placeholder={t("admin.ratesTable.allSources")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">
+                  {t("admin.ratesTable.allSources")}
+                </SelectItem>
+                <SelectItem value="QUIZ">
+                  {t("admin.ratesTable.sourceQuiz")}
+                </SelectItem>
+                <SelectItem value="CALCULATOR">
+                  {t("admin.ratesTable.sourceCalculator")}
+                </SelectItem>
               </SelectContent>
             </Select>
 

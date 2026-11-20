@@ -310,6 +310,8 @@ export type ListingDocumentKind =
 
 export const RATE_CALCULATOR_ENDPOINTS = {
   calculate: "/api/v1/rates/calculate",
+  /** POST: a lead from the illustrative SME quiz (lib/rate-quiz.ts). */
+  smeQuizLeads: "/api/v1/rates/sme/quiz-leads",
   inquiries: "/admin/rates/inquiries",
   inquiryDetail: (id: string) => `/admin/rates/inquiries/${id}`,
   investorTiers: "/api/v1/rates/investor/tiers",
