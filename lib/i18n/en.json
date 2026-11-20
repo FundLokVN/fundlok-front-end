@@ -4572,7 +4572,7 @@
     "slogan": "Flexible capital for MSMEs in Vietnam",
     "suspendedTitle": "Account suspended",
     "termsDescription": "The legal terms and transparency commitments that apply when using the FundLok SME funding platform.",
-    "termsTitle": "Terms and Conditions of Service | FundLok",
+    "termsTitle": "Terms & Services and Data Consent | FundLok",
     "transactionsDescription": "Review every transaction on your FundLok account: investments, repayments and fees.",
     "transactionsTitle": "Transactions",
     "verifyEmailDescription": "Verify your email address to access your FundLok dashboard.",
@@ -4638,8 +4638,8 @@
     "badge": "Legal documents",
     "complianceDesc": "We protect personal data with controlled access and handle it under Vietnam's personal data protection rules.",
     "complianceTitle": "Personal data protection",
-    "effectiveDate": "Last updated: 5 November 2026",
-    "lastUpdated": "Last updated: 5 November 2026",
+    "effectiveDate": "Locked 17 November 2026",
+    "lastUpdated": "Locked 17 November 2026",
     "noResults": "No clauses found matching your search term.",
     "noticeBanner": "FundLok is a technology and arranger platform operating within reviewed legal boundaries. We never hold customer money. Investors transfer straight to the business's own bank account, and the business repays each investor directly. Our fees are invoiced separately and never taken out of loan money. FundLok is not a bank and does not lend its own money. The credit agreement is between the investor and the business, and the investor bears the credit risk.",
     "noticeTitle": "How FundLok works and how money moves",
@@ -4656,8 +4656,8 @@
     "supportDesc": "Our legal and support teams are available to address any inquiries.",
     "supportTitle": "Questions regarding these terms?",
     "tableOfContents": "Table of contents",
-    "title": "FundLok Terms and Conditions of Service",
-    "version": "Version: November 2026"
+    "title": "Terms & Services and Data Consent",
+    "version": "Version 1.0 – Final"
   },
   "welcome": {
     "common": {

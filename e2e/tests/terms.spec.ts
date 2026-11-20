@@ -16,10 +16,10 @@ test.describe("Terms of Service page and links", () => {
     await expect(page.getByText(t("termsPage.noticeTitle"))).toBeVisible();
     await expect(page.getByText(t("termsPage.tableOfContents"))).toBeVisible();
 
-    // Assert section articles exist
-    await expect(page.locator("#part-a")).toBeVisible();
-    await expect(page.locator("#part-b")).toBeVisible();
-    await expect(page.locator("#part-c")).toBeVisible();
+    // Contract 1 v1.0: an article per section, the data consent last
+    await expect(page.locator("#article-1")).toBeVisible();
+    await expect(page.locator("#article-3")).toBeVisible();
+    await expect(page.locator("#article-10")).toBeVisible();
   });
 
   test("filters clauses dynamically using search input", async ({ page }) => {
@@ -31,7 +31,7 @@ test.describe("Terms of Service page and links", () => {
 
     // Type a query that matches specific terms
     await searchInput.fill("FundLok");
-    await expect(page.locator("#part-a")).toBeVisible();
+    await expect(page.locator("#article-1")).toBeVisible();
 
     // Type a query that matches nothing
     await searchInput.fill("thiskeyworddoesnotexistanywhere123");

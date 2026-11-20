@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { TermsClient } from "./terms-client";
-import { termsSectionsFor } from "./terms-content";
+import { termsPrefaceFor, termsSectionsFor } from "./terms-content";
 import SiteFooter from "@/components/site-footer";
 import { SITE_URL } from "@/lib/site";
 import { createServerTranslator } from "@/lib/i18n/server";
@@ -59,9 +59,9 @@ export async function generateMetadata({
 const termsJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "FundLok Terms and Conditions of Service",
+  name: "FundLok Terms & Services and Data Consent",
   description:
-    "Terms and Conditions of Service and Personal Data Protection Policy governing the FundLok platform.",
+    "Terms & Services and Data Consent (version 1.0) governing the FundLok platform.",
   url: `${SITE_URL}/terms`,
   publisher: {
     "@type": "Organization",
@@ -81,6 +81,7 @@ export default async function TermsPage({ params }: { params: LangParams }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(termsJsonLd) }}
       />
       <TermsClient
+        preface={termsPrefaceFor(locale)}
         sections={termsSectionsFor(locale)}
         footer={<SiteFooter locale={locale} />}
       />

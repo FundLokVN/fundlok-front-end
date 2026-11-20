@@ -22,9 +22,12 @@ import { Button } from "@/components/ui/button";
 import type { TermsSection } from "./terms-content";
 
 export function TermsClient({
+  preface,
   sections,
   footer,
 }: {
+  /** Above Article 1: which language prevails and how the Terms are signed. */
+  preface: string[];
   /** The terms in this page's language, from page.tsx (see terms-content.ts). */
   sections: TermsSection[];
   footer: React.ReactNode;
@@ -49,7 +52,9 @@ export function TermsClient({
       .map((sec) => ({
         ...sec,
         items: sec.items.filter((item) =>
-          `${item.heading} ${item.content.join(" ")}`.toLowerCase().includes(q),
+          `${item.heading ?? ""} ${item.content.join(" ")}`
+            .toLowerCase()
+            .includes(q),
         ),
       }))
       .filter((sec) => sec.items.length > 0);
@@ -111,6 +116,12 @@ export function TermsClient({
                 </>
               )}
             </button>
+          </div>
+
+          <div className="space-y-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+            {preface.map((line, idx) => (
+              <p key={idx}>{line}</p>
+            ))}
           </div>
         </header>
 
@@ -211,11 +222,17 @@ export function TermsClient({
                   <div className="space-y-8">
                     {sec.items.map((item, idx) => (
                       <div key={idx} className="space-y-3">
-                        <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                          <span>{item.heading}</span>
-                        </h3>
-                        <div className="space-y-2.5 pl-6 text-sm text-muted-foreground leading-relaxed">
+                        {/* Only Article 3's clauses carry their own label;
+                            elsewhere the numbered text runs on. */}
+                        {item.heading && (
+                          <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <span>{item.heading}</span>
+                          </h3>
+                        )}
+                        <div
+                          className={`space-y-2.5 text-sm text-muted-foreground leading-relaxed ${item.heading ? "pl-6" : ""}`}
+                        >
                           {item.content.map((paragraph, pIdx) => (
                             <p key={pIdx}>{paragraph}</p>
                           ))}

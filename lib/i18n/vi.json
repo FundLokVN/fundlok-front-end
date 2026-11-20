@@ -4572,7 +4572,7 @@
     "slogan": "Sàn vốn linh hoạt cho SME tại Việt Nam",
     "suspendedTitle": "Tài khoản bị tạm khóa",
     "termsDescription": "Quy định, điều khoản pháp lý và cam kết minh bạch khi sử dụng nền tảng kết nối vốn doanh nghiệp SME tại FundLok.",
-    "termsTitle": "Điều Khoản và Điều Kiện Sử Dụng Dịch Vụ | FundLok",
+    "termsTitle": "Điều khoản Dịch vụ và Đồng ý xử lý dữ liệu | FundLok",
     "transactionsDescription": "Xem mọi giao dịch trên tài khoản FundLok của bạn: khoản đầu tư, khoản hoàn trả và phí.",
     "transactionsTitle": "Giao dịch",
     "verifyEmailDescription": "Xác minh địa chỉ email để truy cập trang quản lý FundLok của bạn.",
@@ -4638,8 +4638,8 @@
     "badge": "Văn bản pháp lý",
     "complianceDesc": "Dữ liệu cá nhân được bảo vệ bằng kiểm soát truy cập và xử lý theo quy định của Việt Nam về bảo vệ dữ liệu cá nhân.",
     "complianceTitle": "Bảo vệ dữ liệu cá nhân",
-    "effectiveDate": "Ngày cập nhật: 5 tháng 11 năm 2026",
-    "lastUpdated": "Ngày cập nhật: 5 tháng 11 năm 2026",
+    "effectiveDate": "Khóa ngày 17/11/2026",
+    "lastUpdated": "Khóa ngày 17/11/2026",
     "noResults": "Không tìm thấy điều khoản phù hợp với từ khóa tìm kiếm.",
     "noticeBanner": "FundLok là nền tảng công nghệ và thu xếp vốn, hoạt động trong khuôn khổ pháp lý đã được rà soát. Chúng tôi không giữ tiền của khách hàng. Nhà đầu tư chuyển thẳng vào tài khoản ngân hàng của doanh nghiệp, và doanh nghiệp trả trực tiếp cho từng nhà đầu tư. Phí của FundLok được xuất hóa đơn riêng và không bao giờ trừ vào tiền vay. FundLok không phải ngân hàng và không cho vay bằng tiền của mình. Hợp đồng tín dụng được ký giữa nhà đầu tư và doanh nghiệp; nhà đầu tư chịu rủi ro tín dụng.",
     "noticeTitle": "Cách FundLok vận hành và cách dòng tiền di chuyển",
@@ -4656,8 +4656,8 @@
     "supportDesc": "Bộ phận pháp chế và hỗ trợ FundLok sẵn sàng giải đáp mọi câu hỏi của bạn.",
     "supportTitle": "Bạn có thắc mắc về điều khoản dịch vụ?",
     "tableOfContents": "Mục lục điều khoản",
-    "title": "Điều khoản và Điều kiện sử dụng dịch vụ FundLok",
-    "version": "Phiên bản: Tháng 11 năm 2026"
+    "title": "Điều khoản Dịch vụ và Đồng ý xử lý dữ liệu",
+    "version": "Phiên bản 1.0 – Chính thức"
   },
   "welcome": {
     "common": {
