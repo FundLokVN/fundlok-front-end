@@ -63,9 +63,12 @@ export default async function BlogIndexPage({
   const posts = await readAtBuildOrDefer(listPublishedPosts);
 
   return (
-    <>
+    // Opaque and full height like every marketing page: the page-fade
+    // transition (app/[lang]/template.tsx) fades this in over the old page,
+    // which shows through anything transparent until the fade ends.
+    <div className="relative flex min-h-[100dvh] w-full flex-col overflow-x-clip bg-background text-foreground">
       <SiteHeader />
-      <div className="mx-auto w-full max-w-6xl px-6 py-12 md:py-16">
+      <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-12 md:py-16">
         <header className="max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             {t("blog.heading")}
@@ -115,6 +118,6 @@ export default async function BlogIndexPage({
         )}
       </div>
       <SiteFooter locale="vi" />
-    </>
+    </div>
   );
 }
