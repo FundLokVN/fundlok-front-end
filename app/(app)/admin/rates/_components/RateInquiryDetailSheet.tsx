@@ -158,7 +158,7 @@ export function RateInquiryDetailSheet({
               {inquiry.email && (
                 <a
                   href={`mailto:${inquiry.email}`}
-                  className="text-foreground hover:underline"
+                  className="min-w-0 break-all text-foreground hover:underline"
                 >
                   {inquiry.email}
                 </a>

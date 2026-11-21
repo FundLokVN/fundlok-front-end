@@ -101,7 +101,7 @@ export function InvestorLeadDetailSheet({
             )}
           </div>
           <SheetTitle>{lead.full_name}</SheetTitle>
-          <SheetDescription>
+          <SheetDescription className="break-all">
             {lead.email}
             {lead.phone ? ` · ${lead.phone}` : ""}
           </SheetDescription>
