@@ -50,7 +50,10 @@ export function DocumentViewerDialog({
 
   return (
     <Dialog open={document !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      {/* sm: prefix, so the base max-w-[calc(100%-2rem)] still gives a
+          phone a gutter; a bare max-w-3xl replaced it and lost to the base
+          sm:max-w-lg on desktop. */}
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="truncate">
             {document?.original_filename ?? t("admin.preview.documentsHeading")}
@@ -101,7 +104,7 @@ export function DocumentViewerDialog({
               <FileText className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-medium break-all text-foreground">
                 {data.original_filename}
               </p>
               <p className="text-xs text-muted-foreground">

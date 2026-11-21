@@ -60,7 +60,10 @@ export function DocumentPreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      {/* sm: prefix, so the base max-w-[calc(100%-2rem)] still gives a
+          phone a gutter; a bare max-w-4xl replaced it and lost to the base
+          sm:max-w-lg on desktop. */}
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="truncate pr-8 text-left">
             {file?.name}

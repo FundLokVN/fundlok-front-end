@@ -171,11 +171,13 @@ export function PasskeyDialog({
                       key={passkey.id}
                       className="flex items-center justify-between gap-3 p-3"
                     >
+                      {/* Wrapped, not truncated: on a phone the synced /
+                          this-device note below is what gets cut off. */}
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-foreground">
+                        <p className="text-sm font-medium break-words text-foreground">
                           {passkey.name}
                         </p>
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="text-xs break-words text-muted-foreground">
                           {passkey.last_used_at
                             ? t("dashboard.security.passkeys.lastUsed", {
                                 date: formatDate(passkey.last_used_at, locale),
@@ -240,7 +242,7 @@ export function PasskeyDialog({
               >
                 {t("dashboard.security.passkeys.nameLabel")}
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
                   id="passkey-name"
                   value={name}
