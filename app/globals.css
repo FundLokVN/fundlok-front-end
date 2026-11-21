@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* `prose` for blog posts: the public article body and the admin editor. */
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -431,4 +433,15 @@ html[data-radius="rounded"] {
   .hero-laptop-zoom {
     zoom: 1.06;
   }
+}
+
+/* The blog editor's empty-state hint. TipTap's Placeholder extension marks the
+   empty first paragraph (data-placeholder + .is-editor-empty) but ships no
+   styles for it. */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--muted-foreground);
 }

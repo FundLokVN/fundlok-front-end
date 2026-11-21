@@ -3,7 +3,11 @@
 import { cn } from "@/lib/utils";
 import { useTranslations } from "@/lib/i18n";
 import { usePublicPathname } from "@/lib/use-public-pathname";
-import { localizedPath, parseLocalePath } from "@/lib/locale-routing";
+import {
+  localeSwitchPath,
+  localizedPath,
+  parseLocalePath,
+} from "@/lib/locale-routing";
 import { CONTROL_IDLE } from "@/lib/ui-tokens";
 
 interface LocaleSwitcherProps {
@@ -66,12 +70,17 @@ export function LocaleSwitcher({
         // did. A plain <a>, not next/link: a soft navigation would keep the
         // other language's server-rendered <title> and canonical (see
         // setLocale in lib/i18n).
+        //
+        // The blog has no English URL: there the English option links to the
+        // English home page, and is not marked as this page's translation.
         if (route.locale !== null) {
+          const href = localeSwitchPath(route.path, opt.value);
+          const isTranslation = href === localizedPath(route.path, opt.value);
           return (
             <a
               key={opt.value}
-              href={localizedPath(route.path, opt.value)}
-              hrefLang={opt.value}
+              href={href}
+              hrefLang={isTranslation ? opt.value : undefined}
               onClick={(event) => {
                 event.preventDefault();
                 setLocale(opt.value);

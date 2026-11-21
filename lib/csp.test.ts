@@ -75,6 +75,31 @@ describe("contentSecurityPolicy", () => {
     }
   });
 
+  it("shows blog images from the media host, on the blog and in the editor", () => {
+    for (const nonce of ["abc123", null]) {
+      expect(directive(contentSecurityPolicy(nonce), "img-src")).toContain(
+        "https://media.fundlok.com",
+      );
+    }
+  });
+
+  it("takes the media host from NEXT_PUBLIC_BLOG_MEDIA_ORIGIN, as an origin", async () => {
+    vi.stubEnv(
+      "NEXT_PUBLIC_BLOG_MEDIA_ORIGIN",
+      "http://localhost:9000/fundlok-public",
+    );
+    vi.resetModules();
+    const fresh = await import("./csp");
+    const images = directive(fresh.contentSecurityPolicy("n"), "img-src");
+    expect(images).toContain("http://localhost:9000");
+    expect(images).not.toContain("https://media.fundlok.com");
+    // Only images: the media host is never a script source. (MinIO's
+    // connect-src/frame-src entries exist in development only.)
+    expect(
+      directive(fresh.contentSecurityPolicy("n"), "script-src"),
+    ).not.toContain("http://localhost:9000");
+  });
+
   it("opens a secure websocket to a deployed realtime relay", () => {
     vi.stubEnv("NEXT_PUBLIC_PARTYKIT_HOST", "realtime.fundlok.com");
     expect(directive(contentSecurityPolicy("n"), "connect-src")).toContain(

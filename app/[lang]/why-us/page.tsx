@@ -11,6 +11,12 @@ import { SITE_URL } from "@/lib/site";
 import WhyUsClient from "./why-us-client";
 import SiteFooter from "@/components/site-footer";
 
+// /fr/..., /anything/...: not a language, so a 404 rather than a third build.
+// Set per page, not on app/[lang]/layout.tsx: Next applies the strictest value
+// of every segment to the whole route, which would also 404 the blog's posts,
+// whose slugs are only known at request time.
+export const dynamicParams = false;
+
 export async function generateMetadata({
   params,
 }: {

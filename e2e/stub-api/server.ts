@@ -38,12 +38,15 @@ import {
   STUB_ADMIN_ONLY_PROJECT,
   STUB_ADMIN_COMPLETE_PROJECT,
   STUB_ADMIN_GATE_PROJECTS,
+  STUB_BLOG_MEDIA,
+  STUB_BLOG_POSTS,
   STUB_PUBLIC_PROJECTS,
   STUB_USERS,
   projectsFor,
   userKeyForEmail,
   type StubUserKey,
 } from "./fixtures";
+import { slugify } from "../../lib/blog/slug";
 
 const PORT = Number(process.env.PORT ?? 8100);
 
@@ -884,6 +887,132 @@ function auditSecret(path: string, req: IncomingMessage) {
   secretAudit.set(path, row);
 }
 
+// --- Blog -------------------------------------------------------------------
+//
+// Admin posts are per test (keyed by stub_scope, like the other mutable state
+// here), seeded with one draft. They follow app/blog/service.py's rules where
+// the editor depends on them: the version check (409), a slug locked once
+// published (422), a slug taken by another post (409), publishing needs a
+// title, excerpt and body text (422), only drafts can be deleted (409), and
+// images must sit on the media host (422). The public endpoints serve the
+// fixed STUB_BLOG_POSTS instead (see fixtures.ts for why).
+
+interface StubBlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  status: "draft" | "published";
+  cover_image_url: string | null;
+  cover_alt: string | null;
+  published_at: string | null;
+  updated_at: string;
+  created_at: string;
+  reading_minutes: number;
+  locale: "vi";
+  seo_title: string | null;
+  content: Record<string, unknown>;
+  version: number;
+  author_id: string | null;
+  updated_by: string | null;
+}
+
+const stubBlogPosts = new Map<string, Map<string, StubBlogPost>>();
+let stubBlogSequence = 0;
+
+function blogStore(req: IncomingMessage, key: string) {
+  const scope = readCookie(req, "stub_scope") ?? key;
+  let store = stubBlogPosts.get(scope);
+  if (!store) {
+    store = new Map();
+    const seeded: StubBlogPost = {
+      id: "blog-seeded-draft",
+      slug: "ban-nhap-co-san",
+      title: "Bản nháp có sẵn",
+      excerpt: "",
+      status: "draft",
+      cover_image_url: null,
+      cover_alt: null,
+      published_at: null,
+      updated_at: "2026-11-20T03:00:00Z",
+      created_at: "2026-11-20T03:00:00Z",
+      reading_minutes: 1,
+      locale: "vi",
+      seo_title: null,
+      content: { type: "doc", content: [{ type: "paragraph" }] },
+      version: 1,
+      author_id: null,
+      updated_by: null,
+    };
+    store.set(seeded.id, seeded);
+    stubBlogPosts.set(scope, store);
+  }
+  return store;
+}
+
+function blogSummary(post: StubBlogPost) {
+  return {
+    id: post.id,
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    status: post.status,
+    cover_image_url: post.cover_image_url,
+    cover_alt: post.cover_alt,
+    published_at: post.published_at,
+    updated_at: post.updated_at,
+    created_at: post.created_at,
+    reading_minutes: post.reading_minutes,
+  };
+}
+
+function blogPublicSummary(post: (typeof STUB_BLOG_POSTS)[number]) {
+  return {
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    cover_image_url: post.cover_image_url,
+    cover_alt: post.cover_alt,
+    published_at: post.published_at,
+    updated_at: post.updated_at,
+    reading_minutes: post.reading_minutes,
+  };
+}
+
+/** Plain text of a TipTap document, and whether every image is ours. */
+function blogText(node: unknown): { text: string; imagesOk: boolean } {
+  let text = "";
+  let imagesOk = true;
+  const walk = (value: unknown) => {
+    if (!value || typeof value !== "object") return;
+    const n = value as {
+      type?: string;
+      text?: string;
+      attrs?: { src?: unknown };
+      content?: unknown[];
+    };
+    if (n.type === "text" && typeof n.text === "string") text += `${n.text} `;
+    if (n.type === "image") {
+      const src = n.attrs?.src;
+      if (typeof src !== "string" || !src.startsWith(`${STUB_BLOG_MEDIA}/`)) {
+        imagesOk = false;
+      }
+    }
+    n.content?.forEach(walk);
+  };
+  walk(node);
+  return { text: text.trim(), imagesOk };
+}
+
+function blogError(
+  res: ServerResponse,
+  status: number,
+  code: string,
+  message: string,
+) {
+  return json(res, status, { detail: message }, { "x-error-code": code });
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${PORT}`);
   const path = url.pathname;
@@ -1203,6 +1332,16 @@ const server = createServer(async (req, res) => {
       });
     }
     return json(res, 200, stubInvestorEstimate(String(body.risk_tier)));
+  }
+
+  // Public blog: published posts only, no session (app/blog/router.py).
+  if (path === "/api/v1/blog/posts" && method === "GET") {
+    return json(res, 200, { items: STUB_BLOG_POSTS.map(blogPublicSummary) });
+  }
+  const publicPostMatch = path.match(/^\/api\/v1\/blog\/posts\/vi\/([^/]+)$/);
+  if (publicPostMatch && method === "GET") {
+    const post = STUB_BLOG_POSTS.find((p) => p.slug === publicPostMatch[1]);
+    return post ? json(res, 200, post) : detail(res, 404, "Post not found");
   }
 
   // --- Everything below needs a session ------------------------------------
@@ -2301,6 +2440,193 @@ const server = createServer(async (req, res) => {
   if (path.startsWith("/admin/")) {
     if (user.role !== "ADMIN" && user.role !== "SYSTEM_ADMIN") {
       return detail(res, 403, "Not enough permissions");
+    }
+
+    if (path.startsWith("/admin/blog/")) {
+      const store = blogStore(req, key);
+      const now = new Date().toISOString();
+
+      if (path === "/admin/blog/posts" && method === "GET") {
+        const status = url.searchParams.get("status");
+        const search = (url.searchParams.get("search") ?? "").toLowerCase();
+        const page = Number(url.searchParams.get("page") ?? 1);
+        const pageSize = Number(url.searchParams.get("page_size") ?? 20);
+        const rows = [...store.values()]
+          .filter((p) => !status || p.status === status)
+          .filter((p) => !search || p.title.toLowerCase().includes(search))
+          .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+        return json(res, 200, {
+          total: rows.length,
+          page,
+          page_size: pageSize,
+          items: rows
+            .slice((page - 1) * pageSize, page * pageSize)
+            .map(blogSummary),
+        });
+      }
+
+      if (path === "/admin/blog/posts" && method === "POST") {
+        const body = await readBody(req);
+        const title = String(body.title ?? "").trim();
+        if (!title) return detail(res, 422, "title must not be blank");
+        const base = slugify(title) || "bai-viet";
+        let slug = base;
+        const taken = new Set([...store.values()].map((p) => p.slug));
+        for (let n = 2; taken.has(slug); n += 1) slug = `${base}-${n}`;
+        stubBlogSequence += 1;
+        const post: StubBlogPost = {
+          id: `blog-${stubBlogSequence}`,
+          slug,
+          title,
+          excerpt: "",
+          status: "draft",
+          cover_image_url: null,
+          cover_alt: null,
+          published_at: null,
+          updated_at: now,
+          created_at: now,
+          reading_minutes: 1,
+          locale: "vi",
+          seo_title: null,
+          content: { type: "doc", content: [{ type: "paragraph" }] },
+          version: 1,
+          author_id: user.id,
+          updated_by: user.id,
+        };
+        store.set(post.id, post);
+        return json(res, 201, post);
+      }
+
+      const postMatch = path.match(
+        /^\/admin\/blog\/posts\/([^/]+)(?:\/(publish|unpublish))?$/,
+      );
+      if (postMatch) {
+        const post = store.get(postMatch[1]);
+        if (!post) return detail(res, 404, "Post not found");
+        const action = postMatch[2];
+
+        if (!action && method === "GET") return json(res, 200, post);
+
+        if (!action && method === "DELETE") {
+          if (post.status === "published") {
+            return blogError(
+              res,
+              409,
+              "BLOG_DELETE_PUBLISHED",
+              "Unpublish the post before deleting it",
+            );
+          }
+          store.delete(post.id);
+          res.writeHead(204);
+          return res.end();
+        }
+
+        if ((!action && method === "PUT") || (action && method === "POST")) {
+          const body = await readBody(req);
+          if (body.version !== post.version) {
+            return blogError(
+              res,
+              409,
+              "BLOG_VERSION_CONFLICT",
+              "The post was changed by someone else",
+            );
+          }
+
+          if (!action) {
+            const slug = String(body.slug ?? "");
+            if (post.published_at && slug !== post.slug) {
+              return blogError(
+                res,
+                422,
+                "BLOG_SLUG_LOCKED",
+                "The slug cannot change after publishing",
+              );
+            }
+            if (
+              [...store.values()].some(
+                (p) => p.id !== post.id && p.slug === slug,
+              )
+            ) {
+              return blogError(res, 409, "BLOG_SLUG_TAKEN", "Slug is taken");
+            }
+            const { text, imagesOk } = blogText(body.content);
+            if (!imagesOk) {
+              return blogError(
+                res,
+                422,
+                "BLOG_CONTENT_INVALID",
+                "image must be uploaded through the editor",
+              );
+            }
+            Object.assign(post, {
+              title: String(body.title ?? "").trim(),
+              slug,
+              seo_title: (body.seo_title as string | null) ?? null,
+              excerpt: String(body.excerpt ?? "").trim(),
+              content: body.content as Record<string, unknown>,
+              cover_image_url: (body.cover_image_url as string | null) ?? null,
+              cover_alt: (body.cover_alt as string | null) ?? null,
+              reading_minutes: Math.max(
+                1,
+                Math.ceil(text.split(/\s+/).filter(Boolean).length / 200),
+              ),
+            });
+          } else if (action === "publish" && post.status !== "published") {
+            if (!post.title || !post.excerpt || !blogText(post.content).text) {
+              return blogError(
+                res,
+                422,
+                "BLOG_PUBLISH_INCOMPLETE",
+                "A title, excerpt and body are required to publish",
+              );
+            }
+            post.status = "published";
+            post.published_at ??= now;
+          } else if (action === "unpublish" && post.status !== "draft") {
+            post.status = "draft";
+          } else {
+            // Publishing a published post (or the reverse) changes nothing.
+            return json(res, 200, post);
+          }
+          post.version += 1;
+          post.updated_at = now;
+          post.updated_by = user.id;
+          return json(res, 200, post);
+        }
+      }
+
+      if (path === "/admin/blog/media/presign" && method === "POST") {
+        const body = await readBody(req);
+        const types: Record<string, string> = {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+        };
+        const ext = types[String(body.content_type)];
+        const size = Number(body.size_bytes);
+        if (!ext || !(size > 0 && size <= 5 * 1024 * 1024)) {
+          return detail(res, 422, "jpeg, png or webp up to 5 MB");
+        }
+        stubBlogSequence += 1;
+        const mediaId = `media-${stubBlogSequence}`;
+        return json(res, 200, {
+          media_id: mediaId,
+          // An R2-shaped host, so the page's CSP lets the browser PUT there;
+          // admin-blog.spec.ts answers it with page.route().
+          upload_url: `https://e2e-stub.r2.cloudflarestorage.com/fundlok-public/blog/${mediaId}.${ext}?X-Amz-Signature=stub`,
+          public_url: `${STUB_BLOG_MEDIA}/${mediaId}.${ext}`,
+        });
+      }
+
+      const confirmMatch = path.match(
+        /^\/admin\/blog\/media\/([^/]+)\/confirm$/,
+      );
+      if (confirmMatch && method === "POST") {
+        return json(res, 200, {
+          media_id: confirmMatch[1],
+          public_url: `${STUB_BLOG_MEDIA}/${confirmMatch[1]}.png`,
+        });
+      }
     }
 
     // The overview's "Transactions in progress": investors' transfers to a

@@ -9,6 +9,7 @@ import { applyClientIp } from "@/lib/client-ip";
 import {
   LOCALE_COOKIE,
   LOCALE_HEADER,
+  isBlogPath,
   isMarketingPath,
   localizedPath,
   marketingRoute,
@@ -313,9 +314,13 @@ async function routeRequest(request: NextRequest, refreshed: string[]) {
   // URL they asked for and every URL keeps its own language. 307 plus
   // no-store/Vary so neither the browser nor a CDN caches the redirect and
   // replays it to someone without the cookie.
+  //
+  // Never on the blog: it has only a Vietnamese URL, so "the English URL" of
+  // /blog/x is /blog/x again, and redirecting there would loop.
   const preferred = request.cookies.get(LOCALE_COOKIE)?.value;
   if (
     route.locale !== null &&
+    !isBlogPath(route.path) &&
     (preferred === "en" || preferred === "vi") &&
     preferred !== route.locale
   ) {

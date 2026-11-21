@@ -14,6 +14,8 @@ const PUBLIC_ROUTES = [
   { path: "/why-us", name: "why us", titleKey: "specialPage.title" },
   { path: "/contact", name: "contact", titleKey: "contactPage.title" },
   { path: "/terms", name: "terms", titleKey: "termsPage.title" },
+  // Vietnamese only; its posts are covered in blog-public.spec.ts.
+  { path: "/blog", name: "blog", titleKey: "blog.heading" },
   { path: "/login", name: "login" },
   // Sign-up is a mode of the login page, not its own route — /register was
   // removed and 308s here.

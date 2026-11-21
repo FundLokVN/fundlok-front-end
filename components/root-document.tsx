@@ -144,6 +144,21 @@ function localBusinessSchema(seo: SeoStrings) {
 }
 
 /**
+ * The site itself, for the site name Google shows above every result
+ * ("FundLok" rather than "fundlok.com"). Same on every page, as Google
+ * recommends; it points at the organization above as its publisher.
+ */
+const WEBSITE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}#website`,
+  name: "FundLok",
+  url: SITE_URL,
+  inLanguage: ["vi", "en"],
+  publisher: { "@id": `${SITE_URL}#organization` },
+};
+
+/**
  * A prerendered page cannot read the appearance cookies on the server, so it
  * ships the defaults and this swaps in the visitor's radius and reduce-motion
  * choice before the body paints — the same attributes the dynamic layout
@@ -214,6 +229,11 @@ export function RootDocument({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(localBusinessSchema(seo)),
           }}
+        />
+        <script
+          type="application/ld+json"
+          id="website-schema"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_SCHEMA) }}
         />
         {/* GoogleOAuthProvider is NOT here: it loads Google's ~100 KB sign-in
             script on mount, so it wraps the login form only (app/(app)/login/page.tsx). */}

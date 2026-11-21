@@ -81,8 +81,25 @@ export const MARKETING_LOCALES = [
  */
 export const VI_PREFIX = "/vi";
 
+/**
+ * The blog: /blog and /blog/<slug>. Vietnamese only, for now.
+ *
+ * A marketing page (prerendered or ISR under app/[lang]/blog/, rewritten from
+ * /blog/x to /vi/blog/x like the rest) but NOT a localized one: there is no
+ * /en/blog URL, so it is not in LOCALIZED_PATHS, gets no hreflang, and
+ * parseLocalePath sends /en/blog... back to the one URL it has. Adding English
+ * posts later means giving these paths an English URL, not a new route.
+ */
+export const BLOG_PATH = "/blog";
+
+export function isBlogPath(path: string): boolean {
+  return path === BLOG_PATH || /^\/blog\/[^/]+$/.test(path);
+}
+
 export function isMarketingPath(path: string): boolean {
-  return (MARKETING_PATHS as readonly string[]).includes(path);
+  return (
+    (MARKETING_PATHS as readonly string[]).includes(path) || isBlogPath(path)
+  );
 }
 
 /** The app/[lang]/ route a marketing page in `locale` was prerendered at. */
@@ -135,11 +152,27 @@ export function parseLocalePath(pathname: string): ParsedLocalePath {
       prefixed: true,
     };
   }
+  // The blog has one URL, in Vietnamese: unprefixed it is a Vietnamese page,
+  // and with the prefix (above) it has no English twin, so locale stays null
+  // and the proxy redirects /en/blog/x to /blog/x.
   return {
     path: pathname,
-    locale: isLocalizedPath(pathname) ? DEFAULT_ROUTE_LOCALE : null,
+    locale:
+      isLocalizedPath(pathname) || isBlogPath(pathname)
+        ? DEFAULT_ROUTE_LOCALE
+        : null,
     prefixed: false,
   };
+}
+
+/**
+ * Where the language switcher goes from `path` in `locale`. The page's own
+ * URL in that language, except on the blog, which has no English URL: English
+ * goes to the English home page instead of reloading the same Vietnamese post.
+ */
+export function localeSwitchPath(path: string, locale: RouteLocale): string {
+  if (isBlogPath(path) && locale !== DEFAULT_ROUTE_LOCALE) return EN_PREFIX;
+  return localizedPath(path, locale);
 }
 
 /** The URL for `path` in `locale`. Non-localized paths come back unchanged. */

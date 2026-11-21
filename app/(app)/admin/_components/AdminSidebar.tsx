@@ -15,6 +15,7 @@ import {
   Loader2,
   Mail,
   KeyRound,
+  Newspaper,
   type LucideIcon,
   Landmark,
   ArrowLeftRight,
@@ -71,6 +72,7 @@ export const adminNavItems: NavItem[] = [
     href: "/admin/email",
     icon: Mail,
   },
+  { labelKey: "admin.sidebar.blog", href: "/admin/blog", icon: Newspaper },
   {
     labelKey: "admin.sidebar.security",
     href: "/admin/security",

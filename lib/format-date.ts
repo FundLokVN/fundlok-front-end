@@ -64,6 +64,18 @@ export function formatDateTimeIct(value: DateInput, locale?: string): string {
   return `${date} ${hour}:${minute}`;
 }
 
+// formatDate's layout, in Vietnam time, e.g. "02/12/2026". For dates rendered
+// on the server (which runs in UTC): a post published at 01:00 in Hanoi on
+// the 22nd must not read as the 21st.
+export function formatDateIct(value: DateInput, locale?: string): string {
+  const d = toDate(value);
+  if (!d) return "";
+  const { year, month, day } = ictParts(d);
+  return locale === "vi"
+    ? `${day}/${month}/${year}`
+    : `${month}/${day}/${year}`;
+}
+
 // The Vietnam calendar date of an instant as YYYY-MM-DD ("" if invalid).
 export function dateIct(value: DateInput): string {
   const d = toDate(value);

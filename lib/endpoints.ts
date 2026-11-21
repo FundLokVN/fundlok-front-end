@@ -450,6 +450,26 @@ export const ADMIN_EMAIL_ENDPOINTS = {
   recipients: "/admin/email/recipients",
 } as const;
 
+// Admin > Blog (backend app/blog/router.py). ADMIN or SYSTEM_ADMIN; every
+// write is audited. The public pages read /api/v1/blog/* on the server
+// instead (lib/server/blog-api.ts), never through these.
+export const ADMIN_BLOG_ENDPOINTS = {
+  // GET ?status=draft|published&search=&page=&page_size=; POST { title }
+  // creates a draft with a slug made from the title.
+  posts: "/admin/blog/posts",
+  // GET; PUT saves the whole post with its `version` (409 on a stale one);
+  // DELETE drafts only (409 BLOG_DELETE_PUBLISHED).
+  post: (id: string) => `/admin/blog/posts/${encodeURIComponent(id)}`,
+  publish: (id: string) =>
+    `/admin/blog/posts/${encodeURIComponent(id)}/publish`,
+  unpublish: (id: string) =>
+    `/admin/blog/posts/${encodeURIComponent(id)}/unpublish`,
+  // Image upload: presign → browser PUT to R2 → confirm.
+  presignMedia: "/admin/blog/media/presign",
+  confirmMedia: (mediaId: string) =>
+    `/admin/blog/media/${encodeURIComponent(mediaId)}/confirm`,
+} as const;
+
 // Underwriting. Admin-only server-side (require_roles(Role.ADMIN) — note that
 // is ADMIN specifically, not SYSTEM_ADMIN). A score run is a dated, audited
 // artefact: it writes an append-only score_run_inputs row for exact replay and

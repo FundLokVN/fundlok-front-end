@@ -14,6 +14,12 @@ import { SectionLocator } from "@/components/section-locator";
 import SiteFooter from "@/components/site-footer";
 import { HeroInteractive } from "@/components/hero-interactive";
 
+// /fr/..., /anything/...: not a language, so a 404 rather than a third build.
+// Set per page, not on app/[lang]/layout.tsx: Next applies the strictest value
+// of every segment to the whole route, which would also 404 the blog's posts,
+// whose slugs are only known at request time.
+export const dynamicParams = false;
+
 const InteractiveFlow = dynamic(
   () =>
     import("@/components/interactive-flow").then((mod) => mod.InteractiveFlow),

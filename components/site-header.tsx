@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { href: "/why-us", labelKey: "header.whyUs" },
   { href: "/rate", labelKey: "header.rate" },
   { href: "/faq", labelKey: "header.faq" },
+  { href: "/blog", labelKey: "header.blog" },
   { href: "/contact", labelKey: "header.contactUs" },
 ] as const;
 
@@ -31,8 +32,14 @@ export default function SiteHeader() {
   // Not the raw usePathname(): see usePublicPathname for why.
   const pathname = usePublicPathname();
 
+  // The blog link stays lit on every post (/blog/<slug>), not only on /blog.
+  const isCurrent = (href: string) =>
+    href === "/blog"
+      ? pathname === href || pathname.startsWith(`${href}/`)
+      : pathname === href;
+
   const linkClass = (href: string) =>
-    pathname === href
+    isCurrent(href)
       ? "text-emerald-600 dark:text-emerald-400"
       : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white";
 
