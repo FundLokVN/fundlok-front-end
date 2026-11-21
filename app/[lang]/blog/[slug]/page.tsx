@@ -116,67 +116,70 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
           __html: serializeJsonLd(breadcrumbJsonLd(crumbs)),
         }}
       />
-      <SiteHeader />
-      <article className="mx-auto w-full max-w-3xl px-6 py-10 md:py-14">
-        <nav aria-label={t("blog.breadcrumbLabel")}>
-          <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-            <li className="flex items-center gap-1">
-              <Link href="/" className="hover:text-foreground">
-                {t("blog.breadcrumbHome")}
-              </Link>
-              <ChevronRight aria-hidden className="h-3.5 w-3.5" />
-            </li>
-            <li className="flex items-center gap-1">
-              <Link href="/blog" className="hover:text-foreground">
-                {t("blog.breadcrumbBlog")}
-              </Link>
-              <ChevronRight aria-hidden className="h-3.5 w-3.5" />
-            </li>
-            <li aria-current="page" className="line-clamp-1 max-w-[16rem]">
+      {/* Opaque and full height, like /blog: see the note there. */}
+      <div className="relative flex min-h-[100dvh] w-full flex-col overflow-x-clip bg-background text-foreground">
+        <SiteHeader />
+        <article className="mx-auto w-full max-w-3xl flex-1 px-6 py-10 md:py-14">
+          <nav aria-label={t("blog.breadcrumbLabel")}>
+            <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+              <li className="flex items-center gap-1">
+                <Link href="/" className="hover:text-foreground">
+                  {t("blog.breadcrumbHome")}
+                </Link>
+                <ChevronRight aria-hidden className="h-3.5 w-3.5" />
+              </li>
+              <li className="flex items-center gap-1">
+                <Link href="/blog" className="hover:text-foreground">
+                  {t("blog.breadcrumbBlog")}
+                </Link>
+                <ChevronRight aria-hidden className="h-3.5 w-3.5" />
+              </li>
+              <li aria-current="page" className="line-clamp-1 max-w-[16rem]">
+                {post.title}
+              </li>
+            </ol>
+          </nav>
+
+          <header className="mt-6 flex flex-col gap-4">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
               {post.title}
-            </li>
-          </ol>
-        </nav>
+            </h1>
+            <PostMeta post={post} t={t} showUpdated />
+          </header>
 
-        <header className="mt-6 flex flex-col gap-4">
-          <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
-            {post.title}
-          </h1>
-          <PostMeta post={post} t={t} showUpdated />
-        </header>
+          <BlogCover
+            src={post.cover_image_url}
+            alt={post.cover_alt}
+            sizes="(min-width: 768px) 48rem, 100vw"
+            preload
+            className="mt-8 rounded-xl border"
+          />
 
-        <BlogCover
-          src={post.cover_image_url}
-          alt={post.cover_alt}
-          sizes="(min-width: 768px) 48rem, 100vw"
-          preload
-          className="mt-8 rounded-xl border"
-        />
+          {toc.length >= 2 && (
+            <div className="mt-8">
+              <TableOfContents entries={toc} title={t("blog.toc")} />
+            </div>
+          )}
 
-        {toc.length >= 2 && (
-          <div className="mt-8">
-            <TableOfContents entries={toc} title={t("blog.toc")} />
-          </div>
-        )}
-
-        <div
-          className="prose prose-neutral mt-8 max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-primary prose-img:rounded-lg"
-          data-testid="blog-post-body"
-        >
-          {renderBlogContent(post.content)}
-        </div>
-
-        <footer className="mt-12 border-t pt-6">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          <div
+            className="prose prose-neutral mt-8 max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-primary prose-img:rounded-lg"
+            data-testid="blog-post-body"
           >
-            <ArrowLeft className="h-4 w-4" />
-            {t("blog.allArticles")}
-          </Link>
-        </footer>
-      </article>
-      <SiteFooter locale="vi" />
+            {renderBlogContent(post.content)}
+          </div>
+
+          <footer className="mt-12 border-t pt-6">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t("blog.allArticles")}
+            </Link>
+          </footer>
+        </article>
+        <SiteFooter locale="vi" />
+      </div>
     </>
   );
 }
