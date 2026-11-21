@@ -149,14 +149,16 @@ function PickerBody({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+      {/* Wraps on a phone: the two Vietnamese button labels alone are wider
+          than the dialog. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs text-muted-foreground">
         <span>
           {t("admin.email.picker.selectedCount").replace(
             "{count}",
             String(ticked.size),
           )}
         </span>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           <Button
             type="button"
             variant="ghost"
