@@ -15,6 +15,7 @@ import {
   type AdminActivityParams,
   type AdminFeeInvoice,
   type AdminFundingActivity,
+  type AdminFundingAnalytics,
   type AdminFundingRound,
   type AdminInvestorTransfer,
   type AdminOverdueRepayments,
@@ -31,6 +32,8 @@ import {
 
 export const adminFundingKeys = {
   all: [...adminKeys.all, "funding"] as const,
+  // Under "funding", so every decision that refreshes the queues refreshes it.
+  analytics: () => [...adminFundingKeys.all, "analytics"] as const,
   rounds: (status: AdminRoundFilter) =>
     [...adminFundingKeys.all, "rounds", status] as const,
   transfers: (params: AdminTransferListParams) =>
@@ -61,6 +64,16 @@ export function useAdminFundingRounds(status: AdminRoundFilter) {
     queryKey: adminFundingKeys.rounds(status),
     queryFn: () => adminFundingService.listRounds(status),
     staleTime: 30 * 1000,
+    retry: false,
+  });
+}
+
+// Totals across every account, for the overview's two transaction boxes.
+export function useAdminFundingAnalytics() {
+  return useQuery<AdminFundingAnalytics, ApiError>({
+    queryKey: adminFundingKeys.analytics(),
+    queryFn: () => adminFundingService.getAnalytics(),
+    staleTime: 60 * 1000,
     retry: false,
   });
 }

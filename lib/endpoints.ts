@@ -376,6 +376,8 @@ export const ADMIN_ENDPOINTS = {
   // the scheduled job.
   fundingRoundAdvance: (windowId: string) =>
     `/admin/funding/rounds/${windowId}/advance`,
+  /** Platform-wide totals for the overview (investments and repayments). */
+  fundingAnalytics: "/admin/funding/analytics",
   fundingTransfers: "/admin/funding/transfers",
   // SME service-fee invoices (3% of a round's confirmed total + VAT), each with
   // its investment package. ?status=UNPAID|PAID|ALL.

@@ -307,6 +307,46 @@ export interface AdminRepaymentPreview extends ProjectedSchedule {
   basis: ProjectionBasis;
 }
 
+// Mirrors backend AdminFundingAnalyticsOut (app/admin/analytics.py): totals
+// across every account for the overview, as of `as_of` (today, ICT). An
+// investment counts once the business has received it (CONFIRMED / ACTIVE).
+// A repayment "day" is one due date of one ticket.
+export interface AdminMonthAmount {
+  /** ISO year-month, e.g. "2026-11". */
+  month: string;
+  amount_vnd: number;
+}
+
+export interface AdminFundingAnalytics {
+  as_of: string;
+  investments: {
+    invested_vnd: number;
+    investments: number;
+    investors: number;
+    businesses: number;
+    /** Reserved, signed, or sent and waiting for FundLok's check. */
+    in_progress_vnd: number;
+    in_progress: number;
+    /** Received per month, the last 12 months, oldest first. */
+    monthly: AdminMonthAmount[];
+  };
+  repayments: {
+    /** Paid days, principal and interest, the investors' tax included. */
+    repaid_vnd: number;
+    principal_repaid_vnd: number;
+    outstanding_principal_vnd: number;
+    /** Days whose due date has passed. */
+    days_due: number;
+    /** Of those, paid and never marked late. */
+    days_on_time: number;
+    /** Not marked paid after their due date. */
+    late_days: number;
+    late_tickets: number;
+    /** Paid, by due date, the last 12 months, oldest first. */
+    monthly: AdminMonthAmount[];
+  };
+}
+
 /** NEEDS_ACTION is the queue: a receipt waiting on staff. */
 export const REPAYMENT_FILTERS = ["NEEDS_ACTION", "DECIDED", "ALL"] as const;
 export type AdminRepaymentFilter = (typeof REPAYMENT_FILTERS)[number];
@@ -420,6 +460,12 @@ export interface AdminOverdueRepayments {
 }
 
 export const adminFundingService = {
+  getAnalytics() {
+    return apiClient.get<AdminFundingAnalytics>(
+      ADMIN_ENDPOINTS.fundingAnalytics,
+    );
+  },
+
   listRounds(status: AdminRoundFilter) {
     return apiClient.get<AdminFundingRound[]>(ADMIN_ENDPOINTS.fundingRounds, {
       params: { status },

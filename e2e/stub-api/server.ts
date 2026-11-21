@@ -2303,6 +2303,145 @@ const server = createServer(async (req, res) => {
       return detail(res, 403, "Not enough permissions");
     }
 
+    // The overview's "Transactions in progress": investors' transfers to a
+    // business and a business's repayments to investors, waiting ones first.
+    // Platform-wide totals for the overview's two boxes (FundLok
+    // app/admin/analytics.py): the last 12 months end with this one.
+    if (path === "/admin/funding/analytics" && method === "GET") {
+      const months = Array.from({ length: 12 }, (_, i) => {
+        const d = new Date();
+        d.setUTCDate(1);
+        d.setUTCMonth(d.getUTCMonth() - (11 - i));
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      });
+      const trend = (amounts: number[]) =>
+        months.map((month, i) => ({ month, amount_vnd: amounts[i] ?? 0 }));
+      return json(res, 200, {
+        as_of: new Date().toISOString().slice(0, 10),
+        investments: {
+          invested_vnd: 1_200_000_000,
+          investments: 31,
+          investors: 24,
+          businesses: 6,
+          in_progress_vnd: 80_000_000,
+          in_progress: 3,
+          monthly: trend([
+            0, 0, 0, 0, 0, 0, 50e6, 120e6, 180e6, 250e6, 300e6, 300e6,
+          ]),
+        },
+        repayments: {
+          repaid_vnd: 310_000_000,
+          principal_repaid_vnd: 270_000_000,
+          outstanding_principal_vnd: 930_000_000,
+          days_due: 120,
+          days_on_time: 117,
+          late_days: 2,
+          late_tickets: 2,
+          monthly: trend([0, 0, 0, 0, 0, 0, 0, 20e6, 45e6, 70e6, 85e6, 90e6]),
+        },
+      });
+    }
+
+    if (path === "/admin/funding/transfers" && method === "GET") {
+      const items = [
+        {
+          id: "7c2b9e14-3f6a-4d1b-8a52-0e9f1c3d5a71",
+          window_id: "b1e2c3d4-0000-4000-8000-000000000001",
+          project_id: "b1e2c3d4-0000-4000-8000-000000000002",
+          project_name: "Quán Cà Phê Mẫu",
+          investor_id: "b1e2c3d4-0000-4000-8000-000000000003",
+          investor_email: "dautu@example.com",
+          investor_full_name: "Nguyễn Văn Đầu Tư",
+          amount_vnd: 20000000,
+          reference_code: "FL-INV001",
+          status: "ATTESTED",
+          review_cause: null,
+          void_reason: null,
+          reserved_at: "2026-11-20T02:00:00.000Z",
+          hold_expires_at: "2026-11-20T08:00:00.000Z",
+          receipt_submitted_at: "2026-11-20T03:30:00.000Z",
+          attested_at: "2026-11-20T03:30:00.000Z",
+          confirmed_at: null,
+          needs_action: true,
+          transfer: { check_status: "AWAITING_FIELDS", system_check: null },
+          dispute: null,
+          expected: {},
+        },
+        {
+          id: "7c2b9e14-3f6a-4d1b-8a52-0e9f1c3d5a72",
+          window_id: "b1e2c3d4-0000-4000-8000-000000000001",
+          project_id: "b1e2c3d4-0000-4000-8000-000000000002",
+          project_name: "Quán Cà Phê Mẫu",
+          investor_id: "b1e2c3d4-0000-4000-8000-000000000004",
+          investor_email: "investor2@example.com",
+          investor_full_name: "Trần Thị Hai",
+          amount_vnd: 30000000,
+          reference_code: "FL-INV002",
+          status: "CONFIRMED",
+          review_cause: null,
+          void_reason: null,
+          reserved_at: "2026-11-19T02:00:00.000Z",
+          hold_expires_at: "2026-11-19T08:00:00.000Z",
+          receipt_submitted_at: "2026-11-19T03:00:00.000Z",
+          attested_at: "2026-11-19T03:00:00.000Z",
+          confirmed_at: "2026-11-19T06:00:00.000Z",
+          needs_action: false,
+          transfer: { check_status: "MATCHED", system_check: null },
+          dispute: null,
+          expected: {},
+        },
+      ];
+      return json(res, 200, {
+        total: items.length,
+        page: 1,
+        page_size: 5,
+        items,
+      });
+    }
+
+    if (path === "/admin/funding/repayments" && method === "GET") {
+      const items = [
+        {
+          id: "9a4d2f61-5b8c-4e7a-9d13-6c2b8e4f1a01",
+          tranche_id: "7c2b9e14-3f6a-4d1b-8a52-0e9f1c3d5a72",
+          window_id: "b1e2c3d4-0000-4000-8000-000000000001",
+          project_name: "Quán Cà Phê Mẫu",
+          reference_code: "FL-RP0001",
+          tranche_amount_vnd: 30000000,
+          tranche_paid_days: 3,
+          tranche_total_days: 66,
+          business: {
+            id: "b1e2c3d4-0000-4000-8000-000000000005",
+            full_name: "Công ty TNHH Bán Lẻ Mẫu",
+            email: "owner@retail.vn",
+          },
+          investor: {
+            id: "b1e2c3d4-0000-4000-8000-000000000004",
+            full_name: "Trần Thị Hai",
+            email: "investor2@example.com",
+          },
+          submitted_at: "2026-11-20T04:00:00.000Z",
+          check_status: "AWAITING_FIELDS",
+          needs_action: true,
+          gross_vnd: 1500000,
+          tax_withheld_vnd: 15000,
+          net_vnd: 1485000,
+          days: [],
+          payee: null,
+          payer: null,
+          original_filename: "receipt.png",
+          content_type: "image/png",
+          open_report: false,
+        },
+      ];
+      return json(res, 200, {
+        total: items.length,
+        page: 1,
+        page_size: 5,
+        items,
+      });
+    }
+
     if (path === "/admin/rates/investor-leads" && method === "GET") {
       const items = [
         {

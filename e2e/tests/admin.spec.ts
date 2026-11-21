@@ -34,55 +34,84 @@ test.describe("as an admin", () => {
     ).toBeVisible();
   });
 
-  test("the overview lists recent rate-page leads with how to reach them", async ({
+  test("the overview shows investments and repayments across every account, then the latest", async ({
     page,
   }) => {
     await page.goto("/admin");
-
-    const sme = page.getByTestId("recent-sme-leads");
-    await expect(sme).toContainText(t("admin.recentLeads.smeTitle"));
-    await expect(sme).toContainText("Lê Thị Chủ Shop");
-    await expect(sme).toContainText("Công ty TNHH Bán Lẻ Mẫu");
     await expect(
-      sme.getByRole("link", { name: "owner@retail.vn" }),
-    ).toHaveAttribute("href", "mailto:owner@retail.vn");
-    await expect(
-      sme.getByRole("link", { name: "0912 345 678" }),
-    ).toHaveAttribute("href", "tel:0912345678");
-
-    const investors = page.getByTestId("recent-investor-leads");
-    await expect(investors).toContainText("Trần Thị Nhà Đầu Tư");
-    await expect(
-      investors.getByRole("link", { name: "investor.lead@example.com" }),
+      page.getByRole("heading", {
+        name: t("admin.recentTransactions.title"),
+        exact: true,
+      }),
     ).toBeVisible();
-    await expect(
-      investors.getByRole("link", { name: "0901 234 567" }),
-    ).toBeVisible();
+    const K = "admin.recentTransactions";
 
-    // "View all" opens the matching tab of the full lists.
-    await investors
-      .getByRole("link", { name: t("admin.recentLeads.viewAll") })
+    const investments = page.getByTestId("recent-investment-transfers");
+    await expect(investments).toContainText(t(`${K}.investmentsTitle`));
+    // Platform-wide totals (stub: 31 investments from 24 investors into 6
+    // businesses, 3 still on their way) and the 12-month trend.
+    await expect(investments).toContainText(t(`${K}.invested`));
+    await expect(investments).toContainText(
+      t(`${K}.investmentsCount`).replace("{count}", "31"),
+    );
+    await expect(investments).toContainText("24 / 6");
+    await expect(investments).toContainText(
+      t(`${K}.inProgressCount`).replace("{count}", "3"),
+    );
+    await expect(investments).toContainText(t(`${K}.investedTrend`));
+    await expect(
+      investments.locator(".recharts-bar-rectangle"),
+    ).not.toHaveCount(0);
+    const waiting = investments
+      .getByRole("listitem")
+      .filter({ hasText: "Nguyễn Văn Đầu Tư" });
+    await expect(waiting).toContainText("Quán Cà Phê Mẫu");
+    await expect(waiting).toContainText("FL-INV001");
+    await expect(waiting).toContainText(t("admin.transactions.needs.receipt"));
+    await expect(investments.getByRole("listitem")).toHaveCount(2);
+
+    const repayments = page.getByTestId("recent-repayments");
+    await expect(repayments).toContainText(t(`${K}.repaymentsTitle`));
+    // 117 of 120 due days paid on time is 97.5%, shown floored; 2 tickets late.
+    await expect(repayments).toContainText(t(`${K}.outstanding`));
+    await expect(repayments).toContainText("97%");
+    await expect(repayments).toContainText(
+      t(`${K}.late`).replace("{tickets}", "2").replace("{days}", "2"),
+    );
+    await expect(repayments).toContainText(t(`${K}.repaidTrend`));
+    await expect(repayments).toContainText("Công ty TNHH Bán Lẻ Mẫu");
+    await expect(repayments).toContainText("Trần Thị Hai");
+    await expect(repayments).toContainText(
+      t("admin.transactions.repayments.table.progressDays")
+        .replace("{paid}", "3")
+        .replace("{total}", "66"),
+    );
+    await expect(repayments).toContainText(
+      t("admin.transactions.repayments.status.AWAITING_FIELDS"),
+    );
+
+    // "View all" opens the matching tab of /admin/transactions.
+    await repayments
+      .getByRole("link", { name: t("admin.recentTransactions.viewAll") })
       .click();
-    await expect(page).toHaveURL(/\/admin\/rates\?tab=investor/);
+    await expect(page).toHaveURL(/\/admin\/transactions\?tab=repayments/);
     await expect(
-      page.getByRole("tab", { name: t("admin.ratesPage.tabInvestor") }),
+      page.getByRole("tab", { name: t("admin.transactions.tabRepayments") }),
     ).toHaveAttribute("aria-selected", "true");
   });
 
   test("a lead from the /rate quiz is tagged and shows its answers and ad source", async ({
     page,
   }) => {
-    await page.goto("/admin");
-    const sme = page.getByTestId("recent-sme-leads");
-    const quizLead = sme
-      .getByRole("listitem")
-      .filter({ hasText: "Phạm Văn Quiz" });
-    await expect(quizLead).toContainText(t("admin.ratesTable.sourceQuiz"));
+    await page.goto("/admin/rates?tab=sme");
+    // Clickable rows carry role="button" (DataTable), so match the <tr>.
     await expect(
-      sme.getByRole("listitem").filter({ hasText: "Lê Thị Chủ Shop" }),
+      page.locator("tr").filter({ hasText: "Phạm Văn Quiz" }),
+    ).toContainText(t("admin.ratesTable.sourceQuiz"));
+    await expect(
+      page.locator("tr").filter({ hasText: "Lê Thị Chủ Shop" }),
     ).not.toContainText(t("admin.ratesTable.sourceQuiz"));
 
-    await page.goto("/admin/rates?tab=sme");
     await page.getByText("Phạm Văn Quiz").first().click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toContainText(t("admin.ratesDetail.quizAnswersTitle"));

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ import { RepaymentQueue } from "./_components/RepaymentQueue";
 import { TransferQueue } from "./_components/TransferQueue";
 
 type Tab = "rounds" | "transfers" | "repayments" | "fees" | "activity";
+// The tabs `?tab=` can open: the overview's "View all" links land on these.
+const LINKABLE_TABS: readonly Tab[] = ["transfers", "repayments"];
 
 // The admin Transactions tab. "Open rounds" is every funding round taking
 // investment, with what it has raised and how many of its tickets wait on
@@ -60,7 +62,10 @@ export default function AdminTransactionsClient() {
   const { user, isLoading } = useRequireAuth();
   const router = useRouter();
   const { t } = useTranslations();
-  const [tab, setTab] = useState<Tab>("rounds");
+  const wantedTab = useSearchParams().get("tab") as Tab | null;
+  const [tab, setTab] = useState<Tab>(
+    wantedTab && LINKABLE_TABS.includes(wantedTab) ? wantedTab : "rounds",
+  );
   const [roundFilter, setRoundFilter] = useState<AdminRoundFilter>("OPEN");
   const [transferFilter, setTransferFilter] =
     useState<AdminTransferFilter>("ALL");

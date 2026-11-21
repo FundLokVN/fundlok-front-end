@@ -17,7 +17,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { AdminPageLoader } from "./_components/AdminPageLoader";
-import { RecentLeads } from "./_components/RecentLeads";
+import { RecentTransactions } from "./_components/RecentTransactions";
 import { useTranslations } from "@/lib/i18n";
 import { roleLabel } from "@/lib/enum-labels";
 import { CONTROL_HOVER } from "@/lib/ui-tokens";
@@ -223,18 +223,19 @@ export default function AdminPage() {
         </Link>
       </div>
 
-      {/* Who asked for a rate on the public /rate page, with how to reach
-          them — the follow-up list, on the first screen an admin sees. */}
+      {/* The money moving right now: investors' transfers to businesses and
+          businesses' repayments to investors, what waits on staff first. The
+          rate-page leads that used to sit here are on /admin/rates. */}
       <div className="space-y-3">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
-            {t("admin.recentLeads.title")}
+            {t("admin.recentTransactions.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {t("admin.recentLeads.subtitle")}
+            {t("admin.recentTransactions.subtitle")}
           </p>
         </div>
-        <RecentLeads enabled={isAdmin} locale={locale} t={t} />
+        <RecentTransactions locale={locale} t={t} />
       </div>
     </div>
   );
