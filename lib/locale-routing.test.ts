@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   LOCALIZED_PATHS,
   MARKETING_PATHS,
+  isBlogPath,
   isLocalizedPath,
+  isMarketingPath,
+  localeSwitchPath,
   languageAlternates,
   marketingRoute,
   publicPathname,
@@ -144,5 +147,57 @@ describe("marketingRoute / publicPathname", () => {
     for (const path of MARKETING_PATHS) {
       expect(isLocalizedPath(path)).toBe(true);
     }
+  });
+});
+
+describe("the blog", () => {
+  it("is /blog and one level of slug below it", () => {
+    expect(isBlogPath("/blog")).toBe(true);
+    expect(isBlogPath("/blog/lai-suat-vay-von")).toBe(true);
+    expect(isBlogPath("/blog/a/b")).toBe(false);
+    expect(isBlogPath("/blog/")).toBe(false);
+    expect(isBlogPath("/blogger")).toBe(false);
+    expect(isBlogPath("/en/blog")).toBe(false);
+  });
+
+  it("is a marketing page, served from its Vietnamese build", () => {
+    expect(isMarketingPath("/blog")).toBe(true);
+    expect(isMarketingPath("/blog/lai-suat")).toBe(true);
+    expect(marketingRoute("/blog/lai-suat", "vi")).toBe("/vi/blog/lai-suat");
+    expect(publicPathname("/vi/blog/lai-suat")).toBe("/blog/lai-suat");
+    expect(publicPathname("/vi/blog")).toBe("/blog");
+  });
+
+  it("is Vietnamese at its unprefixed URL", () => {
+    expect(parseLocalePath("/blog/lai-suat")).toEqual({
+      path: "/blog/lai-suat",
+      locale: "vi",
+      prefixed: false,
+    });
+  });
+
+  it("has no English URL, so /en/blog... is not a page", () => {
+    expect(parseLocalePath("/en/blog/lai-suat")).toEqual({
+      path: "/blog/lai-suat",
+      locale: null,
+      prefixed: true,
+    });
+    expect(parseLocalePath("/en/blog").locale).toBeNull();
+  });
+
+  it("is not localized: no hreflang twin, links stay unprefixed", () => {
+    expect(isLocalizedPath("/blog")).toBe(false);
+    expect(LOCALIZED_PATHS).not.toContain("/blog");
+    expect(localizedPath("/blog/lai-suat", "en")).toBe("/blog/lai-suat");
+    expect(localizedHref("/blog#muc", "en")).toBe("/blog#muc");
+  });
+
+  it("switches to English by going to the English home page", () => {
+    expect(localeSwitchPath("/blog/lai-suat", "en")).toBe("/en");
+    expect(localeSwitchPath("/blog", "en")).toBe("/en");
+    expect(localeSwitchPath("/blog/lai-suat", "vi")).toBe("/blog/lai-suat");
+    // Everywhere else it is the page's own URL in that language.
+    expect(localeSwitchPath("/rate", "en")).toBe("/en/rate");
+    expect(localeSwitchPath("/rate", "vi")).toBe("/rate");
   });
 });

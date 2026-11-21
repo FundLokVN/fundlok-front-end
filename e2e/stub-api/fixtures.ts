@@ -673,3 +673,108 @@ export const STUB_KYC_REVIEWS = [
  */
 export const STUB_AGREEMENT_CODE = "246810";
 export const STUB_AGREEMENT_PHONE = "0912***678";
+
+/**
+ * The public blog (GET /api/v1/blog/...). Fixed on purpose: those endpoints
+ * are read by the Next server with no visitor cookie and their pages are
+ * cached, so they cannot be scoped per test. Posts an admin spec creates live
+ * in the stub's per-scope admin store and never show up here.
+ *
+ * The first post has headings for the table of contents (two of them the
+ * same, to prove the ids are numbered), a link and an image; neither has a
+ * cover, so /blog loads no image the suite would have to serve.
+ */
+export const STUB_BLOG_MEDIA = "https://media.fundlok.com/blog";
+
+export const STUB_BLOG_POSTS = [
+  {
+    slug: "von-luu-dong-la-gi",
+    title: "Vốn lưu động là gì?",
+    seo_title: "Vốn lưu động là gì? Cách tính cho doanh nghiệp nhỏ",
+    excerpt:
+      "Vốn lưu động là tiền doanh nghiệp dùng cho hoạt động hằng ngày: nhập hàng, trả lương, trả nhà cung cấp.",
+    cover_image_url: null,
+    cover_alt: null,
+    published_at: "2026-11-18T02:00:00Z",
+    updated_at: "2026-11-19T02:00:00Z",
+    reading_minutes: 3,
+    locale: "vi",
+    content: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Mọi doanh nghiệp cần " },
+            { type: "text", text: "vốn lưu động", marks: [{ type: "bold" }] },
+            { type: "text", text: " để vận hành. Xem " },
+            {
+              type: "text",
+              text: "lãi suất tham khảo",
+              marks: [{ type: "link", attrs: { href: "/rate" } }],
+            },
+            { type: "text", text: "." },
+          ],
+        },
+        {
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "Cách tính vốn lưu động" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Tài sản ngắn hạn trừ nợ ngắn hạn." },
+          ],
+        },
+        {
+          type: "image",
+          attrs: {
+            src: "https://media.fundlok.com/blog/e2e-chart.png",
+            alt: "Biểu đồ vốn lưu động",
+          },
+        },
+        {
+          type: "heading",
+          attrs: { level: 3 },
+          content: [{ type: "text", text: "Ví dụ" }],
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Một cửa hàng bán lẻ nhỏ." }],
+        },
+        {
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "Ví dụ" }],
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Một xưởng sản xuất." }],
+        },
+      ],
+    },
+  },
+  {
+    slug: "tra-gop-hang-ngay",
+    title: "Trả góp hằng ngày hoạt động thế nào?",
+    seo_title: null,
+    excerpt:
+      "Một khoản cố định mỗi ngày làm việc cho đến khi trả hết tổng số tiền.",
+    cover_image_url: null,
+    cover_alt: null,
+    published_at: "2026-11-10T02:00:00Z",
+    updated_at: "2026-11-10T02:00:00Z",
+    reading_minutes: 2,
+    locale: "vi",
+    content: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Một khoản cố định mỗi ngày." }],
+        },
+      ],
+    },
+  },
+];

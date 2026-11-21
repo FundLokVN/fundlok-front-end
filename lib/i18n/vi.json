@@ -47,6 +47,154 @@
       "subtitle": "Tài khoản ngân hàng doanh nghiệp và nhà đầu tư đã lưu. Chỉ tài khoản đã duyệt mới cho phép niêm yết dự án của doanh nghiệp hoặc cho nhà đầu tư đầu tư.",
       "title": "Tài khoản ngân hàng"
     },
+    "blog": {
+      "actions": {
+        "delete": "Xoá bản nháp",
+        "deleteBody": "Bản nháp sẽ bị xoá vĩnh viễn và không thể khôi phục.",
+        "deleteConfirm": "Xoá",
+        "deleteTitle": "Xoá bản nháp này?",
+        "publish": "Đăng bài",
+        "save": "Lưu nháp",
+        "saveLive": "Lưu thay đổi",
+        "saving": "Đang lưu…",
+        "unpublish": "Gỡ bài",
+        "unpublishBody": "Bài viết sẽ không còn trên /blog và liên kết ngừng hoạt động cho đến khi đăng lại. Đường dẫn vẫn giữ nguyên.",
+        "unpublishTitle": "Gỡ bài viết khỏi trang?",
+        "viewLive": "Xem trên trang"
+      },
+      "columns": {
+        "published": "Ngày đăng",
+        "status": "Trạng thái",
+        "title": "Tiêu đề",
+        "updated": "Cập nhật"
+      },
+      "conflictReload": "Tải lại",
+      "createError": "Không tạo được bài viết.",
+      "editor": {
+        "back": "Tất cả bài viết",
+        "bodyLabel": "Nội dung bài viết",
+        "bodyPlaceholder": "Bắt đầu viết…",
+        "loadError": "Không tải được bài viết này.",
+        "notFound": "Bài viết không tồn tại hoặc đã bị xoá.",
+        "saved": "Đã lưu mọi thay đổi",
+        "shortcut": "Ctrl/⌘ + S để lưu",
+        "titleLabel": "Tiêu đề bài viết",
+        "titlePlaceholder": "Tiêu đề bài viết",
+        "unsaved": "Có thay đổi chưa lưu",
+        "words": "{count} từ"
+      },
+      "empty": "Chưa có bài viết nào. Bấm Bài viết mới để bắt đầu.",
+      "errors": {
+        "BLOG_CONTENT_INVALID": "Nội dung có phần không được phép, ví dụ ảnh dán từ trang khác. Hãy xoá phần đó hoặc chèn ảnh bằng nút Ảnh.",
+        "BLOG_DELETE_PUBLISHED": "Không thể xoá bài đã đăng. Hãy gỡ bài trước.",
+        "BLOG_PUBLISH_INCOMPLETE": "Hãy thêm tiêu đề, đường dẫn, mô tả và nội dung trước khi đăng.",
+        "BLOG_SLUG_LOCKED": "Không thể đổi đường dẫn sau khi bài đã được đăng.",
+        "BLOG_SLUG_TAKEN": "Đường dẫn này đã được bài viết khác sử dụng. Hãy chọn đường dẫn khác.",
+        "BLOG_VERSION_CONFLICT": "Có người khác đã lưu bài viết này sau khi bạn mở. Hãy tải lại trang để xem phiên bản mới; các thay đổi chưa lưu ở đây sẽ mất."
+      },
+      "filter": {
+        "all": "Tất cả",
+        "draft": "Bản nháp",
+        "label": "Trạng thái",
+        "published": "Đã đăng"
+      },
+      "image": {
+        "altHint": "Mô tả ảnh cho người không xem được ảnh và cho công cụ tìm kiếm.",
+        "altLabel": "Văn bản thay thế (alt)",
+        "altRequired": "Cần nhập văn bản thay thế.",
+        "description": "Ảnh được tải lên máy chủ ảnh của FundLok và hiển thị trong bài viết.",
+        "fileHint": "JPEG, PNG hoặc WebP, tối đa 5 MB.",
+        "fileLabel": "Tệp ảnh",
+        "insert": "Tải lên và chèn",
+        "invalidType": "Hãy chọn ảnh JPEG, PNG hoặc WebP.",
+        "title": "Chèn ảnh",
+        "tooLarge": "Ảnh lớn hơn 5 MB.",
+        "uploadError": "Không tải ảnh lên được. Hãy thử lại.",
+        "uploading": "Đang tải lên…"
+      },
+      "link": {
+        "apply": "Áp dụng",
+        "description": "Chọn đoạn chữ trước, rồi nhập địa chỉ cần mở.",
+        "invalid": "Hãy dùng liên kết http(s), mailto hoặc tel, đường dẫn trang như /rate, hoặc một mục như #lai-suat.",
+        "newTab": "Mở trong tab mới",
+        "remove": "Bỏ liên kết",
+        "title": "Liên kết",
+        "urlHint": "https://…, một trang như /rate, một mục như #lai-suat, mailto: hoặc tel:",
+        "urlLabel": "Địa chỉ"
+      },
+      "loadError": "Không tải được danh sách bài viết.",
+      "missing": {
+        "content": "nội dung",
+        "coverAlt": "văn bản thay thế của ảnh bìa",
+        "excerpt": "mô tả",
+        "slug": "đường dẫn hợp lệ",
+        "title": "tiêu đề"
+      },
+      "newPost": "Bài viết mới",
+      "openPost": "Sửa {title}",
+      "searchLabel": "Tìm bài viết",
+      "searchPlaceholder": "Tìm theo tiêu đề",
+      "settings": {
+        "counter": "{count} / {limit} ký tự hiển thị khi tìm kiếm",
+        "coverAltLabel": "Văn bản thay thế của ảnh bìa",
+        "coverHint": "Hiển thị ở đầu bài viết, trên trang /blog và khi chia sẻ liên kết.",
+        "coverLabel": "Ảnh bìa",
+        "coverRemove": "Gỡ ảnh",
+        "coverReplace": "Thay ảnh",
+        "coverUpload": "Tải ảnh bìa",
+        "excerptHint": "Đoạn tóm tắt dưới tiêu đề trên kết quả tìm kiếm và trang /blog. Bắt buộc khi đăng.",
+        "excerptLabel": "Mô tả (meta description)",
+        "lastSaved": "Lưu lần cuối {time}",
+        "overLimit": "Kết quả tìm kiếm sẽ cắt bớt sau khoảng {limit} ký tự.",
+        "previewDescriptionEmpty": "Thêm mô tả để kiểm soát đoạn chữ này.",
+        "previewTitle": "Xem trước trên kết quả tìm kiếm",
+        "publishedAt": "Đăng lần đầu {time}",
+        "seoTitleHint": "Hiển thị trên kết quả tìm kiếm và tab trình duyệt. Để trống để dùng tiêu đề bài viết.",
+        "seoTitleLabel": "Tiêu đề SEO",
+        "slugFromTitle": "Lấy từ tiêu đề",
+        "slugHint": "Chữ thường, số và dấu gạch ngang. Bị khoá sau lần đăng đầu tiên để liên kết đã chia sẻ không bị hỏng.",
+        "slugInvalid": "Chỉ dùng chữ thường, số và một dấu gạch ngang giữa các từ, tối đa 80 ký tự.",
+        "slugLabel": "Đường dẫn (slug)",
+        "slugLocked": "Đã khoá: bài viết này đã được đăng.",
+        "status": "Trạng thái",
+        "title": "Cài đặt bài viết"
+      },
+      "status": {
+        "draft": "Bản nháp",
+        "published": "Đã đăng"
+      },
+      "subtitle": "Viết và đăng bài cho trang blog công khai tại /blog.",
+      "title": "Blog",
+      "toast": {
+        "cacheNotRefreshed": "Đã lưu nhưng chưa làm mới được trang công khai. Trang sẽ tự cập nhật trong vòng một giờ.",
+        "deleted": "Đã xoá bản nháp.",
+        "error": "Đã xảy ra lỗi. Hãy thử lại.",
+        "liveUpdated": "Đã lưu. Trang công khai đã cập nhật.",
+        "publishMissing": "Trước khi đăng, hãy bổ sung: {fields}.",
+        "published": "Đã đăng tại /blog/{slug}.",
+        "saved": "Đã lưu bản nháp.",
+        "unpublished": "Đã gỡ bài khỏi trang."
+      },
+      "toolbar": {
+        "bold": "In đậm",
+        "bulletList": "Danh sách dấu đầu dòng",
+        "heading2": "Tiêu đề mục",
+        "heading3": "Tiêu đề phụ",
+        "horizontalRule": "Đường kẻ ngang",
+        "image": "Ảnh",
+        "italic": "In nghiêng",
+        "label": "Định dạng",
+        "link": "Liên kết",
+        "orderedList": "Danh sách đánh số",
+        "quote": "Trích dẫn",
+        "redo": "Làm lại",
+        "strike": "Gạch ngang",
+        "underline": "Gạch chân",
+        "undo": "Hoàn tác"
+      },
+      "unit": "bài viết",
+      "untitled": "Bài viết chưa có tiêu đề"
+    },
     "consent": {
       "accepted": "Đã đồng ý",
       "acceptedOn": "Đồng ý lúc {date}",
@@ -757,6 +905,7 @@
       "auditLogs": "Nhật ký kiểm toán",
       "badge": "Quản trị",
       "bankAccounts": "Tài khoản ngân hàng",
+      "blog": "Blog",
       "email": "Email",
       "kycReviews": "Xét duyệt KYC / KYB",
       "logout": "Đăng xuất",
@@ -1623,6 +1772,22 @@
       "verifiedTitle": "Đã xác minh số điện thoại",
       "verifyBtn": "Xác minh"
     }
+  },
+  "blog": {
+    "allArticles": "Tất cả bài viết",
+    "breadcrumbBlog": "Blog",
+    "breadcrumbHome": "Trang chủ",
+    "breadcrumbLabel": "Đường dẫn",
+    "empty": "Chưa có bài viết nào. Hãy quay lại sau.",
+    "heading": "Blog FundLok",
+    "metaDescription": "Bài viết của FundLok về vốn lưu động, trả góp hằng ngày, điểm doanh nghiệp và lãi suất tham khảo, và đầu tư vào doanh nghiệp vừa và nhỏ Việt Nam.",
+    "metaTitle": "Blog: kiến thức về vốn cho doanh nghiệp vừa và nhỏ",
+    "publishedOn": "Đăng ngày {date}",
+    "readMore": "Đọc bài viết",
+    "readingTime": "{minutes} phút đọc",
+    "subtitle": "Kiến thức thực tế về vốn lưu động, nguồn vốn cho doanh nghiệp nhỏ và đầu tư vào doanh nghiệp vừa và nhỏ Việt Nam.",
+    "toc": "Nội dung bài viết",
+    "updatedOn": "Cập nhật ngày {date}"
   },
   "common": {
     "all": "Tất cả",
@@ -3498,6 +3663,7 @@
   },
   "header": {
     "achievements": "THÀNH TỰU",
+    "blog": "BLOG",
     "contact": "LIÊN HỆ",
     "contactUs": "LIÊN HỆ",
     "enterApp": "VÀO ỨNG DỤNG",

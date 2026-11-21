@@ -1,0 +1,239 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Newspaper, Plus, Search } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useRequireAuth } from "@/hooks/use-authentication";
+import { useAdminBlogPosts, useCreateBlogPost } from "@/hooks/use-admin-blog";
+import { useToast } from "@/hooks/use-toast";
+import { apiErrorMessage } from "@/lib/api-error-message";
+import { formatDateTime } from "@/lib/format-date";
+import { useTranslations } from "@/lib/i18n";
+import { isAdminRole } from "@/services/authentication.service";
+import type {
+  BlogPostStatus,
+  BlogPostSummary,
+} from "@/services/admin-blog.service";
+import { AdminPageLoader } from "../_components/AdminPageLoader";
+import { DataTable, type Column } from "../_components/DataTable";
+import { TablePager } from "../_components/TablePager";
+import { BlogStatusBadge } from "./_components/BlogStatusBadge";
+
+const PAGE_SIZE = 20;
+
+type StatusFilter = "all" | BlogPostStatus;
+
+// Admin > Blog: every post, drafts and published, newest change first. "New
+// post" creates a draft straight away and opens it in the editor. Admins only
+// — the proxy turns everyone else away, this page redirects as a fallback,
+// and the API answers 403.
+export default function AdminBlogClient() {
+  const { user, isLoading } = useRequireAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user && !isAdminRole(user.role)) {
+      router.replace("/dashboard");
+    }
+  }, [isLoading, user, router]);
+
+  if (isLoading || !user || !isAdminRole(user.role)) {
+    return <AdminPageLoader />;
+  }
+
+  return <BlogPostsDirectory />;
+}
+
+function BlogPostsDirectory() {
+  const router = useRouter();
+  const { t, locale } = useTranslations();
+  const { toast } = useToast();
+
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+
+  // Debounced, and back to the first page whenever the text changes.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  const { data, isLoading, isFetching, isError } = useAdminBlogPosts({
+    page,
+    page_size: PAGE_SIZE,
+    status: status === "all" ? undefined : status,
+    search: search || undefined,
+  });
+  const createPost = useCreateBlogPost();
+
+  const handleCreate = () => {
+    createPost.mutate(t("admin.blog.untitled"), {
+      onSuccess: (post) => router.push(`/admin/blog/${post.id}`),
+      onError: (error) =>
+        toast({
+          variant: "destructive",
+          title: t("admin.blog.createError"),
+          description: apiErrorMessage(
+            error,
+            locale,
+            t("admin.blog.toast.error"),
+          ),
+        }),
+    });
+  };
+
+  const columns: Column<BlogPostSummary>[] = [
+    {
+      key: "title",
+      header: t("admin.blog.columns.title"),
+      render: (post) => (
+        <div className="flex min-w-0 flex-col">
+          <span className="font-medium text-foreground">{post.title}</span>
+          <span className="truncate text-xs text-muted-foreground">
+            /blog/{post.slug}
+          </span>
+        </div>
+      ),
+      filterValue: (post) => post.title,
+    },
+    {
+      key: "status",
+      header: t("admin.blog.columns.status"),
+      render: (post) => <BlogStatusBadge status={post.status} />,
+      filterValue: (post) => t(`admin.blog.status.${post.status}`),
+    },
+    {
+      key: "updated",
+      header: t("admin.blog.columns.updated"),
+      render: (post) => (
+        <span className="whitespace-nowrap tabular-nums">
+          {formatDateTime(post.updated_at, locale)}
+        </span>
+      ),
+      sortValue: (post) => post.updated_at,
+    },
+    {
+      key: "published",
+      header: t("admin.blog.columns.published"),
+      render: (post) =>
+        post.published_at ? (
+          <span className="whitespace-nowrap tabular-nums">
+            {formatDateTime(post.published_at, locale)}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+      sortValue: (post) => post.published_at ?? "",
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Newspaper className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              {t("admin.blog.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {t("admin.blog.subtitle")}
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          onClick={handleCreate}
+          disabled={createPost.isPending}
+          className="gap-2 self-start sm:self-auto"
+        >
+          {createPost.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+          {t("admin.blog.newPost")}
+        </Button>
+      </div>
+
+      <div className="rounded-lg border bg-card">
+        <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value as StatusFilter);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger
+              size="sm"
+              className="w-full sm:w-44"
+              aria-label={t("admin.blog.filter.label")}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("admin.blog.filter.all")}</SelectItem>
+              <SelectItem value="draft">
+                {t("admin.blog.filter.draft")}
+              </SelectItem>
+              <SelectItem value="published">
+                {t("admin.blog.filter.published")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="relative sm:w-64">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder={t("admin.blog.searchPlaceholder")}
+              aria-label={t("admin.blog.searchLabel")}
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <DataTable<BlogPostSummary>
+          columns={columns}
+          rows={data?.items ?? []}
+          getRowKey={(post) => post.id}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          emptyMessage={
+            isError ? t("admin.blog.loadError") : t("admin.blog.empty")
+          }
+          onRowClick={(post) => router.push(`/admin/blog/${post.id}`)}
+          getRowLabel={(post) =>
+            t("admin.blog.openPost").replace("{title}", post.title)
+          }
+        />
+
+        <TablePager
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={data?.total ?? 0}
+          unit={t("admin.blog.unit")}
+          isFetching={isFetching}
+          onPageChange={setPage}
+        />
+      </div>
+    </div>
+  );
+}

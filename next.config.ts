@@ -1,5 +1,12 @@
 import type { NextConfig } from "next";
 
+import { BLOG_MEDIA_ORIGIN } from "./lib/blog/links";
+
+// Blog images (covers, inline images) live on the public R2 bucket's own
+// domain. next/image only optimizes hosts listed here; lib/csp.ts lets the
+// browser load the same origin directly.
+const blogMedia = new URL(BLOG_MEDIA_ORIGIN);
+
 const nextConfig: NextConfig = {
   // Build output directory. Overridable so a production build can be made
   // without destroying a running dev server's `.next` — `next build` and
@@ -30,6 +37,14 @@ const nextConfig: NextConfig = {
     // Required from Next 16 — an unrestricted list lets anyone burn optimizer
     // time on qualities we never ask for. 75 is the `next/image` default.
     qualities: [75],
+    remotePatterns: [
+      {
+        protocol: blogMedia.protocol === "http:" ? "http" : "https",
+        hostname: blogMedia.hostname,
+        ...(blogMedia.port ? { port: blogMedia.port } : {}),
+        pathname: "/**",
+      },
+    ],
   },
   webpack(config, { dev, isServer }) {
     // Client production chunking only. The App Router gives every page,

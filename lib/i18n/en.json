@@ -47,6 +47,154 @@
       "subtitle": "The bank accounts SMEs and investors saved. Only an approved account lists an SME's project or lets an investor invest.",
       "title": "Bank accounts"
     },
+    "blog": {
+      "actions": {
+        "delete": "Delete draft",
+        "deleteBody": "The draft is removed for good. This cannot be undone.",
+        "deleteConfirm": "Delete",
+        "deleteTitle": "Delete this draft?",
+        "publish": "Publish",
+        "save": "Save draft",
+        "saveLive": "Save changes",
+        "saving": "Saving…",
+        "unpublish": "Unpublish",
+        "unpublishBody": "It leaves /blog and its link stops working until you publish it again. The address stays the same.",
+        "unpublishTitle": "Take this post off the site?",
+        "viewLive": "View live"
+      },
+      "columns": {
+        "published": "Published",
+        "status": "Status",
+        "title": "Title",
+        "updated": "Updated"
+      },
+      "conflictReload": "Reload",
+      "createError": "Could not create the post.",
+      "editor": {
+        "back": "All posts",
+        "bodyLabel": "Post content",
+        "bodyPlaceholder": "Start writing…",
+        "loadError": "Could not load this post.",
+        "notFound": "This post does not exist or was deleted.",
+        "saved": "All changes saved",
+        "shortcut": "Ctrl/⌘ + S saves",
+        "titleLabel": "Post title",
+        "titlePlaceholder": "Post title",
+        "unsaved": "Unsaved changes",
+        "words": "{count} words"
+      },
+      "empty": "No posts yet. Start one with New post.",
+      "errors": {
+        "BLOG_CONTENT_INVALID": "The content has something the blog does not allow, such as an image pasted from another site. Remove it, or insert the image with the Image button.",
+        "BLOG_DELETE_PUBLISHED": "A published post cannot be deleted. Unpublish it first.",
+        "BLOG_PUBLISH_INCOMPLETE": "Add a title, slug, meta description and some content before publishing.",
+        "BLOG_SLUG_LOCKED": "The slug cannot change once the post has been published.",
+        "BLOG_SLUG_TAKEN": "Another post already uses this slug. Choose a different one.",
+        "BLOG_VERSION_CONFLICT": "Someone else saved this post after you opened it. Reload to see their version; changes you have not saved here will be lost."
+      },
+      "filter": {
+        "all": "All",
+        "draft": "Drafts",
+        "label": "Status",
+        "published": "Published"
+      },
+      "image": {
+        "altHint": "Describe the image for people who cannot see it, and for search engines.",
+        "altLabel": "Alt text",
+        "altRequired": "Alt text is required.",
+        "description": "The image is uploaded to FundLok's media host and shown inside the post.",
+        "fileHint": "JPEG, PNG or WebP, up to 5 MB.",
+        "fileLabel": "Image file",
+        "insert": "Upload and insert",
+        "invalidType": "Choose a JPEG, PNG or WebP image.",
+        "title": "Insert image",
+        "tooLarge": "The image is larger than 5 MB.",
+        "uploadError": "Could not upload the image. Try again.",
+        "uploading": "Uploading…"
+      },
+      "link": {
+        "apply": "Apply",
+        "description": "Select text first, then add the address it should open.",
+        "invalid": "Use an http(s), mailto or tel link, a page path such as /rate, or a section such as #lai-suat.",
+        "newTab": "Open in a new tab",
+        "remove": "Remove link",
+        "title": "Link",
+        "urlHint": "https://…, a page such as /rate, a section such as #lai-suat, mailto: or tel:",
+        "urlLabel": "Address"
+      },
+      "loadError": "Could not load the posts.",
+      "missing": {
+        "content": "some content",
+        "coverAlt": "cover alt text",
+        "excerpt": "a meta description",
+        "slug": "a valid slug",
+        "title": "a title"
+      },
+      "newPost": "New post",
+      "openPost": "Edit {title}",
+      "searchLabel": "Search posts",
+      "searchPlaceholder": "Search titles",
+      "settings": {
+        "counter": "{count} / {limit} characters shown in search",
+        "coverAltLabel": "Cover alt text",
+        "coverHint": "Shown at the top of the post, on /blog and when the link is shared.",
+        "coverLabel": "Cover image",
+        "coverRemove": "Remove",
+        "coverReplace": "Replace",
+        "coverUpload": "Upload cover",
+        "excerptHint": "The summary under the title in search results and on /blog. Required to publish.",
+        "excerptLabel": "Meta description",
+        "lastSaved": "Last saved {time}",
+        "overLimit": "Search results cut it off after about {limit} characters.",
+        "previewDescriptionEmpty": "Add a meta description to control this text.",
+        "previewTitle": "Search preview",
+        "publishedAt": "First published {time}",
+        "seoTitleHint": "Shown in search results and the browser tab. Leave empty to use the post title.",
+        "seoTitleLabel": "SEO title",
+        "slugFromTitle": "Use title",
+        "slugHint": "Lowercase letters, numbers and hyphens. Locked after the first publish, so shared links never break.",
+        "slugInvalid": "Use lowercase letters, numbers and single hyphens, at most 80 characters.",
+        "slugLabel": "URL slug",
+        "slugLocked": "Locked: this post has been published.",
+        "status": "Status",
+        "title": "Post settings"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published"
+      },
+      "subtitle": "Write and publish articles for the public blog at /blog.",
+      "title": "Blog",
+      "toast": {
+        "cacheNotRefreshed": "Saved, but the public page could not be refreshed now. It updates within an hour.",
+        "deleted": "Draft deleted.",
+        "error": "Something went wrong. Try again.",
+        "liveUpdated": "Saved. The live page shows the change.",
+        "publishMissing": "Before publishing, add: {fields}.",
+        "published": "Published at /blog/{slug}.",
+        "saved": "Draft saved.",
+        "unpublished": "Taken off the site."
+      },
+      "toolbar": {
+        "bold": "Bold",
+        "bulletList": "Bulleted list",
+        "heading2": "Heading",
+        "heading3": "Subheading",
+        "horizontalRule": "Divider",
+        "image": "Image",
+        "italic": "Italic",
+        "label": "Formatting",
+        "link": "Link",
+        "orderedList": "Numbered list",
+        "quote": "Quote",
+        "redo": "Redo",
+        "strike": "Strikethrough",
+        "underline": "Underline",
+        "undo": "Undo"
+      },
+      "unit": "posts",
+      "untitled": "Untitled post"
+    },
     "consent": {
       "accepted": "Accepted",
       "acceptedOn": "Accepted {date}",
@@ -757,6 +905,7 @@
       "auditLogs": "Audit logs",
       "badge": "Admin",
       "bankAccounts": "Bank accounts",
+      "blog": "Blog",
       "email": "Email",
       "kycReviews": "KYC / KYB reviews",
       "logout": "Log out",
@@ -1623,6 +1772,22 @@
       "verifiedTitle": "Phone number verified",
       "verifyBtn": "Verify"
     }
+  },
+  "blog": {
+    "allArticles": "All articles",
+    "breadcrumbBlog": "Blog",
+    "breadcrumbHome": "Home",
+    "breadcrumbLabel": "Breadcrumb",
+    "empty": "No articles yet. Check back soon.",
+    "heading": "FundLok blog",
+    "metaDescription": "Guides from FundLok on working capital, daily repayment, business scores and investing in Vietnamese SMEs.",
+    "metaTitle": "Blog: funding guides for Vietnamese SMEs",
+    "publishedOn": "Published {date}",
+    "readMore": "Read article",
+    "readingTime": "{minutes} min read",
+    "subtitle": "Practical guides on working capital, funding for small businesses and investing in Vietnamese SMEs.",
+    "toc": "In this article",
+    "updatedOn": "Updated {date}"
   },
   "common": {
     "all": "All",
@@ -3498,6 +3663,7 @@
   },
   "header": {
     "achievements": "ACHIEVEMENTS",
+    "blog": "BLOG",
     "contact": "CONTACT",
     "contactUs": "CONTACT",
     "enterApp": "ENTER APP",

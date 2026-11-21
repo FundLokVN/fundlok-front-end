@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
+import { BLOG_URL, blogPostUrl } from "@/lib/blog/json-ld";
+import { listPublishedPosts, readAtBuildOrDefer } from "@/lib/server/blog-api";
 import {
   LOCALIZED_PATHS,
   languageAlternates,
@@ -45,9 +47,17 @@ function absolute(path: string): string {
   return path === "/" ? SITE_URL : `${SITE_URL}${path}`;
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+// The blog part changes whenever a post is published; the admin editor
+// expires it at once through the `blog` cache tag, and this is the backstop.
+// BLOG_REVALIDATE_SECONDS; Next needs the literal here.
+export const revalidate = 3600;
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const lastModified = new Date();
+  return [...pageEntries(lastModified), ...(await blogEntries(lastModified))];
+}
+
+function pageEntries(lastModified: Date): MetadataRoute.Sitemap {
   return LOCALIZED_PATHS.flatMap((path) => {
     const languages = Object.fromEntries(
       Object.entries(languageAlternates(path)).map(([lang, href]) => [
@@ -62,4 +72,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: { languages },
     }));
   });
+}
+
+/**
+ * /blog and every published post, newest first. Vietnamese only, so one URL
+ * each and no language alternates. A post's lastModified is its own
+ * updated_at, so Google recrawls what actually changed.
+ */
+async function blogEntries(fallback: Date): Promise<MetadataRoute.Sitemap> {
+  const posts = await readAtBuildOrDefer(listPublishedPosts);
+  return [
+    {
+      url: BLOG_URL,
+      lastModified: posts[0]?.updated_at ?? fallback,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    ...posts.map((post) => ({
+      url: blogPostUrl(post.slug),
+      lastModified: post.updated_at,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+  ];
 }

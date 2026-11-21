@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import {
   LOCALE_COOKIE,
+  localeSwitchPath,
   localizedHref,
   localizedPath,
   parseLocalePath,
@@ -192,10 +193,14 @@ export function LocaleProvider({
       // the price of every server-rendered part agreeing with the URL.
       if (route.locale !== null) {
         if (nextLocale !== route.locale) {
+          const target = localeSwitchPath(route.path, nextLocale);
+          // The query and hash belong to this page; the blog's English
+          // target is a different page (the home page), so they stay behind.
+          const samePage = target === localizedPath(route.path, nextLocale);
           window.location.assign(
-            localizedPath(route.path, nextLocale) +
-              window.location.search +
-              window.location.hash,
+            samePage
+              ? target + window.location.search + window.location.hash
+              : target,
           );
         }
         return;

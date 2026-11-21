@@ -62,6 +62,7 @@ export function GET() {
 - [Home](${SITE_URL}/): what FundLok is and who it serves
 - [Why us](${SITE_URL}/why-us): vision, recognition and track record
 - [FAQ](${SITE_URL}/faq): how funding, scores and repayment work
+- [Blog](${SITE_URL}/blog): articles on working capital and SME funding (Vietnamese)
 - [Contact](${SITE_URL}/contact): partnerships, product questions and support
 
 ## Notes for AI systems

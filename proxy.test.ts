@@ -241,6 +241,85 @@ describe("the prerendered marketing pages", () => {
   });
 });
 
+describe("the blog, Vietnamese only", () => {
+  const rewrittenTo = (response: Response) => {
+    const target = response.headers.get("x-middleware-rewrite");
+    return target === null ? null : new URL(target).pathname;
+  };
+  const redirectedTo = (response: Response) => {
+    const location = response.headers.get("location");
+    return location === null ? null : new URL(location).pathname;
+  };
+
+  it("serves /blog and its posts from the Vietnamese build", async () => {
+    for (const [from, to] of [
+      ["/blog", "/vi/blog"],
+      ["/blog/lai-suat-vay-von-2026", "/vi/blog/lai-suat-vay-von-2026"],
+    ]) {
+      const response = await proxy(
+        new NextRequest(`https://www.fundlok.com${from}`),
+      );
+      expect(response.headers.get("location")).toBeNull();
+      expect(rewrittenTo(response)).toBe(to);
+    }
+  });
+
+  it("gives them the fixed policy, with no nonce, like the other marketing pages", async () => {
+    const response = await proxy(
+      new NextRequest("https://www.fundlok.com/blog/lai-suat"),
+    );
+    const csp = response.headers.get("Content-Security-Policy") ?? "";
+    expect(csp).toContain("'unsafe-inline'");
+    expect(csp).not.toContain("'nonce-");
+  });
+
+  it("sends the internal /vi URL to the public one", async () => {
+    for (const [from, to] of [
+      ["/vi/blog", "/blog"],
+      ["/vi/blog/lai-suat", "/blog/lai-suat"],
+    ]) {
+      const response = await proxy(
+        new NextRequest(`https://www.fundlok.com${from}`),
+      );
+      expect(response.status).toBe(308);
+      expect(redirectedTo(response)).toBe(to);
+    }
+  });
+
+  it("has no English URL: /en/blog... goes to the one it has", async () => {
+    for (const [from, to] of [
+      ["/en/blog", "/blog"],
+      ["/en/blog/lai-suat", "/blog/lai-suat"],
+    ]) {
+      const response = await proxy(
+        new NextRequest(`https://www.fundlok.com${from}`),
+      );
+      expect(response.status).toBe(308);
+      expect(redirectedTo(response)).toBe(to);
+    }
+  });
+
+  it("ignores an English language cookie instead of redirecting in a loop", async () => {
+    const response = await proxy(
+      new NextRequest("https://www.fundlok.com/blog/lai-suat", {
+        headers: { cookie: "NEXT_LOCALE=en" },
+      }),
+    );
+    expect(response.headers.get("location")).toBeNull();
+    expect(rewrittenTo(response)).toBe("/vi/blog/lai-suat");
+  });
+
+  it("still sends an English-cookie visitor on other pages to English", async () => {
+    const response = await proxy(
+      new NextRequest("https://www.fundlok.com/faq", {
+        headers: { cookie: "NEXT_LOCALE=en" },
+      }),
+    );
+    expect(response.status).toBe(307);
+    expect(redirectedTo(response)).toBe("/en/faq");
+  });
+});
+
 describe("the brand-accent header", () => {
   it("marks the signed-out entry pages, in either language", async () => {
     for (const path of ["/login", "/en/login", "/forgot-password"]) {

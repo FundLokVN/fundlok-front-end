@@ -28,6 +28,11 @@
  * and hold no session data; every page that does — the app, admin, /login —
  * keeps the nonce. Pass `null` for the fixed policy.
  *
+ * The blog (/blog, ISR under app/[lang]/blog/) is in the fixed-policy group.
+ * Its posts are written by FundLok admins, not users, and are drawn as React
+ * elements from an allowlisted TipTap schema (lib/blog/render.tsx) — never as
+ * raw HTML — so no post can carry a script for 'unsafe-inline' to admit.
+ *
  * STYLES STAY 'unsafe-inline'
  * React writes `style="..."` attributes (Radix positioning, framer-motion,
  * recharts) and the chart component injects a <style> element. Nonces cannot
@@ -39,6 +44,8 @@
  * A new embed, upload target or API host will be blocked until it is listed
  * here — check the browser console for "Refused to ..." after adding one.
  */
+
+import { BLOG_MEDIA_ORIGIN } from "@/lib/blog/links";
 
 /** Request header carrying the nonce to server components (app/layout.tsx). */
 export const NONCE_HEADER = "x-nonce";
@@ -102,8 +109,10 @@ export function contentSecurityPolicy(nonce: string | null): string {
       "https://accounts.google.com/gsi/style",
     ],
     // data: for the logo in the admin email preview, blob: for local previews
-    // of a file before it is uploaded.
-    "img-src": ["'self'", "data:", "blob:", ...storage],
+    // of a file before it is uploaded. The blog media host serves post images
+    // to the public blog and to the admin editor
+    // (NEXT_PUBLIC_BLOG_MEDIA_ORIGIN, lib/blog/links.ts).
+    "img-src": ["'self'", "data:", "blob:", ...storage, BLOG_MEDIA_ORIGIN],
     "font-src": ["'self'"],
     "connect-src": [
       "'self'",

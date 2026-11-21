@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import "../globals.css";
 import { RootDocument, rootMetadata } from "@/components/root-document";
@@ -23,8 +24,15 @@ export function generateStaticParams() {
   return MARKETING_LOCALES.map((lang) => ({ lang }));
 }
 
-// /fr, /anything: not a language, so a 404 rather than a third build.
-export const dynamicParams = false;
+// /fr, /anything: not a language. Each page exports `dynamicParams = false`
+// for that, rather than this layout: Next applies the strictest value of every
+// segment to the whole route, and the blog's posts need request-time params.
+// The check in the layout below catches what reaches a page that allows them.
+function isMarketingLocale(
+  lang: string,
+): lang is (typeof MARKETING_LOCALES)[number] {
+  return (MARKETING_LOCALES as readonly string[]).includes(lang);
+}
 
 export async function generateMetadata({
   params,
@@ -42,6 +50,7 @@ export default async function MarketingRootLayout({
   children: React.ReactNode;
   params: LangParams;
 }>) {
+  if (!isMarketingLocale((await params).lang)) notFound();
   const { locale, seo } = seoStringsFor(await pageLocale(params));
   return (
     <RootDocument locale={locale} seo={seo}>
