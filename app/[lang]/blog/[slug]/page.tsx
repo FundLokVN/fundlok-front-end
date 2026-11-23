@@ -13,8 +13,10 @@ import {
   serializeJsonLd,
 } from "@/lib/blog/json-ld";
 import { extractToc, renderBlogContent } from "@/lib/blog/render";
+import type { PublicBlogPost } from "@/lib/blog/types";
 import { createServerTranslator } from "@/lib/i18n/server";
-import { OG_LOCALE } from "@/lib/seo";
+import { localizedPath } from "@/lib/locale-routing";
+import { OG_LOCALE, type SeoLocale } from "@/lib/seo";
 import { getPublishedPost } from "@/lib/server/blog-api";
 import { SITE_URL } from "@/lib/site";
 import { BlogCover } from "../_components/BlogCover";
@@ -22,8 +24,11 @@ import { PostMeta } from "../_components/PostMeta";
 import { TableOfContents } from "../_components/TableOfContents";
 
 /**
- * /blog/<slug>: one published post, rendered on the server from its TipTap
- * JSON (lib/blog/render.tsx; never raw HTML).
+ * /blog/<slug> and /en/blog/<slug>: one published post, rendered on the server
+ * from its TipTap JSON (lib/blog/render.tsx; never raw HTML). The page around
+ * the post follows the URL's language; the post itself is the Vietnamese one
+ * until posts get English fields, so the English URL names the Vietnamese one
+ * as canonical and is not in the sitemap.
  *
  * No post is built ahead of time: generateStaticParams returns [] so each
  * slug renders on its first visit and is then cached like a static page,
@@ -40,10 +45,12 @@ export function generateStaticParams(): { slug: string }[] {
   return [];
 }
 
-async function loadPost(params: PostParams) {
+async function loadPost(
+  params: PostParams,
+): Promise<{ lang: SeoLocale; post: PublicBlogPost | null }> {
   const { lang, slug } = await params;
-  if (lang !== "vi") return null;
-  return getPublishedPost(slug);
+  if (lang !== "vi" && lang !== "en") return { lang: "vi", post: null };
+  return { lang, post: await getPublishedPost(slug) };
 }
 
 export async function generateMetadata({
@@ -51,7 +58,7 @@ export async function generateMetadata({
 }: {
   params: PostParams;
 }): Promise<Metadata> {
-  const post = await loadPost(params);
+  const { lang, post } = await loadPost(params);
   if (!post) return {};
   const title = post.seo_title || post.title;
   const description = post.excerpt;
@@ -65,14 +72,15 @@ export async function generateMetadata({
     // branded ("… | FundLok") would otherwise carry the brand twice.
     title: /fundlok/i.test(title) ? { absolute: title } : title,
     description,
+    // Same post at both URLs: the Vietnamese one is canonical, no hreflang.
     alternates: { canonical: url },
     openGraph: {
       type: "article",
       title,
       description,
-      url,
+      url: localizedPath(url, lang),
       siteName: "FundLok",
-      locale: OG_LOCALE.vi,
+      locale: OG_LOCALE[lang],
       publishedTime: post.published_at,
       modifiedTime: post.updated_at,
       authors: [SITE_URL],
@@ -89,10 +97,10 @@ export async function generateMetadata({
 }
 
 export default async function BlogPostPage({ params }: { params: PostParams }) {
-  const post = await loadPost(params);
+  const { lang, post } = await loadPost(params);
   if (!post) notFound();
 
-  const t = createServerTranslator("vi");
+  const t = createServerTranslator(lang);
   const toc = extractToc(post.content);
   const crumbs = [
     { name: t("blog.breadcrumbHome"), url: SITE_URL },
@@ -123,13 +131,19 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
           <nav aria-label={t("blog.breadcrumbLabel")}>
             <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
               <li className="flex items-center gap-1">
-                <Link href="/" className="hover:text-foreground">
+                <Link
+                  href={localizedPath("/", lang)}
+                  className="hover:text-foreground"
+                >
                   {t("blog.breadcrumbHome")}
                 </Link>
                 <ChevronRight aria-hidden className="h-3.5 w-3.5" />
               </li>
               <li className="flex items-center gap-1">
-                <Link href="/blog" className="hover:text-foreground">
+                <Link
+                  href={localizedPath("/blog", lang)}
+                  className="hover:text-foreground"
+                >
                   {t("blog.breadcrumbBlog")}
                 </Link>
                 <ChevronRight aria-hidden className="h-3.5 w-3.5" />
@@ -144,7 +158,7 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
               {post.title}
             </h1>
-            <PostMeta post={post} t={t} showUpdated />
+            <PostMeta post={post} t={t} locale={lang} showUpdated />
           </header>
 
           <BlogCover
@@ -170,7 +184,7 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
 
           <footer className="mt-12 border-t pt-6">
             <Link
-              href="/blog"
+              href={localizedPath("/blog", lang)}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -178,7 +192,7 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
             </Link>
           </footer>
         </article>
-        <SiteFooter locale="vi" />
+        <SiteFooter locale={lang} />
       </div>
     </>
   );

@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 import SiteFooter from "@/components/site-footer";
 import SiteHeader from "@/components/site-header";
 import { createServerTranslator } from "@/lib/i18n/server";
-import { OG_LOCALE, type LangParams } from "@/lib/seo";
+import { localizedPath } from "@/lib/locale-routing";
+import { OG_LOCALE, pageLocale, type LangParams } from "@/lib/seo";
 import { listPublishedPosts, readAtBuildOrDefer } from "@/lib/server/blog-api";
 import { BlogCover } from "./_components/BlogCover";
 import { PostMeta } from "./_components/PostMeta";
 
 /**
- * /blog: every published post, newest first. Vietnamese only for now, so it
- * exists at /blog (rewritten here as /vi/blog) and nowhere else; /en/blog
- * redirects to it in proxy.ts.
+ * /blog (rewritten here as /vi/blog) and /en/blog: every published post,
+ * newest first. The page around the posts follows the URL's language; the
+ * posts are the Vietnamese ones (one title, one summary) until they get
+ * English fields, so /en/blog names /blog as its canonical and is not in the
+ * sitemap.
  *
  * Built once and regenerated in the background at most hourly; the admin
  * editor expires it at once on every publish (BLOG_CACHE_TAG). Reads no
@@ -31,22 +33,23 @@ export async function generateMetadata({
 }: {
   params: LangParams;
 }): Promise<Metadata> {
-  if ((await params).lang !== "vi") return {};
-  const t = createServerTranslator("vi");
+  const lang = await pageLocale(params);
+  const t = createServerTranslator(lang);
   const title = t("blog.metaTitle");
   const description = t("blog.metaDescription");
   return {
     title,
     description,
-    // One URL, one language: a canonical and no hreflang alternates.
+    // The posts are the same at both URLs, so both name /blog as canonical
+    // and neither carries hreflang alternates.
     alternates: { canonical: "/blog" },
     openGraph: {
       title,
       description,
-      url: "/blog",
+      url: localizedPath("/blog", lang),
       siteName: "FundLok",
       type: "website",
-      locale: OG_LOCALE.vi,
+      locale: OG_LOCALE[lang],
     },
     twitter: { card: "summary", title, description },
     robots: { index: true, follow: true },
@@ -58,8 +61,8 @@ export default async function BlogIndexPage({
 }: {
   params: LangParams;
 }) {
-  if ((await params).lang !== "vi") notFound();
-  const t = createServerTranslator("vi");
+  const lang = await pageLocale(params);
+  const t = createServerTranslator(lang);
   const posts = await readAtBuildOrDefer(listPublishedPosts);
 
   return (
@@ -96,7 +99,7 @@ export default async function BlogIndexPage({
                   <div className="flex flex-1 flex-col gap-3 p-5">
                     <h2 className="text-lg font-semibold leading-snug text-foreground">
                       <Link
-                        href={`/blog/${post.slug}`}
+                        href={localizedPath(`/blog/${post.slug}`, lang)}
                         className="after:absolute after:inset-0 group-hover:text-primary"
                       >
                         {post.title}
@@ -108,7 +111,7 @@ export default async function BlogIndexPage({
                       </p>
                     )}
                     <div className="mt-auto">
-                      <PostMeta post={post} t={t} />
+                      <PostMeta post={post} t={t} locale={lang} />
                     </div>
                   </div>
                 </article>
@@ -117,7 +120,7 @@ export default async function BlogIndexPage({
           </ul>
         )}
       </div>
-      <SiteFooter locale="vi" />
+      <SiteFooter locale={lang} />
     </div>
   );
 }

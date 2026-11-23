@@ -241,7 +241,7 @@ describe("the prerendered marketing pages", () => {
   });
 });
 
-describe("the blog, Vietnamese only", () => {
+describe("the blog, at /blog and /en/blog", () => {
   const rewrittenTo = (response: Response) => {
     const target = response.headers.get("x-middleware-rewrite");
     return target === null ? null : new URL(target).pathname;
@@ -286,27 +286,28 @@ describe("the blog, Vietnamese only", () => {
     }
   });
 
-  it("has no English URL: /en/blog... goes to the one it has", async () => {
-    for (const [from, to] of [
-      ["/en/blog", "/blog"],
-      ["/en/blog/lai-suat", "/blog/lai-suat"],
-    ]) {
+  it("serves /en/blog and its posts as English marketing pages", async () => {
+    // /en/blog/x is both the public URL and the route: no redirect, no rewrite.
+    for (const path of ["/en/blog", "/en/blog/lai-suat"]) {
       const response = await proxy(
-        new NextRequest(`https://www.fundlok.com${from}`),
+        new NextRequest(`https://www.fundlok.com${path}`),
       );
-      expect(response.status).toBe(308);
-      expect(redirectedTo(response)).toBe(to);
+      expect(response.headers.get("location")).toBeNull();
+      expect(rewrittenTo(response)).toBeNull();
+      expect(response.headers.get("Content-Security-Policy")).toContain(
+        "'unsafe-inline'",
+      );
     }
   });
 
-  it("ignores an English language cookie instead of redirecting in a loop", async () => {
+  it("sends an English-cookie visitor on a Vietnamese post to its English URL", async () => {
     const response = await proxy(
       new NextRequest("https://www.fundlok.com/blog/lai-suat", {
         headers: { cookie: "NEXT_LOCALE=en" },
       }),
     );
-    expect(response.headers.get("location")).toBeNull();
-    expect(rewrittenTo(response)).toBe("/vi/blog/lai-suat");
+    expect(response.status).toBe(307);
+    expect(redirectedTo(response)).toBe("/en/blog/lai-suat");
   });
 
   it("still sends an English-cookie visitor on other pages to English", async () => {

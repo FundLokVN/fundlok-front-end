@@ -75,8 +75,9 @@ function pageEntries(lastModified: Date): MetadataRoute.Sitemap {
 }
 
 /**
- * /blog and every published post, newest first. Vietnamese only, so one URL
- * each and no language alternates. A post's lastModified is its own
+ * /blog and every published post, newest first, at their Vietnamese URLs only:
+ * /en/blog shows the same posts and names these as canonical, so no language
+ * alternates. A post's lastModified is its own
  * updated_at, so Google recrawls what actually changed.
  */
 async function blogEntries(fallback: Date): Promise<MetadataRoute.Sitemap> {

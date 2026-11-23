@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   LOCALIZED_PATHS,
   MARKETING_PATHS,
+  hasEnglishUrl,
   isBlogPath,
   isLocalizedPath,
   isMarketingPath,
@@ -176,27 +177,32 @@ describe("the blog", () => {
     });
   });
 
-  it("has no English URL, so /en/blog... is not a page", () => {
+  it("has an English URL at /en/blog", () => {
     expect(parseLocalePath("/en/blog/lai-suat")).toEqual({
       path: "/blog/lai-suat",
-      locale: null,
+      locale: "en",
       prefixed: true,
     });
-    expect(parseLocalePath("/en/blog").locale).toBeNull();
+    expect(parseLocalePath("/en/blog").locale).toBe("en");
+    expect(marketingRoute("/blog/lai-suat", "en")).toBe("/en/blog/lai-suat");
+    // Still nothing below one slug.
+    expect(parseLocalePath("/en/blog/a/b").locale).toBeNull();
   });
 
-  it("is not localized: no hreflang twin, links stay unprefixed", () => {
+  it("is not in the hreflang list, but its links follow the language", () => {
     expect(isLocalizedPath("/blog")).toBe(false);
     expect(LOCALIZED_PATHS).not.toContain("/blog");
-    expect(localizedPath("/blog/lai-suat", "en")).toBe("/blog/lai-suat");
-    expect(localizedHref("/blog#muc", "en")).toBe("/blog#muc");
+    expect(hasEnglishUrl("/blog/lai-suat")).toBe(true);
+    expect(localizedPath("/blog/lai-suat", "en")).toBe("/en/blog/lai-suat");
+    expect(localizedPath("/blog", "vi")).toBe("/blog");
+    expect(localizedHref("/blog#muc", "en")).toBe("/en/blog#muc");
   });
 
-  it("switches to English by going to the English home page", () => {
-    expect(localeSwitchPath("/blog/lai-suat", "en")).toBe("/en");
-    expect(localeSwitchPath("/blog", "en")).toBe("/en");
+  it("switches language to the same post in the other language", () => {
+    expect(localeSwitchPath("/blog/lai-suat", "en")).toBe("/en/blog/lai-suat");
+    expect(localeSwitchPath("/blog", "en")).toBe("/en/blog");
     expect(localeSwitchPath("/blog/lai-suat", "vi")).toBe("/blog/lai-suat");
-    // Everywhere else it is the page's own URL in that language.
+    // Everywhere else it is the page's own URL in that language too.
     expect(localeSwitchPath("/rate", "en")).toBe("/en/rate");
     expect(localeSwitchPath("/rate", "vi")).toBe("/rate");
   });

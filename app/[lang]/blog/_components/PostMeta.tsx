@@ -1,6 +1,7 @@
 import { dateIct, formatDateIct } from "@/lib/format-date";
 import type { ServerTranslate } from "@/lib/i18n/server";
 import type { PublicBlogPostSummary } from "@/lib/blog/types";
+import type { SeoLocale } from "@/lib/seo";
 
 /**
  * "Đăng ngày 21/11/2026 · Cập nhật ngày 24/11/2026 · 5 phút đọc". Dates in
@@ -11,10 +12,12 @@ import type { PublicBlogPostSummary } from "@/lib/blog/types";
 export function PostMeta({
   post,
   t,
+  locale,
   showUpdated = false,
 }: {
   post: PublicBlogPostSummary;
   t: ServerTranslate;
+  locale: SeoLocale;
   showUpdated?: boolean;
 }) {
   const updatedLater =
@@ -23,7 +26,7 @@ export function PostMeta({
     <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
       <time dateTime={post.published_at}>
         {t("blog.publishedOn", {
-          date: formatDateIct(post.published_at, "vi"),
+          date: formatDateIct(post.published_at, locale),
         })}
       </time>
       {updatedLater && (
@@ -31,7 +34,7 @@ export function PostMeta({
           <span aria-hidden>·</span>
           <time dateTime={post.updated_at}>
             {t("blog.updatedOn", {
-              date: formatDateIct(post.updated_at, "vi"),
+              date: formatDateIct(post.updated_at, locale),
             })}
           </time>
         </>

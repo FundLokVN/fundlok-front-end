@@ -5,7 +5,8 @@ import { useLocale } from "../support/auth";
 import { t } from "../support/i18n";
 
 // The public blog: server-rendered from the stub's fixed published posts
-// (fixtures.ts STUB_BLOG_POSTS), Vietnamese only.
+// (fixtures.ts STUB_BLOG_POSTS). /blog is Vietnamese; /en/blog is the same
+// posts in an English page, with /blog as canonical.
 
 const [POST, SECOND] = STUB_BLOG_POSTS;
 
@@ -133,31 +134,87 @@ test("an unknown or malformed slug is a 404", async ({ page }) => {
   }
 });
 
-test("the blog has one URL: /en/blog and /vi/blog go to it", async ({
+test("/en/blog is the blog in an English page, canonical to /blog", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/en\/blog$/);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: t("blog.heading", undefined, "en"),
+    }),
+  ).toBeVisible();
+  const titles = page.getByRole("article").getByRole("heading", { level: 2 });
+  await expect(titles).toHaveText([POST.title, SECOND.title]);
+  await expect(
+    page.getByText(t("blog.publishedOn", { date: "11/18/2026" }, "en")),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: POST.title })).toHaveAttribute(
+    "href",
+    `/en/blog/${POST.slug}`,
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /[^n]\/blog$/,
+  );
+});
+
+test("/en/blog/<slug> shows the post in English, and switches back to /blog", async ({
   page,
 }) => {
   await page.goto(`/en/blog/${POST.slug}`);
-  await expect(page).toHaveURL(
-    new RegExp(`127\\.0\\.0\\.1:\\d+/blog/${POST.slug}$`),
+
+  await expect(page).toHaveURL(new RegExp(`/en/blog/${POST.slug}$`));
+  await expect(
+    page.getByRole("heading", { level: 1, name: POST.title }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("navigation", {
+        name: t("blog.breadcrumbLabel", undefined, "en"),
+      })
+      .getByRole("link", { name: t("blog.breadcrumbBlog", undefined, "en") }),
+  ).toHaveAttribute("href", "/en/blog");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    new RegExp(`[^n]/blog/${POST.slug}$`),
   );
+  await expect(
+    page
+      .getByRole("link", {
+        name: t("localeSwitcher.vietnamese", undefined, "en"),
+      })
+      .first(),
+  ).toHaveAttribute("href", `/blog/${POST.slug}`);
+});
+
+test("/vi/blog is not a URL of its own: it goes to /blog", async ({ page }) => {
   await page.goto("/vi/blog");
   await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/blog$/);
 });
 
-test("an English reader still gets the post, with English pointing home", async ({
+test("the language switch on a Vietnamese post goes to its English page", async ({
+  page,
+}) => {
+  await page.goto(`/blog/${POST.slug}`);
+  await expect(
+    page.getByRole("link", { name: t("localeSwitcher.english") }).first(),
+  ).toHaveAttribute("href", `/en/blog/${POST.slug}`);
+});
+
+test("an English reader opening a Vietnamese post is sent to its English page", async ({
   context,
   page,
 }) => {
   await useLocale(context, "en");
   await page.goto(`/blog/${POST.slug}`);
 
-  await expect(page).toHaveURL(new RegExp(`/blog/${POST.slug}$`));
+  await expect(page).toHaveURL(new RegExp(`/en/blog/${POST.slug}$`));
   await expect(
     page.getByRole("heading", { level: 1, name: POST.title }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: t("localeSwitcher.english") }).first(),
-  ).toHaveAttribute("href", "/en");
 });
 
 test("the header links to the blog", async ({ page }) => {

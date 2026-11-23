@@ -82,18 +82,24 @@ export const MARKETING_LOCALES = [
 export const VI_PREFIX = "/vi";
 
 /**
- * The blog: /blog and /blog/<slug>. Vietnamese only, for now.
+ * The blog: /blog and /blog/<slug>, and in English /en/blog and /en/blog/<slug>.
  *
- * A marketing page (prerendered or ISR under app/[lang]/blog/, rewritten from
- * /blog/x to /vi/blog/x like the rest) but NOT a localized one: there is no
- * /en/blog URL, so it is not in LOCALIZED_PATHS, gets no hreflang, and
- * parseLocalePath sends /en/blog... back to the one URL it has. Adding English
- * posts later means giving these paths an English URL, not a new route.
+ * A marketing page (ISR under app/[lang]/blog/, rewritten from /blog/x to
+ * /vi/blog/x like the rest) with an English URL, so an English reader stays in
+ * English. It is still not in LOCALIZED_PATHS: the posts themselves are the
+ * Vietnamese ones (one title, one summary) until they get English fields, so
+ * the English pages name the Vietnamese URL as canonical, carry no hreflang
+ * and stay out of the sitemap. See hasEnglishUrl.
  */
 export const BLOG_PATH = "/blog";
 
 export function isBlogPath(path: string): boolean {
   return path === BLOG_PATH || /^\/blog\/[^/]+$/.test(path);
+}
+
+/** Pages with an English URL: the localized ones and the blog. */
+export function hasEnglishUrl(path: string): boolean {
+  return isLocalizedPath(path) || isBlogPath(path);
 }
 
 export function isMarketingPath(path: string): boolean {
@@ -148,13 +154,10 @@ export function parseLocalePath(pathname: string): ParsedLocalePath {
       rest.length > 1 && rest.endsWith("/") ? rest.slice(0, -1) : rest;
     return {
       path,
-      locale: isLocalizedPath(path) ? "en" : null,
+      locale: hasEnglishUrl(path) ? "en" : null,
       prefixed: true,
     };
   }
-  // The blog has one URL, in Vietnamese: unprefixed it is a Vietnamese page,
-  // and with the prefix (above) it has no English twin, so locale stays null
-  // and the proxy redirects /en/blog/x to /blog/x.
   return {
     path: pathname,
     locale:
@@ -165,19 +168,14 @@ export function parseLocalePath(pathname: string): ParsedLocalePath {
   };
 }
 
-/**
- * Where the language switcher goes from `path` in `locale`. The page's own
- * URL in that language, except on the blog, which has no English URL: English
- * goes to the English home page instead of reloading the same Vietnamese post.
- */
+/** Where the language switcher goes from `path`: its own URL in `locale`. */
 export function localeSwitchPath(path: string, locale: RouteLocale): string {
-  if (isBlogPath(path) && locale !== DEFAULT_ROUTE_LOCALE) return EN_PREFIX;
   return localizedPath(path, locale);
 }
 
-/** The URL for `path` in `locale`. Non-localized paths come back unchanged. */
+/** The URL for `path` in `locale`. Paths with no English URL come back unchanged. */
 export function localizedPath(path: string, locale: RouteLocale): string {
-  if (!isLocalizedPath(path) || locale === DEFAULT_ROUTE_LOCALE) return path;
+  if (!hasEnglishUrl(path) || locale === DEFAULT_ROUTE_LOCALE) return path;
   return path === "/" ? EN_PREFIX : `${EN_PREFIX}${path}`;
 }
 
