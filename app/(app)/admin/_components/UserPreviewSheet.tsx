@@ -45,6 +45,7 @@ import type { AdminUserRow, AdminUserStatus } from "@/services/admin.service";
 import { apiErrorMessage } from "@/lib/api-error-message";
 import { UserBankAccounts } from "./UserBankAccounts";
 import { UserConsentSection } from "./UserConsentSection";
+import { UserRoleSection } from "./UserRoleSection";
 
 // Account status, changed from the users table.
 //
@@ -674,7 +675,20 @@ export function UserPreviewSheet({
 
             <Separator />
 
-            {/* 7. Account Status Actions */}
+            {/* 7. Role: promote to admin, or demote an admin */}
+            <UserRoleSection
+              userId={user.id}
+              email={detail?.email || user.email}
+              displayName={displayName}
+              currentRole={currentRole}
+              myRole={me?.role}
+              isSelf={isSelf}
+              onChanged={() => onOpenChange(false)}
+            />
+
+            <Separator />
+
+            {/* 8. Account Status Actions */}
             <section className="space-y-3">
               <div className="space-y-1">
                 <h4 className="text-sm font-semibold text-foreground">

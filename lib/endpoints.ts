@@ -363,6 +363,9 @@ export const ADMIN_ENDPOINTS = {
   applicationDecision: (id: string) => `/admin/applications/${id}/decision`,
   // Account status. SUSPENDED is a real deny server-side, not a label.
   userStatus: (id: string) => `/admin/users/${id}/status`,
+  // Promote an existing account to admin, or demote an admin (SYSTEM_ADMIN
+  // only for anything beyond granting ADMIN). Signs the account out everywhere.
+  userRole: (id: string) => `/admin/users/${id}/role`,
   // Full detail preview for one account (profile + projects + investments + security).
   userDetail: (id: string) => `/admin/users/${id}`,
   // Bank accounts users saved: the review queue and the approve/reject call.
