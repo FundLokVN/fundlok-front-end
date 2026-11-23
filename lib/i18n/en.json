@@ -1586,6 +1586,37 @@
       "unknown": "Unknown",
       "verificationAndBanking": "Verification & Banking"
     },
+    "userRole": {
+      "adminDescription": "Changing an admin's role signs the account out on every device. The new role applies from its next sign-in.",
+      "blockedAdmin": "Only a system admin can change an admin account's role.",
+      "blockedSelf": "You cannot change your own role.",
+      "changeTo": "Make {role}",
+      "changed": "Role changed",
+      "changedDescription": "{name} is now {role} and has been signed out on every device.",
+      "confirmAction": "Change role",
+      "confirmDemote": "They lose access to the admin console and are signed out on every device.",
+      "confirmFromTo": "{email}: {from} → {to}",
+      "confirmPromote": "They get access to the admin console. They are signed out on every device and must set up two-factor authentication before they can use it.",
+      "confirmTitle": "Change the role to {role}?",
+      "errors": {
+        "emailUnverified": "This account has not verified its email address yet. Ask them to verify it first.",
+        "forbidden": "Only a system admin can grant the system admin role or change an admin's role.",
+        "lastSystemAdmin": "There must be at least one system admin left.",
+        "liveInvestment": "This account has an investment in progress. Change its role once that loan is repaid.",
+        "notFound": "This account no longer exists.",
+        "notSupported": "Only admin roles are granted here. Members choose between investor and business themselves.",
+        "openProject": "This account has a project in progress. Change its role once the project has ended.",
+        "self": "You cannot change your own role.",
+        "suspended": "This account is suspended. Restore it before making it an admin.",
+        "unchanged": "The account already has this role."
+      },
+      "externalWarning": "{email} is outside the @fundlok.com domain. Only grant admin access to someone you have confirmed works for FundLok.",
+      "failed": "Couldn't change the role",
+      "heading": "Role",
+      "memberDescription": "Making this account an admin gives it access to this console. It is signed out on every device and must set up two-factor authentication at its next sign-in.",
+      "noRole": "No role yet",
+      "saving": "Saving…"
+    },
     "usersPage": {
       "subtitle": "Manage platform users from here.",
       "title": "Users"
@@ -3539,6 +3570,7 @@
       "TRANSFER_RECEIVED": "Transfer marked received",
       "UNLINK": "Account unlinked",
       "UPLOAD_INITIATED": "Upload started",
+      "USER_ROLE_CHANGED": "Account role changed",
       "USER_STATUS_CHANGED": "Account status changed",
       "VERIFY": "Verification",
       "VIEW": "Viewed",

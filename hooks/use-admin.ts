@@ -34,6 +34,7 @@ import {
   type AdminTable,
   type AdminUserDetail,
   type AdminUserFullDetail,
+  type AdminUserRolePayload,
   type AdminUserStatusPayload,
   type AuditLog,
   type AuditLogParams,
@@ -228,6 +229,23 @@ export function useSetUserStatus() {
     { id: string; body: AdminUserStatusPayload }
   >({
     mutationFn: ({ id, body }) => adminService.setUserStatus(id, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.all });
+    },
+  });
+}
+
+// Promotes an account to admin or demotes one. Invalidates everything admin,
+// like a status change: the role column, the role counts and the open panel
+// all read it.
+export function useChangeUserRole() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AdminUserDetail,
+    ApiError,
+    { id: string; body: AdminUserRolePayload }
+  >({
+    mutationFn: ({ id, body }) => adminService.changeUserRole(id, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.all });
     },

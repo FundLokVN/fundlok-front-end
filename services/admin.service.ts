@@ -565,6 +565,15 @@ export interface AdminUserStatusPayload {
   note?: string | null;
 }
 
+// The roles PATCH /admin/users/{id}/role accepts. INVESTOR and SME are only
+// ever demotion targets for an admin account; members pick those themselves.
+export type AdminAssignableRole = "ADMIN" | "SYSTEM_ADMIN" | "INVESTOR" | "SME";
+
+export interface AdminUserRolePayload {
+  role: AdminAssignableRole;
+  note?: string | null; // at most 500 characters, recorded in the audit log
+}
+
 // No role and no password on purpose: the endpoint only ever creates ADMIN
 // accounts, and the invitee chooses their own password from the emailed link.
 export interface AdminInvitePayload {
@@ -709,6 +718,18 @@ export const adminService = {
   setUserStatus(userId: string, body: AdminUserStatusPayload) {
     return apiClient.patch<AdminUserDetail>(
       ADMIN_ENDPOINTS.userStatus(userId),
+      body,
+    );
+  },
+
+  // ADMIN may promote a member to ADMIN; only a SYSTEM_ADMIN may grant
+  // SYSTEM_ADMIN or change an admin account's role. Never your own role. A
+  // member with a project in progress or money in a live round is refused
+  // (409 ROLE_CHANGE_OPEN_PROJECT / ROLE_CHANGE_LIVE_INVESTMENT). Every change
+  // is audited and signs the account out everywhere.
+  changeUserRole(userId: string, body: AdminUserRolePayload) {
+    return apiClient.patch<AdminUserDetail>(
+      ADMIN_ENDPOINTS.userRole(userId),
       body,
     );
   },

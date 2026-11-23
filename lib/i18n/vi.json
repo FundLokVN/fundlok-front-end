@@ -1586,6 +1586,37 @@
       "unknown": "Không rõ",
       "verificationAndBanking": "Xác minh & Ngân hàng"
     },
+    "userRole": {
+      "adminDescription": "Thay đổi vai trò của quản trị viên sẽ đăng xuất tài khoản trên mọi thiết bị. Vai trò mới áp dụng từ lần đăng nhập tiếp theo.",
+      "blockedAdmin": "Chỉ quản trị viên hệ thống mới có thể thay đổi vai trò của tài khoản quản trị.",
+      "blockedSelf": "Bạn không thể thay đổi vai trò của chính mình.",
+      "changeTo": "Chuyển thành {role}",
+      "changed": "Đã đổi vai trò",
+      "changedDescription": "{name} hiện là {role} và đã bị đăng xuất trên mọi thiết bị.",
+      "confirmAction": "Đổi vai trò",
+      "confirmDemote": "Tài khoản sẽ mất quyền truy cập trang quản trị và bị đăng xuất trên mọi thiết bị.",
+      "confirmFromTo": "{email}: {from} → {to}",
+      "confirmPromote": "Tài khoản sẽ được truy cập trang quản trị. Tài khoản bị đăng xuất trên mọi thiết bị và phải thiết lập xác thực hai lớp trước khi sử dụng.",
+      "confirmTitle": "Đổi vai trò thành {role}?",
+      "errors": {
+        "emailUnverified": "Tài khoản này chưa xác minh email. Hãy đề nghị họ xác minh trước.",
+        "forbidden": "Chỉ quản trị viên hệ thống mới có thể cấp vai trò quản trị hệ thống hoặc thay đổi vai trò của quản trị viên.",
+        "lastSystemAdmin": "Hệ thống phải còn ít nhất một quản trị viên hệ thống.",
+        "liveInvestment": "Tài khoản này có khoản đầu tư đang diễn ra. Hãy đổi vai trò sau khi khoản vay được trả xong.",
+        "notFound": "Tài khoản này không còn tồn tại.",
+        "notSupported": "Tại đây chỉ cấp vai trò quản trị. Thành viên tự chọn là nhà đầu tư hay doanh nghiệp.",
+        "openProject": "Tài khoản này có dự án đang thực hiện. Hãy đổi vai trò sau khi dự án kết thúc.",
+        "self": "Bạn không thể thay đổi vai trò của chính mình.",
+        "suspended": "Tài khoản này đang bị tạm khóa. Hãy khôi phục trước khi chuyển thành quản trị viên.",
+        "unchanged": "Tài khoản đã có vai trò này."
+      },
+      "externalWarning": "{email} không thuộc tên miền @fundlok.com. Chỉ cấp quyền quản trị cho người bạn đã xác nhận đang làm việc cho FundLok.",
+      "failed": "Không thể đổi vai trò",
+      "heading": "Vai trò",
+      "memberDescription": "Chuyển tài khoản này thành quản trị viên sẽ cho phép truy cập trang quản trị. Tài khoản bị đăng xuất trên mọi thiết bị và phải thiết lập xác thực hai lớp ở lần đăng nhập tiếp theo.",
+      "noRole": "Chưa có vai trò",
+      "saving": "Đang lưu…"
+    },
     "usersPage": {
       "subtitle": "Quản lý người dùng nền tảng tại đây.",
       "title": "Người dùng"
@@ -3539,6 +3570,7 @@
       "TRANSFER_RECEIVED": "Xác nhận đã nhận tiền",
       "UNLINK": "Đã hủy liên kết tài khoản",
       "UPLOAD_INITIATED": "Đã bắt đầu tải lên",
+      "USER_ROLE_CHANGED": "Đã đổi vai trò tài khoản",
       "USER_STATUS_CHANGED": "Đã đổi trạng thái tài khoản",
       "VERIFY": "Xác minh",
       "VIEW": "Đã xem",
