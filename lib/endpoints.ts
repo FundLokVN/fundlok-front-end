@@ -468,6 +468,7 @@ export const ADMIN_BLOG_ENDPOINTS = {
   presignMedia: "/admin/blog/media/presign",
   confirmMedia: (mediaId: string) =>
     `/admin/blog/media/${encodeURIComponent(mediaId)}/confirm`,
+  keywordUsage: "/admin/blog/keyword-usage",
 } as const;
 
 // Underwriting. Admin-only server-side (require_roles(Role.ADMIN) — note that

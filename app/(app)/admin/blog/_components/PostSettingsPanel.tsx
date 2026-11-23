@@ -31,7 +31,9 @@ import {
 import { BlogStatusBadge } from "./BlogStatusBadge";
 import { CoverImageField } from "./CoverImageField";
 import { useBlogPostEditorContext } from "./BlogPostEditorContext";
+import { KeywordFields } from "./KeywordFields";
 import { SearchPreview } from "./SearchPreview";
+import { SeoChecklist } from "./SeoChecklist";
 
 /** "42 / 60 characters shown in search", amber past what Google shows. */
 function CharacterCounter({
@@ -337,6 +339,11 @@ export function PostSettingsPanel() {
           shown={BLOG_EXCERPT_SHOWN}
         />
       </div>
+
+      <Separator />
+
+      <KeywordFields />
+      <SeoChecklist />
 
       <Separator />
 

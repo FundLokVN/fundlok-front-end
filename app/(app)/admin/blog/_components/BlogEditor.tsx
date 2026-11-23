@@ -1,6 +1,6 @@
 "use client";
 
-import { EditorContent, useEditorState } from "@tiptap/react";
+import { EditorContent } from "@tiptap/react";
 import { Loader2 } from "lucide-react";
 
 import { useTranslations } from "@/lib/i18n";
@@ -12,13 +12,12 @@ import { PostTitleInput } from "./PostTitleInput";
 // same `prose` classes as the public post, so what the admin sees is close to
 // what readers get.
 export function BlogEditor() {
+  // The context changes with every edit, so this re-renders and recounts.
+  // (useEditorState took its first value while hydrating, before the editor
+  // existed, and kept it until the first edit: "0 từ" on a full post.)
   const { editor } = useBlogPostEditorContext();
   const { t } = useTranslations();
-  const words = useEditorState({
-    editor,
-    selector: ({ editor: e }) =>
-      e ? (e.storage.characterCount?.words() ?? 0) : 0,
-  });
+  const words = editor?.storage.characterCount?.words() ?? 0;
 
   return (
     <div className="flex flex-col rounded-lg border bg-card">

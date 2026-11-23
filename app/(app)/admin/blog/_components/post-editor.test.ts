@@ -31,6 +31,8 @@ function post(overrides: Partial<BlogPostDetail> = {}): BlogPostDetail {
     version: 1,
     author_id: null,
     updated_by: null,
+    focus_keyword: null,
+    secondary_keywords: [],
     ...overrides,
   };
 }
@@ -42,6 +44,8 @@ const complete: PostDraft = {
   excerpt: "Tóm tắt",
   coverUrl: null,
   coverAlt: "",
+  focusKeyword: "",
+  secondaryKeywords: [],
 };
 
 describe("slugFollowsTitle", () => {
@@ -77,6 +81,8 @@ describe("missingForPublish", () => {
           excerpt: "",
           coverUrl: "https://media.fundlok.com/blog/a.png",
           coverAlt: " ",
+          focusKeyword: "",
+          secondaryKeywords: [],
         },
         "   ",
       ),
@@ -109,16 +115,41 @@ describe("payloadFromDraft", () => {
       content: { type: "doc" },
       cover_image_url: null,
       cover_alt: null,
+      focus_keyword: null,
+      secondary_keywords: [],
       version: 7,
     });
   });
 
   it("round-trips a loaded post", () => {
-    const loaded = post({ seo_title: "SEO", excerpt: "Mô tả", version: 3 });
+    const loaded = post({
+      seo_title: "SEO",
+      excerpt: "Mô tả",
+      version: 3,
+      focus_keyword: "vay vốn",
+      secondary_keywords: ["lãi suất", "kỳ hạn"],
+    });
     const payload = payloadFromDraft(draftFromPost(loaded), loaded.content, 3);
     expect(payload.seo_title).toBe("SEO");
     expect(payload.excerpt).toBe("Mô tả");
     expect(payload.version).toBe(3);
+    expect(payload.focus_keyword).toBe("vay vốn");
+    expect(payload.secondary_keywords).toEqual(["lãi suất", "kỳ hạn"]);
+  });
+
+  it("sends a blank focus keyword as null, with spacing tidied", () => {
+    const blank = payloadFromDraft(
+      { ...complete, focusKeyword: "   " },
+      { type: "doc" },
+      1,
+    );
+    expect(blank.focus_keyword).toBeNull();
+    const spaced = payloadFromDraft(
+      { ...complete, focusKeyword: "  vay   vốn " },
+      { type: "doc" },
+      1,
+    );
+    expect(spaced.focus_keyword).toBe("vay vốn");
   });
 });
 

@@ -26,7 +26,10 @@ export function BlogPostEditor({ post }: { post: BlogPostDetail }) {
           <ArrowLeft className="h-4 w-4" />
           {t("admin.blog.editor.back")}
         </Link>
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        {/* grid-cols-1 is minmax(0, 1fr): without it the phone layout's one
+            column is `auto` and grows to the search preview's unwrapped URL,
+            pushing the settings panel past the screen's right edge. */}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <BlogEditor />
           <div className="lg:sticky lg:top-4">
             <PostSettingsPanel />

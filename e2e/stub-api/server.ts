@@ -915,6 +915,8 @@ interface StubBlogPost {
   version: number;
   author_id: string | null;
   updated_by: string | null;
+  focus_keyword: string | null;
+  secondary_keywords: string[];
 }
 
 const stubBlogPosts = new Map<string, Map<string, StubBlogPost>>();
@@ -943,6 +945,8 @@ function blogStore(req: IncomingMessage, key: string) {
       version: 1,
       author_id: null,
       updated_by: null,
+      focus_keyword: null,
+      secondary_keywords: [],
     };
     store.set(seeded.id, seeded);
     stubBlogPosts.set(scope, store);
@@ -2492,6 +2496,8 @@ const server = createServer(async (req, res) => {
           version: 1,
           author_id: user.id,
           updated_by: user.id,
+          focus_keyword: null,
+          secondary_keywords: [],
         };
         store.set(post.id, post);
         return json(res, 201, post);
@@ -2566,6 +2572,13 @@ const server = createServer(async (req, res) => {
               content: body.content as Record<string, unknown>,
               cover_image_url: (body.cover_image_url as string | null) ?? null,
               cover_alt: (body.cover_alt as string | null) ?? null,
+              focus_keyword:
+                String(body.focus_keyword ?? "")
+                  .replace(/\s+/g, " ")
+                  .trim() || null,
+              secondary_keywords: Array.isArray(body.secondary_keywords)
+                ? (body.secondary_keywords as string[])
+                : [],
               reading_minutes: Math.max(
                 1,
                 Math.ceil(text.split(/\s+/).filter(Boolean).length / 200),
@@ -2593,6 +2606,25 @@ const server = createServer(async (req, res) => {
           post.updated_by = user.id;
           return json(res, 200, post);
         }
+      }
+
+      // Other posts with the same focus keyword, compared case-insensitively
+      // (app/blog/service.py find_focus_keyword_usage).
+      if (path === "/admin/blog/keyword-usage" && method === "GET") {
+        const keyword = (url.searchParams.get("keyword") ?? "")
+          .replace(/\s+/g, " ")
+          .trim();
+        const excludeId = url.searchParams.get("exclude_id");
+        const key = keyword.toLocaleLowerCase("vi");
+        const posts = [...store.values()]
+          .filter(
+            (p) =>
+              p.id !== excludeId &&
+              p.focus_keyword !== null &&
+              p.focus_keyword.toLocaleLowerCase("vi") === key,
+          )
+          .map(({ id, slug, title, status }) => ({ id, slug, title, status }));
+        return json(res, 200, { keyword, posts });
       }
 
       if (path === "/admin/blog/media/presign" && method === "POST") {

@@ -20,9 +20,17 @@ import {
 } from "@/hooks/use-admin-blog";
 import { useToast } from "@/hooks/use-toast";
 import { blogEditorExtensions } from "@/lib/blog/extensions";
+import {
+  addSecondaryKeyword,
+  type AddKeywordResult,
+} from "@/lib/blog/seo-checklist";
 import { isValidSlug, slugify } from "@/lib/blog/slug";
 import { useTranslations } from "@/lib/i18n";
-import type { BlogPostDetail } from "@/services/admin-blog.service";
+import {
+  BLOG_KEYWORD_MAX,
+  BLOG_SECONDARY_KEYWORDS_MAX,
+  type BlogPostDetail,
+} from "@/services/admin-blog.service";
 import { refreshPublicBlog } from "../actions";
 import {
   blogErrorCode,
@@ -299,6 +307,28 @@ export function useBlogPostEditor(post: BlogPostDetail) {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [dirty]);
 
+  // --- Keywords (editor-only; they drive the SEO checklist) ---------------
+
+  const setFocusKeyword = (value: string) => setField("focusKeyword", value);
+
+  /** Add a secondary keyword; the result says why when it was not added. */
+  const addKeyword = (raw: string): AddKeywordResult => {
+    const { list, result } = addSecondaryKeyword(
+      draft.secondaryKeywords,
+      draft.focusKeyword,
+      raw,
+      { max: BLOG_SECONDARY_KEYWORDS_MAX, maxLength: BLOG_KEYWORD_MAX },
+    );
+    if (result === "added") setField("secondaryKeywords", list);
+    return result;
+  };
+
+  const removeKeyword = (keyword: string) =>
+    setField(
+      "secondaryKeywords",
+      draft.secondaryKeywords.filter((existing) => existing !== keyword),
+    );
+
   const cover = useMemo(
     () => ({
       setCover: (url: string | null) => {
@@ -331,6 +361,11 @@ export function useBlogPostEditor(post: BlogPostDetail) {
     resetSlugToTitle,
     setSeoTitle: (value: string) => setField("seoTitle", value),
     setExcerpt: (value: string) => setField("excerpt", value),
+    setFocusKeyword,
+    addKeyword,
+    removeKeyword,
+    // Bumped by every edit, body included: what the checklist recomputes on.
+    revision: changeSeq,
     ...cover,
     save,
     publish,
