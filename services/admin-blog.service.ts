@@ -34,6 +34,16 @@ export interface BlogPostDetail extends BlogPostSummary {
   version: number;
   author_id: string | null;
   updated_by: string | null;
+  // Editor-only SEO targets: they drive the checklist and never reach the
+  // public page (search engines ignore <meta name="keywords">).
+  focus_keyword: string | null;
+  secondary_keywords: string[];
+}
+
+/** Other posts whose focus keyword is the same (case-insensitive). */
+export interface BlogKeywordUsage {
+  keyword: string;
+  posts: { id: string; slug: string; title: string; status: BlogPostStatus }[];
 }
 
 export interface BlogPostListParams {
@@ -61,6 +71,8 @@ export interface BlogPostUpdatePayload {
   content: BlogContent;
   cover_image_url: string | null;
   cover_alt: string | null;
+  focus_keyword: string | null;
+  secondary_keywords: string[];
   version: number;
 }
 
@@ -84,6 +96,8 @@ export const BLOG_TITLE_MAX = 200;
 export const BLOG_SEO_TITLE_MAX = 70;
 export const BLOG_EXCERPT_MAX = 300;
 export const BLOG_ALT_MAX = 200;
+export const BLOG_KEYWORD_MAX = 100;
+export const BLOG_SECONDARY_KEYWORDS_MAX = 4;
 // What Google shows before cutting off; the editor's counters warn past these.
 export const BLOG_SEO_TITLE_SHOWN = 60;
 export const BLOG_EXCERPT_SHOWN = 160;
@@ -140,6 +154,12 @@ export const adminBlogService = {
 
   remove(id: string) {
     return apiClient.delete<void>(ADMIN_BLOG_ENDPOINTS.post(id));
+  },
+
+  keywordUsage(keyword: string, excludeId?: string) {
+    return apiClient.get<BlogKeywordUsage>(ADMIN_BLOG_ENDPOINTS.keywordUsage, {
+      params: { keyword, exclude_id: excludeId },
+    });
   },
 
   // Presign → PUT the bytes straight to R2 → confirm (the backend checks the

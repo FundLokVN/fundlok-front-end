@@ -197,6 +197,83 @@ test.describe("as an admin", () => {
     );
   });
 
+  test("checks the focus keyword, warns about a competing post and keeps the keywords", async ({
+    page,
+  }) => {
+    // Another post already targets the same focus keyword (different case).
+    const created = await (
+      await page.request.post("/api/admin/blog/posts", {
+        data: { title: "Bài khác" },
+      })
+    ).json();
+    const tagged = await page.request.put(
+      `/api/admin/blog/posts/${created.id}`,
+      {
+        data: {
+          title: "Bài khác",
+          slug: created.slug,
+          seo_title: null,
+          excerpt: "",
+          content: { type: "doc", content: [{ type: "paragraph" }] },
+          cover_image_url: null,
+          cover_alt: null,
+          focus_keyword: "Bản Nháp",
+          secondary_keywords: [],
+          version: created.version,
+        },
+      },
+    );
+    expect(tagged.ok()).toBe(true);
+
+    await page.goto("/admin/blog/blog-seeded-draft");
+    await expect(
+      page.getByLabel(t("admin.blog.editor.titleLabel")),
+    ).toHaveValue("Bản nháp có sẵn");
+
+    await page.getByLabel(t("admin.blog.keywords.focusLabel")).fill("bản nháp");
+    // Title "Bản nháp có sẵn" and slug ban-nhap-co-san have it; the empty
+    // description does not.
+    await expect(page.getByTestId("blog-seo-check-postTitle")).toHaveAttribute(
+      "data-state",
+      "pass",
+    );
+    await expect(page.getByTestId("blog-seo-check-slug")).toHaveAttribute(
+      "data-state",
+      "pass",
+    );
+    await expect(
+      page.getByTestId("blog-seo-check-description"),
+    ).toHaveAttribute("data-state", "fail");
+    await expect(
+      page.getByText(t("admin.blog.checklist.conflictTitle")),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Bài khác" })).toHaveAttribute(
+      "href",
+      `/admin/blog/${created.id}`,
+    );
+
+    const secondary = page.getByRole("textbox", {
+      name: t("admin.blog.keywords.secondaryLabel"),
+    });
+    await secondary.fill("có sẵn");
+    await secondary.press("Enter");
+    const removeChip = page.getByRole("button", {
+      name: t("admin.blog.keywords.remove").replace("{keyword}", "có sẵn"),
+    });
+    await expect(removeChip).toBeVisible();
+
+    await page
+      .getByRole("button", { name: t("admin.blog.actions.save") })
+      .click();
+    await expect(toast(page, t("admin.blog.toast.saved"))).toBeVisible();
+
+    await page.reload();
+    await expect(
+      page.getByLabel(t("admin.blog.keywords.focusLabel")),
+    ).toHaveValue("bản nháp");
+    await expect(removeChip).toBeVisible();
+  });
+
   test("deletes a draft after confirming", async ({ page }) => {
     await page.goto("/admin/blog/blog-seeded-draft");
     await page

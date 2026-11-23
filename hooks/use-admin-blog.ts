@@ -11,6 +11,7 @@ import {
 import type { ApiError } from "@/lib/types";
 import {
   adminBlogService,
+  type BlogKeywordUsage,
   type BlogMediaConfirm,
   type BlogPostDetail,
   type BlogPostList,
@@ -25,7 +26,23 @@ export const adminBlogKeys = {
   list: (params: BlogPostListParams) =>
     [...adminBlogKeys.lists(), params] as const,
   detail: (id: string) => [...adminBlogKeys.all, "detail", id] as const,
+  keywordUsage: (keyword: string, excludeId: string) =>
+    [...adminBlogKeys.all, "keyword-usage", keyword, excludeId] as const,
 };
+
+export function useBlogKeywordUsage(keyword: string, excludeId: string) {
+  const trimmed = keyword.trim();
+  return useQuery<BlogKeywordUsage, ApiError>({
+    queryKey: adminBlogKeys.keywordUsage(
+      trimmed.toLocaleLowerCase("vi"),
+      excludeId,
+    ),
+    queryFn: () => adminBlogService.keywordUsage(trimmed, excludeId),
+    enabled: trimmed.length > 0,
+    staleTime: 30 * 1000,
+    retry: false,
+  });
+}
 
 /** A write answered with the post: cache it and refresh every list. */
 function storePost(queryClient: QueryClient, post: BlogPostDetail) {

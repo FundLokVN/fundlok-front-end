@@ -62,6 +62,44 @@
         "unpublishTitle": "Gỡ bài viết khỏi trang?",
         "viewLive": "Xem trên trang"
       },
+      "checklist": {
+        "conflictHint": "Hai bài cùng một từ khóa chính sẽ cạnh tranh nhau trên Google. Hãy chọn từ khóa khác hoặc gộp nội dung vào một bài.",
+        "conflictTitle": "Bài viết khác cũng nhắm từ khóa chính này:",
+        "description": {
+          "fail": "Thêm từ khóa chính vào mô tả (meta description)",
+          "pass": "Mô tả có từ khóa chính"
+        },
+        "empty": "Nhập từ khóa chính để xem bài viết đã dùng từ khóa ở những chỗ Google đọc chưa.",
+        "heading": {
+          "fail": "Thêm từ khóa chính vào ít nhất một tiêu đề H2 hoặc H3",
+          "pass": "Có tiêu đề H2/H3 chứa từ khóa chính"
+        },
+        "imageAlt": {
+          "fail": "Thêm từ khóa chính vào mô tả (alt) của một ảnh",
+          "na": "Chưa có ảnh nào (không bắt buộc)",
+          "pass": "Có ảnh với mô tả (alt) chứa từ khóa chính"
+        },
+        "intro": {
+          "fail": "Nhắc đến từ khóa chính trong đoạn văn đầu tiên",
+          "pass": "Đoạn mở đầu có từ khóa chính"
+        },
+        "postTitle": {
+          "fail": "Thêm từ khóa chính vào tiêu đề bài viết",
+          "pass": "Tiêu đề bài viết có từ khóa chính"
+        },
+        "secondaryFound": "“{keyword}” có trong bài",
+        "secondaryMissing": "“{keyword}” chưa có trong bài",
+        "seoTitle": {
+          "fail": "Thêm từ khóa chính vào tiêu đề SEO, càng gần đầu càng tốt",
+          "pass": "Tiêu đề SEO có từ khóa chính"
+        },
+        "slug": {
+          "fail": "Đường dẫn chưa có từ khóa chính",
+          "pass": "Đường dẫn có từ khóa chính"
+        },
+        "summary": "{passed} / {total} mục đạt",
+        "title": "Kiểm tra SEO"
+      },
       "columns": {
         "published": "Ngày đăng",
         "status": "Trạng thái",
@@ -111,6 +149,19 @@
         "tooLarge": "Ảnh lớn hơn 5 MB.",
         "uploadError": "Không tải ảnh lên được. Hãy thử lại.",
         "uploading": "Đang tải lên…"
+      },
+      "keywords": {
+        "duplicate": "Từ khóa này đã có trong danh sách.",
+        "focusLabel": "Từ khóa chính",
+        "focusPlaceholder": "Ví dụ: vay vốn trả góp hằng ngày",
+        "hint": "Chỉ dùng để kiểm tra bài viết bên dưới, không hiển thị trên trang.",
+        "remove": "Xoá từ khóa {keyword}",
+        "secondaryCount": "{count} / {limit}",
+        "secondaryFull": "Đã đủ {limit} từ khóa phụ",
+        "secondaryHint": "Nhấn Enter hoặc dấu phẩy để thêm. Xoá bằng nút ×.",
+        "secondaryLabel": "Từ khóa phụ",
+        "secondaryPlaceholder": "Nhập rồi nhấn Enter",
+        "title": "Từ khóa SEO"
       },
       "link": {
         "apply": "Áp dụng",

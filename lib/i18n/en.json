@@ -62,6 +62,44 @@
         "unpublishTitle": "Take this post off the site?",
         "viewLive": "View live"
       },
+      "checklist": {
+        "conflictHint": "Two posts with the same focus keyword compete with each other on Google. Pick a different keyword or merge the content into one post.",
+        "conflictTitle": "Another post already targets this focus keyword:",
+        "description": {
+          "fail": "Add the focus keyword to the meta description",
+          "pass": "The description has the focus keyword"
+        },
+        "empty": "Enter a focus keyword to see whether the article uses it where Google reads.",
+        "heading": {
+          "fail": "Add the focus keyword to at least one H2 or H3 heading",
+          "pass": "An H2/H3 heading has the focus keyword"
+        },
+        "imageAlt": {
+          "fail": "Add the focus keyword to one image's alt text",
+          "na": "No images yet (optional)",
+          "pass": "An image's alt text has the focus keyword"
+        },
+        "intro": {
+          "fail": "Mention the focus keyword in the first paragraph",
+          "pass": "The opening paragraph has the focus keyword"
+        },
+        "postTitle": {
+          "fail": "Add the focus keyword to the post title",
+          "pass": "The post title has the focus keyword"
+        },
+        "secondaryFound": "“{keyword}” is in the article",
+        "secondaryMissing": "“{keyword}” is not in the article yet",
+        "seoTitle": {
+          "fail": "Add the focus keyword to the SEO title, as near the start as you can",
+          "pass": "The SEO title has the focus keyword"
+        },
+        "slug": {
+          "fail": "The address does not have the focus keyword",
+          "pass": "The address has the focus keyword"
+        },
+        "summary": "{passed} / {total} passed",
+        "title": "SEO checklist"
+      },
       "columns": {
         "published": "Published",
         "status": "Status",
@@ -111,6 +149,19 @@
         "tooLarge": "The image is larger than 5 MB.",
         "uploadError": "Could not upload the image. Try again.",
         "uploading": "Uploading…"
+      },
+      "keywords": {
+        "duplicate": "That keyword is already listed.",
+        "focusLabel": "Focus keyword",
+        "focusPlaceholder": "e.g. vay vốn trả góp hằng ngày",
+        "hint": "Only used to check the article below; never shown on the page.",
+        "remove": "Remove keyword {keyword}",
+        "secondaryCount": "{count} / {limit}",
+        "secondaryFull": "All {limit} secondary keywords added",
+        "secondaryHint": "Press Enter or a comma to add. Remove with ×.",
+        "secondaryLabel": "Secondary keywords",
+        "secondaryPlaceholder": "Type and press Enter",
+        "title": "SEO keywords"
       },
       "link": {
         "apply": "Apply",

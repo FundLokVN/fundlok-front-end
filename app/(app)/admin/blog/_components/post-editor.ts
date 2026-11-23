@@ -1,4 +1,5 @@
 import { apiErrorMessage } from "@/lib/api-error-message";
+import { normalizeKeyword } from "@/lib/blog/seo-checklist";
 import { isValidSlug, slugify } from "@/lib/blog/slug";
 import type { ApiError } from "@/lib/types";
 import type {
@@ -15,6 +16,8 @@ export interface PostDraft {
   excerpt: string;
   coverUrl: string | null;
   coverAlt: string;
+  focusKeyword: string;
+  secondaryKeywords: string[];
 }
 
 export function draftFromPost(post: BlogPostDetail): PostDraft {
@@ -25,6 +28,8 @@ export function draftFromPost(post: BlogPostDetail): PostDraft {
     excerpt: post.excerpt,
     coverUrl: post.cover_image_url,
     coverAlt: post.cover_alt ?? "",
+    focusKeyword: post.focus_keyword ?? "",
+    secondaryKeywords: post.secondary_keywords ?? [],
   };
 }
 
@@ -41,6 +46,8 @@ export function payloadFromDraft(
     content,
     cover_image_url: draft.coverUrl,
     cover_alt: draft.coverUrl ? draft.coverAlt.trim() || null : null,
+    focus_keyword: normalizeKeyword(draft.focusKeyword) || null,
+    secondary_keywords: draft.secondaryKeywords,
     version,
   };
 }

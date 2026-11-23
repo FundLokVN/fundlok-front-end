@@ -52,6 +52,7 @@ vi.mock("@/hooks/use-admin-blog", () => ({
   useUnpublishBlogPost: () => mocks.unpublish,
   useDeleteBlogPost: () => mocks.remove,
   useUploadBlogImage: () => ({ mutate: vi.fn(), isPending: false }),
+  useBlogKeywordUsage: () => ({ data: undefined }),
 }));
 
 vi.mock("../actions", () => ({
@@ -82,6 +83,8 @@ function post(overrides: Partial<BlogPostDetail> = {}): BlogPostDetail {
     version: 3,
     author_id: null,
     updated_by: null,
+    focus_keyword: null,
+    secondary_keywords: [],
     ...overrides,
   };
 }
@@ -260,5 +263,50 @@ describe("BlogPostEditor", () => {
     expect(
       screen.getByText("admin.blog.settings.overLimit"),
     ).toBeInTheDocument();
+  });
+
+  it("checks the focus keyword live and saves the keywords with the post", async () => {
+    mocks.update.mutateAsync.mockResolvedValue(post({ version: 2 }));
+    await renderEditor(post());
+
+    expect(screen.getByText("admin.blog.checklist.empty")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("admin.blog.keywords.focusLabel"), {
+      target: { value: "LÃI SUẤT vay vốn" },
+    });
+
+    // Title "Lãi suất vay vốn" and slug lai-suat-vay-von have it; the body,
+    // the empty description and the (absent) headings do not.
+    const state = (id: string) =>
+      screen.getByTestId(`blog-seo-check-${id}`).getAttribute("data-state");
+    expect(state("postTitle")).toBe("pass");
+    expect(state("seoTitle")).toBe("pass");
+    expect(state("slug")).toBe("pass");
+    expect(state("description")).toBe("fail");
+    expect(state("intro")).toBe("fail");
+    expect(state("heading")).toBe("fail");
+    expect(state("imageAlt")).toBe("na");
+
+    const secondary = screen.getByRole("textbox", {
+      name: "admin.blog.keywords.secondaryLabel",
+    });
+    fireEvent.change(secondary, { target: { value: "nội dung" } });
+    fireEvent.keyDown(secondary, { key: "Enter" });
+    fireEvent.change(secondary, { target: { value: "NỘI  DUNG" } });
+    fireEvent.keyDown(secondary, { key: "Enter" });
+    expect(
+      screen.getByText("admin.blog.keywords.duplicate"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("admin.blog.checklist.secondaryFound"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "admin.blog.actions.save" }),
+    );
+    await waitFor(() => expect(mocks.update.mutateAsync).toHaveBeenCalled());
+    expect(mocks.update.mutateAsync.mock.calls[0][0]).toMatchObject({
+      focus_keyword: "LÃI SUẤT vay vốn",
+      secondary_keywords: ["nội dung"],
+    });
   });
 });
