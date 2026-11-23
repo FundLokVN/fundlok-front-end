@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { EASE_OUT } from "@/lib/motion";
 import { useRequireAuth } from "@/hooks/use-authentication";
 import { usePublicProjects } from "@/hooks/use-projects";
@@ -578,64 +578,64 @@ export default function ProjectsClient() {
             </Button>
           </div>
 
-          {/* Market Listing Section with Loading & Open Up Animation */}
+          {/* Market Listing Section with Loading & Open Up Animation.
+              No AnimatePresence here: with mode="wait", typing a search while
+              the skeleton faded out left the skeleton on screen for good (seen
+              on a slow device and in CI). The skeleton simply unmounts; the
+              cards still spring in, and replay on every search via the key. */}
           <div className="space-y-6">
-            <AnimatePresence mode="wait">
-              {isInitialLoading ? (
-                <m.div
-                  key="skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, ease: EASE_OUT }}
-                >
-                  <ProjectsSkeletonList />
-                </m.div>
-              ) : filteredItems.length > 0 ? (
-                <m.div
-                  key={`${marketType}-${activeIndustry}-${searchTerm}`}
-                  variants={staggerContainerVariants}
-                  initial="hidden"
-                  animate="show"
-                  className="grid gap-6"
-                >
-                  {marketType === "primary"
-                    ? (filteredItems as Project[]).map((project) => (
-                        <m.div key={project.id} variants={springItemVariants}>
-                          <ProjectCard project={project} role="INVESTOR" />
+            {isInitialLoading ? (
+              <m.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, ease: EASE_OUT }}
+              >
+                <ProjectsSkeletonList />
+              </m.div>
+            ) : filteredItems.length > 0 ? (
+              <m.div
+                key={`${marketType}-${activeIndustry}-${searchTerm}`}
+                variants={staggerContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="grid gap-6"
+              >
+                {marketType === "primary"
+                  ? (filteredItems as Project[]).map((project) => (
+                      <m.div key={project.id} variants={springItemVariants}>
+                        <ProjectCard project={project} role="INVESTOR" />
+                      </m.div>
+                    ))
+                  : (filteredItems as SecondaryMarketListing[]).map(
+                      (listing) => (
+                        <m.div key={listing.id} variants={springItemVariants}>
+                          <SecondaryMarketCard listing={listing} />
                         </m.div>
-                      ))
-                    : (filteredItems as SecondaryMarketListing[]).map(
-                        (listing) => (
-                          <m.div key={listing.id} variants={springItemVariants}>
-                            <SecondaryMarketCard listing={listing} />
-                          </m.div>
-                        ),
-                      )}
-                </m.div>
-              ) : (
-                <m.div
-                  key="empty"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: EASE_OUT }}
-                  className="text-center py-16 bg-muted/30 rounded-lg border border-dashed flex flex-col items-center justify-center p-6"
-                >
-                  <Briefcase className="h-10 w-10 text-muted-foreground/60 mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {marketType === "primary"
-                      ? t("dashboard.projects.noProjectsTitle")
-                      : t("dashboard.projects.secondaryEmptyTitle")}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    {marketType === "primary"
-                      ? t("dashboard.projects.noProjectsDescription")
-                      : t("dashboard.projects.secondaryEmptyDescription")}
-                  </p>
-                </m.div>
-              )}
-            </AnimatePresence>
+                      ),
+                    )}
+              </m.div>
+            ) : (
+              <m.div
+                key="empty"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, ease: EASE_OUT }}
+                className="text-center py-16 bg-muted/30 rounded-lg border border-dashed flex flex-col items-center justify-center p-6"
+              >
+                <Briefcase className="h-10 w-10 text-muted-foreground/60 mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {marketType === "primary"
+                    ? t("dashboard.projects.noProjectsTitle")
+                    : t("dashboard.projects.secondaryEmptyTitle")}
+                </h3>
+                <p className="text-muted-foreground max-w-md">
+                  {marketType === "primary"
+                    ? t("dashboard.projects.noProjectsDescription")
+                    : t("dashboard.projects.secondaryEmptyDescription")}
+                </p>
+              </m.div>
+            )}
           </div>
         </>
       ) : (
