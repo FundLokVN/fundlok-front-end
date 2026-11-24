@@ -53,11 +53,18 @@ function absolute(path: string): string {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date();
-  return [...pageEntries(lastModified), ...(await blogEntries(lastModified))];
+  return [...pageEntries(), ...(await blogEntries())];
 }
 
-function pageEntries(lastModified: Date): MetadataRoute.Sitemap {
+/**
+ * The fixed pages carry no lastModified. They used to carry the time the
+ * sitemap was generated, so every page claimed to have changed every hour.
+ * Google only trusts <lastmod> on a site where it is "consistently and
+ * verifiably accurate"; a sitemap that always says "now" teaches it to ignore
+ * the field everywhere, the blog posts' real dates included. No date is better
+ * than a wrong one: Google recrawls these pages on its own schedule.
+ */
+function pageEntries(): MetadataRoute.Sitemap {
   return LOCALIZED_PATHS.flatMap((path) => {
     const languages = Object.fromEntries(
       Object.entries(languageAlternates(path)).map(([lang, href]) => [
@@ -67,7 +74,6 @@ function pageEntries(lastModified: Date): MetadataRoute.Sitemap {
     );
     return LOCALES.map((locale) => ({
       url: absolute(localizedPath(path, locale)),
-      lastModified,
       ...PAGES[path],
       alternates: { languages },
     }));
@@ -77,15 +83,24 @@ function pageEntries(lastModified: Date): MetadataRoute.Sitemap {
 /**
  * /blog and every published post, newest first, at their Vietnamese URLs only:
  * /en/blog shows the same posts and names these as canonical, so no language
- * alternates. A post's lastModified is its own
- * updated_at, so Google recrawls what actually changed.
+ * alternates. A post's lastModified is its own updated_at, and /blog's the
+ * latest of those, so Google recrawls what actually changed.
  */
-async function blogEntries(fallback: Date): Promise<MetadataRoute.Sitemap> {
+async function blogEntries(): Promise<MetadataRoute.Sitemap> {
   const posts = await readAtBuildOrDefer(listPublishedPosts);
+  // /blog changes when any post does, and the newest post is not necessarily
+  // the last one edited.
+  const latest = posts.reduce<string | undefined>(
+    (max, post) =>
+      !max || Date.parse(post.updated_at) > Date.parse(max)
+        ? post.updated_at
+        : max,
+    undefined,
+  );
   return [
     {
       url: BLOG_URL,
-      lastModified: posts[0]?.updated_at ?? fallback,
+      ...(latest ? { lastModified: latest } : {}),
       changeFrequency: "weekly",
       priority: 0.7,
     },
