@@ -7,6 +7,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 
+import { termsSectionsFor } from "@/app/[lang]/terms/terms-content";
+import { TERMS_VERSION } from "@/lib/legal/terms";
 import { ConsentClient } from "./consent-client";
 
 const mockSendCode = vi.fn();
@@ -125,6 +127,30 @@ describe("ConsentClient", () => {
     render(<ConsentClient />);
     await acceptWithCode();
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  // What a user accepts must be what the public /terms page shows.
+  it("shows every clause and tick box of the /terms page", async () => {
+    const { container } = render(<ConsentClient />);
+    const text = container.textContent ?? "";
+    for (const locale of ["vi", "en"] as const) {
+      for (const section of termsSectionsFor(locale)) {
+        for (const item of section.items) {
+          if (item.heading) expect(text).toContain(item.heading);
+          // The sign-up section's intro line is /terms' own wording.
+          for (const line of item.content.slice(
+            section.id === "at-sign-up" ? 1 : 0,
+          )) {
+            expect(text).toContain(line);
+          }
+        }
+      }
+    }
+
+    await acceptWithCode();
+    expect(mockAccept).toHaveBeenCalledWith(
+      expect.objectContaining({ version: TERMS_VERSION }),
+    );
   });
 
   it("stays on the page when the code is refused", async () => {

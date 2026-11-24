@@ -23,11 +23,12 @@ import { useTranslations } from "@/lib/i18n";
 import {
   DISCLOSURES_ARTICLE_ID,
   TERMS_ARTICLES,
-  TERMS_PREVAILS,
+  TERMS_PREFACE,
   TERMS_TICK_BOXES,
   TERMS_TITLE,
   TERMS_VERSION,
   type Bilingual,
+  type TermsClause,
   type TickBox,
 } from "@/lib/legal/terms";
 import type { ApiError } from "@/lib/types";
@@ -56,6 +57,33 @@ function BilingualText({ text }: { text: Bilingual }) {
     </>
   );
 }
+
+// One clause as /terms shows it: its own bold label (Article 3), if it has
+// one, then its paragraphs.
+function Clause({ clause }: { clause: TermsClause }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {clause.heading && (
+        <p className="text-sm font-semibold text-foreground">
+          {clause.heading.vi}
+          <span className="block font-normal italic text-muted-foreground">
+            {clause.heading.en}
+          </span>
+        </p>
+      )}
+      {clause.paragraphs.map((paragraph, index) => (
+        <div key={index}>
+          <BilingualText text={paragraph} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const articleTitle = (badge: Bilingual, title: Bilingual): Bilingual => ({
+  vi: `${badge.vi}. ${title.vi}`,
+  en: `${badge.en}. ${title.en}`,
+});
 
 export function ConsentClient() {
   const { t, locale } = useTranslations();
@@ -162,8 +190,12 @@ export function ConsentClient() {
           <p className="text-sm text-muted-foreground">
             {t("auth.consent.subtitle")}
           </p>
-          <div className="rounded-md border bg-card p-3">
-            <BilingualText text={TERMS_PREVAILS} />
+          <div className="flex flex-col gap-3 rounded-md border bg-card p-3">
+            {TERMS_PREFACE.map((line, index) => (
+              <div key={index}>
+                <BilingualText text={line} />
+              </div>
+            ))}
           </div>
         </header>
 
@@ -179,13 +211,13 @@ export function ConsentClient() {
               {t("auth.consent.disclosuresTitle")}
             </h2>
             <div className="mt-1">
-              <BilingualText text={disclosures.title} />
+              <BilingualText
+                text={articleTitle(disclosures.badge, disclosures.title)}
+              />
             </div>
             <div className="mt-4 flex flex-col gap-4">
-              {disclosures.paragraphs.map((paragraph, index) => (
-                <div key={index}>
-                  <BilingualText text={paragraph} />
-                </div>
+              {disclosures.clauses.map((clause, index) => (
+                <Clause key={index} clause={clause} />
               ))}
             </div>
           </section>
@@ -212,9 +244,9 @@ export function ConsentClient() {
               {TERMS_ARTICLES.map((article) => (
                 <article key={article.id} className="flex flex-col gap-3">
                   <h3 className="text-sm font-semibold text-foreground">
-                    {article.title.vi}
+                    {articleTitle(article.badge, article.title).vi}
                     <span className="block font-normal italic text-muted-foreground">
-                      {article.title.en}
+                      {articleTitle(article.badge, article.title).en}
                     </span>
                   </h3>
                   {article.id === DISCLOSURES_ARTICLE_ID ? (
@@ -222,10 +254,8 @@ export function ConsentClient() {
                       {t("auth.consent.article3SeeAbove")}
                     </p>
                   ) : (
-                    article.paragraphs.map((paragraph, index) => (
-                      <div key={index}>
-                        <BilingualText text={paragraph} />
-                      </div>
+                    article.clauses.map((clause, index) => (
+                      <Clause key={index} clause={clause} />
                     ))
                   )}
                 </article>

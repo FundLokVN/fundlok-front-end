@@ -250,7 +250,7 @@
       "accepted": "Accepted",
       "acceptedOn": "Accepted {date}",
       "boxDataProcessing": "Personal data processing (Art. 10.1–10.2)",
-      "boxDataSharing": "Sharing identity data with TPV Datatrust for eKYC (Art. 10.3)",
+      "boxDataSharing": "Sharing identity data with TPV Datatrust for eKYC/eKYB and cloud storage outside Vietnam (Art. 10.3, 10.7)",
       "boxTerms": "Terms & Services and the Article 3 disclosures",
       "currentVersion": "Version required now",
       "device": "Device",
