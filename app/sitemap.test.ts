@@ -47,7 +47,8 @@ describe("sitemap", () => {
       post("cu", "2026-11-20T06:00:00Z", "2026-11-24T09:30:00.5Z"),
     );
     const entries = await sitemap();
-    const byUrl = (suffix: string) => entries.find((e) => e.url.endsWith(suffix));
+    const byUrl = (suffix: string) =>
+      entries.find((e) => e.url.endsWith(suffix));
 
     expect(byUrl("/blog")?.lastModified).toBe("2026-11-24T09:30:00.5Z");
     expect(byUrl("/blog/moi")?.lastModified).toBe("2026-11-23T06:00:00Z");
