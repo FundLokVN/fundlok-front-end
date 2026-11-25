@@ -82,7 +82,7 @@ describe("LenderStandingCard", () => {
     };
     render(<LenderStandingCard locale="en" t={t} />);
     expect(screen.getByTestId("standing-top-ups")).toHaveTextContent(
-      "FundLok will open top-up signing during the 7-day reopening",
+      "Your late transfer was recorded for manual follow-up.",
     );
     expect(screen.queryByTestId("lender-standing")).toBeNull();
   });
@@ -104,7 +104,7 @@ describe("LenderStandingCard", () => {
       "Cong Ty Delta Foods",
     );
     expect(screen.getByTestId("standing-pledges")).toHaveTextContent(
-      "Unlock your account to join the top-up",
+      "Your late transfer was recorded for manual follow-up. Unlock your account to invest again.",
     );
   });
 

@@ -10,6 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { EASE_OUT, barReveal } from "@/lib/motion";
+import { formatSharePct } from "@/lib/listing-figures";
 import { CheckCircle2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LoanApproval } from "@/services/projects.service";
@@ -54,6 +55,19 @@ export function ApprovalSummary({
       t("dashboard.sme.approval.daily"),
       vnd(approval.estimated_daily_repayment_vnd),
     ],
+    [
+      t("investment.kpis.drr"),
+      approval.daily_repayment_rate == null
+        ? "—"
+        : formatSharePct(approval.daily_repayment_rate, locale),
+    ],
+    [
+      t("dashboard.sme.approval.revenueShare"),
+      approval.revenue_share == null
+        ? "—"
+        : formatSharePct(approval.revenue_share, locale),
+    ],
+    [t("investment.kpis.guarantor"), approval.guarantor_name || "—"],
   ];
 
   return (

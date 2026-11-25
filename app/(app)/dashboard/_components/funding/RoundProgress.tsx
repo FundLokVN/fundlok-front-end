@@ -40,7 +40,9 @@ export function RoundProgress({ round }: { round: SmeRound }) {
   const [asking, setAsking] = useState(false);
   const money = (vnd: number) => formatCurrency(vnd, locale);
   const open = round.status === "OPEN" || round.status === "FULL";
-  const canClose = open && round.confirmed_vnd >= round.min_raise_vnd;
+  const supportsEarlyClose = open && round.flow !== "COMMIT_THEN_ACCEPT";
+  const canClose =
+    supportsEarlyClose && round.confirmed_vnd >= round.min_raise_vnd;
   // Less than a minimum ticket still open: only one last ticket of exactly
   // that amount fills it (funding-window.md I-6).
   const lastTicket =
@@ -124,7 +126,7 @@ export function RoundProgress({ round }: { round: SmeRound }) {
       )}
       {round.status === "FAILED" && <Note>{t(`${K}.failedNote`)}</Note>}
 
-      {open && (
+      {supportsEarlyClose && (
         <div className="flex flex-wrap items-center gap-3">
           <Button
             type="button"

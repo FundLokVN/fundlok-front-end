@@ -7,6 +7,9 @@ const KNOWN = new Set([
   "NOTHING_TO_DECIDE",
   "DISPUTE_ALREADY_DECIDED",
   "CAPACITY_EXCEEDED",
+  "ALREADY_APPROVED",
+  "LATE_MONEY_APPROVAL_CLOSED",
+  "NOT_LATE_MONEY",
   // Reviewing a receipt the system decided (receipt-ocr.md).
   "LOAN_STARTED",
   "SUPERSEDED",

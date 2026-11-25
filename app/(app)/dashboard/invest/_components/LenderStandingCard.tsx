@@ -76,8 +76,8 @@ function PledgeList({
 
 /**
  * After disbursement day (Day-14 transfer rule, Contract 4 Art. 5.4): a lender
- * who did not pay on time is locked at 15:00. Money that came late is not
- * returned; it is recorded as their top-up. To unlock they verify their
+ * who did not pay on time is locked at 15:00. Pending late transfers are
+ * recorded for manual follow-up. To unlock they verify their
  * identity again, then type the undertaking sentence.
  *
  * Locked or closed: the whole card, in place of reserving. In good standing

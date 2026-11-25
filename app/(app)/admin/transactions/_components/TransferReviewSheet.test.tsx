@@ -9,6 +9,7 @@ import type {
 } from "@/services/admin-funding.service";
 
 const decideMock = vi.fn();
+const approveLateMoneyMock = vi.fn();
 let row: AdminInvestorTransfer;
 let me = { id: "admin-1" };
 let history: AdminFundingActivity[] = [];
@@ -28,6 +29,10 @@ vi.mock("@/hooks/use-admin-funding", () => ({
   useAdminRepaymentReceiptUrl: () => ({ data: undefined, isLoading: false }),
   useAdminRepaymentPreview: () => ({ data: preview, isLoading: false }),
   useDecideReceipt: () => ({ mutate: decideMock, isPending: false }),
+  useApproveLateMoney: () => ({
+    mutate: approveLateMoneyMock,
+    isPending: false,
+  }),
   useAdminFundingActivity: () => ({
     data: { items: history, total: history.length, page: 1, page_size: 50 },
     isLoading: false,
@@ -86,10 +91,59 @@ const open = () =>
 describe("TransferReviewSheet", () => {
   beforeEach(() => {
     decideMock.mockReset();
+    approveLateMoneyMock.mockReset();
     row = base;
     me = { id: "admin-1" };
     history = [];
     preview = undefined;
+  });
+
+  it("uses the dedicated late-money approval with a required reason", () => {
+    row = {
+      ...base,
+      status: "UNDER_REVIEW",
+      review_cause: "LATE_MONEY",
+      can_approve_late_money: true,
+      approve_late_money_until: new Date(Date.now() + 60_000).toISOString(),
+      transfer: { ...base.transfer!, check_status: "MATCHED" },
+    };
+    open();
+    const approve = screen.getByRole("button", {
+      name: "admin.transactions.sheet.approveLateMoney",
+    });
+    expect(approve).toBeDisabled();
+    fireEvent.change(
+      screen.getByRole("textbox", {
+        name: "admin.transactions.sheet.lateMoneyReason",
+      }),
+      { target: { value: "  Checked the bank statement.  " } },
+    );
+    fireEvent.click(approve);
+    expect(approveLateMoneyMock).toHaveBeenCalledWith(
+      { transferId: "tf-1", reason: "Checked the bank statement." },
+      expect.anything(),
+    );
+    expect(decideMock).not.toHaveBeenCalled();
+  });
+
+  it("disables late-money approval if the displayed cutoff has passed", () => {
+    row = {
+      ...base,
+      status: "UNDER_REVIEW",
+      review_cause: "LATE_MONEY",
+      can_approve_late_money: true,
+      approve_late_money_until: new Date(Date.now() - 60_000).toISOString(),
+      transfer: { ...base.transfer!, check_status: "MATCHED" },
+    };
+    open();
+    expect(
+      screen.getByRole("button", {
+        name: "admin.transactions.sheet.approveLateMoney",
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("admin.transactions.errors.LATE_MONEY_APPROVAL_CLOSED"),
+    ).toBeVisible();
   });
 
   it("lets staff approve after looking at the receipt, typing nothing in", () => {

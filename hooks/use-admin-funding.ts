@@ -153,6 +153,22 @@ export function useDecideReceipt() {
   });
 }
 
+export function useApproveLateMoney() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AdminInvestorTransfer,
+    ApiError,
+    { transferId: string; reason: string }
+  >({
+    mutationFn: ({ transferId, reason }) =>
+      adminFundingService.approveLateMoney(transferId, reason),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: adminFundingKeys.all });
+      void queryClient.invalidateQueries({ queryKey: fundingKeys.all });
+    },
+  });
+}
+
 export function useAdminRepaymentReceipts(params: AdminRepaymentListParams) {
   return useQuery<AdminTable<AdminRepaymentReceipt>, ApiError>({
     queryKey: adminFundingKeys.repayments(params),

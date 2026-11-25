@@ -23,6 +23,7 @@ import {
   type Tranche,
 } from "@/services/funding.service";
 import type { ApiError } from "@/lib/types";
+import { projectKeys } from "@/hooks/project-keys";
 
 export const fundingKeys = {
   all: ["funding"] as const,
@@ -289,6 +290,7 @@ function useCommitmentMutation<TVars>(
       void queryClient.invalidateQueries({
         queryKey: [...fundingKeys.all, "window"],
       });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.public() });
     },
   });
 }

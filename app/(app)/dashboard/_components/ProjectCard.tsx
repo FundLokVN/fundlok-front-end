@@ -94,7 +94,10 @@ export function ProjectCard({ project, role = "SME" }: ProjectCardProps) {
   const fundingProgressPct = listing ? listingFundedPercent(listing) : 0;
   const daysRemaining = listing ? listingDaysLeft(listing) : null;
   // Less than a minimum ticket left to raise: one last ticket of exactly that.
-  const lastTicket = listing ? listingLastTicketVnd(listing) : null;
+  const lastTicket =
+    listing && !(listing.is_pledge_progress && daysRemaining === 0)
+      ? listingLastTicketVnd(listing)
+      : null;
   const businessScore = loanApplication?.business_score ?? null;
   const isHot = fundingProgressPct >= 75;
 
@@ -362,16 +365,26 @@ export function ProjectCard({ project, role = "SME" }: ProjectCardProps) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-foreground">
-                  {t("dashboard.projectCard.fundedPercent", {
-                    percent: fundingProgressPct,
-                  })}
+                  {t(
+                    listing.is_pledge_progress
+                      ? "dashboard.projectCard.pledgedPercent"
+                      : "dashboard.projectCard.fundedPercent",
+                    {
+                      percent: fundingProgressPct,
+                    },
+                  )}
                 </span>
                 <span className="text-muted-foreground">
                   •{" "}
-                  {t("dashboard.projectCard.raisedOfTarget", {
-                    raised: formatCurrency(listing.funded_amount, locale),
-                    target: formatCurrency(listing.target_amount, locale),
-                  })}
+                  {t(
+                    listing.is_pledge_progress
+                      ? "dashboard.projectCard.pledgedOfTarget"
+                      : "dashboard.projectCard.raisedOfTarget",
+                    {
+                      raised: formatCurrency(listing.funded_amount, locale),
+                      target: formatCurrency(listing.target_amount, locale),
+                    },
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground text-[11px]">

@@ -228,6 +228,8 @@ export interface AdminInvestorTransfer {
   reference_code: string;
   status: TrancheStatus;
   review_cause: string | null;
+  can_approve_late_money?: boolean;
+  approve_late_money_until?: string | null;
   void_reason: string | null;
   reserved_at: string;
   hold_expires_at: string;
@@ -531,6 +533,13 @@ export const adminFundingService = {
     return apiClient.post<AdminInvestorTransfer>(
       ADMIN_ENDPOINTS.transferDecision(transferId),
       body,
+    );
+  },
+
+  approveLateMoney(transferId: string, reason: string) {
+    return apiClient.post<AdminInvestorTransfer>(
+      ADMIN_ENDPOINTS.approveLateMoney(transferId),
+      { reason },
     );
   },
 

@@ -100,9 +100,10 @@ export interface MarketplaceListing {
   target_amount: number;
   /** VND. */
   funded_amount: number;
+  is_pledge_progress?: boolean;
   /** VND; null when the listing sets no minimum. */
   min_ticket: number | null;
-  /** Distinct investors with a filled order. */
+  /** Distinct investors counted in this progress figure. */
   investor_count: number;
   open_at: string | null;
   /** Null when the listing has no closing date. */
@@ -123,6 +124,9 @@ export interface LoanApproval {
   estimated_daily_repayment_vnd: number | null;
   engine_version: string | null;
   params_version: string | null;
+  daily_repayment_rate?: number | null;
+  revenue_share?: number | null;
+  guarantor_name?: string | null;
 }
 
 export interface Project {
