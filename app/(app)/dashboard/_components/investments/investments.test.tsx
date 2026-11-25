@@ -108,6 +108,8 @@ describe("InvestmentCard", () => {
     schedule = [
       day({ repayment_day_id: "d-1" }),
       day({ repayment_day_id: "d-2", status: "DUE", due_date: "2099-01-01" }),
+      day({ repayment_day_id: "d-3", status: "DUE", due_date: "2020-01-03" }),
+      day({ repayment_day_id: "d-4", status: "LATE", due_date: "2020-01-03" }),
     ];
     render(<InvestmentCard tranche={tranche()} />);
 
@@ -130,12 +132,15 @@ describe("InvestmentCard", () => {
     expect(rows[0]).toHaveTextContent(
       'dashboard.investor.investments.inclTax:{"gross":"₫125,397"}',
     );
-    // Only a day already due can be reported; next year's cannot.
-    expect(
-      within(rows[1]).queryByRole("button", {
-        name: "dashboard.investor.investments.report",
-      }),
-    ).toBeNull();
+    // Only a day the business marked paid can be reported: not next year's,
+    // and not one due or late that the business has not paid yet.
+    for (const row of rows.slice(1)) {
+      expect(
+        within(row).queryByRole("button", {
+          name: "dashboard.investor.investments.report",
+        }),
+      ).toBeNull();
+    }
     fireEvent.click(
       within(rows[0]).getByRole("button", {
         name: "dashboard.investor.investments.report",

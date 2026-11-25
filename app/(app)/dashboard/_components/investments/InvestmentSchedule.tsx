@@ -17,9 +17,10 @@ import { Breakdown } from "../funding/Breakdown";
 
 const K = "dashboard.investor.investments";
 
-// Every repayment day of one investment, in order. A day that is due or that
-// the business marked paid can be reported as never arrived; the business then
-// has to prove it paid, and FundLok checks.
+// Every repayment day of one investment, in order. A day the business marked
+// paid can be reported as never arrived; the business then has to prove it
+// paid, and FundLok checks. A day not marked paid (due or late) is still the
+// business's to pay, so there is nothing to report (BE: NOT_MARKED_PAID).
 export function InvestmentSchedule({
   trancheId,
   rows,
@@ -44,8 +45,7 @@ export function InvestmentSchedule({
             trancheId={trancheId}
             row={row}
             reportable={
-              row.due_date <= today &&
-              (row.status === "DUE" || row.status === "PRESUMED_PAID")
+              row.due_date <= today && row.status === "PRESUMED_PAID"
             }
           />
         ))}
