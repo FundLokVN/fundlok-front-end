@@ -97,7 +97,7 @@ describe("TransferDetails", () => {
       );
     });
 
-    it("closes after 14:45 on disbursement day: no QR, unlock to join the top-up", () => {
+    it("closes after 14:45 on disbursement day: no QR, unlock to invest again", () => {
       payment = {
         isLoading: false,
         data: withServerQr(0, {
@@ -112,7 +112,7 @@ describe("TransferDetails", () => {
       });
       const closed = screen.getByTestId("transfer-closed");
       expect(closed).toHaveTextContent("Disbursement closed");
-      expect(closed).toHaveTextContent("unlock it to join the top-up");
+      expect(closed).toHaveTextContent("Unlock it to invest again");
       expect(screen.queryByTestId("transfer-qr")).toBeNull();
     });
 

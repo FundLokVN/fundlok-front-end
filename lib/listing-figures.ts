@@ -74,9 +74,8 @@ export function lastTicketVnd(
 
 /**
  * The marketplace card's last ticket: what an open listing has left to raise,
- * when that is below its minimum ticket. The card counts confirmed transfers
- * only, so part of it may already be reserved; the project page has the
- * exact figure.
+ * when that is below its minimum ticket. On older rounds part of it may
+ * already be reserved; the project page has the exact figure.
  */
 export function listingLastTicketVnd(
   listing: MarketplaceListing,

@@ -19,6 +19,7 @@ let plan: SmeRepaymentPlan | undefined;
 
 vi.mock("@/hooks/use-funding", () => ({
   useMyRounds: () => ({ data: rounds, isLoading: false }),
+  useWindowLoanContracts: () => ({ isLoading: false }),
   useCloseRoundEarly: () => ({ mutate: closeMock, isPending: false }),
   useReportMissingTransfer: () => ({
     mutate: reportMissingMock,
@@ -106,6 +107,26 @@ beforeEach(() => {
 });
 
 describe("FundingStatus", () => {
+  it("shows pledges without an empty tickets block or an early-close action", () => {
+    rounds = [
+      round({
+        flow: "COMMIT_THEN_ACCEPT",
+        committed_total_vnd: 35_000_000,
+        tickets: [],
+      }),
+    ];
+    render(<FundingStatus projectId="p-1" t={t} />);
+    expect(screen.getByTestId("sme-decision-open")).toHaveTextContent(
+      "dashboard.sme.decision.openBody",
+    );
+    expect(screen.queryByText("dashboard.sme.funding.noTickets")).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: "dashboard.sme.funding.closeEarly",
+      }),
+    ).toBeNull();
+  });
+
   it("claims no progress before the business's round opens", () => {
     render(<FundingStatus projectId="p-1" t={t} />);
     expect(screen.getByText("dashboard.sme.funding.none")).toBeInTheDocument();

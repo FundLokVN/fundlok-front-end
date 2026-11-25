@@ -400,6 +400,8 @@ export const ADMIN_ENDPOINTS = {
     `/admin/funding/transfers/${transferId}/receipt-url`,
   transferDecision: (transferId: string) =>
     `/admin/funding/transfers/${transferId}/decision`,
+  approveLateMoney: (transferId: string) =>
+    `/admin/funding/transfers/${transferId}/approve-late-money`,
   // The receipts businesses upload when they repay an investor. Read-only:
   // the investor confirms a repayment, not staff.
   fundingRepayments: "/admin/funding/repayments",

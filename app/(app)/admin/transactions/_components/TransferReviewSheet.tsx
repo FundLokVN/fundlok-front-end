@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -22,12 +22,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/hooks/use-authentication";
 import {
   useAdminInvestorTransfer,
+  useApproveLateMoney,
   useDecideReceipt,
 } from "@/hooks/use-admin-funding";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "@/lib/i18n";
 import { formatCurrency } from "@/lib/format-currency";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDateTime, formatDateTimeIct } from "@/lib/format-date";
 import type {
   AdminInvestorTransfer,
   AdminReceiptFields,
@@ -350,8 +351,11 @@ function Actions({
   transfer: AdminInvestorTransfer;
   own: boolean;
 }) {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const receipt = transfer.transfer;
+  const lateMoneyUntil = transfer.can_approve_late_money
+    ? transfer.approve_late_money_until
+    : null;
   const review =
     transfer.dispute && transfer.dispute.status !== "DECIDED"
       ? transfer.dispute
@@ -377,6 +381,7 @@ function Actions({
   const toDecide =
     receipt !== null &&
     (review !== null ||
+      lateMoneyUntil ||
       transfer.status === "ATTESTED" ||
       waiting ||
       reviewingSystem);
@@ -394,6 +399,20 @@ function Actions({
       <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground">
         {t("admin.transactions.sheet.ownTransfer")}
       </p>
+    );
+  }
+  if (lateMoneyUntil && receipt) {
+    return (
+      <DecisionForm
+        key={`${receipt.id}:${lateMoneyUntil}`}
+        transferId={receipt.id}
+        body={t("admin.transactions.sheet.lateMoneyBody", {
+          deadline: formatDateTimeIct(lateMoneyUntil, locale),
+        })}
+        hint={t("admin.transactions.sheet.lateMoneyHint")}
+        allowDeny={false}
+        lateMoneyUntil={lateMoneyUntil}
+      />
     );
   }
   return (
@@ -446,29 +465,60 @@ function DecisionForm({
   body,
   hint,
   allowDeny = true,
+  lateMoneyUntil,
 }: {
   transferId: string;
   body: string;
   hint: string;
   allowDeny?: boolean;
+  lateMoneyUntil?: string;
 }) {
   const { t, locale } = useTranslations();
   const { toast } = useToast();
   const decide = useDecideReceipt();
+  const approveLateMoney = useApproveLateMoney();
   const [reason, setReason] = useState("");
+  const deadline = lateMoneyUntil ? Date.parse(lateMoneyUntil) : null;
+  const [expired, setExpired] = useState(
+    () => deadline !== null && deadline <= Date.now(),
+  );
+  useEffect(() => {
+    if (deadline === null || expired) return;
+    const timer = setTimeout(() => setExpired(true), deadline - Date.now());
+    return () => clearTimeout(timer);
+  }, [deadline, expired]);
+  const pending = decide.isPending || approveLateMoney.isPending;
+  const noteLabel = t(
+    lateMoneyUntil
+      ? "admin.transactions.sheet.lateMoneyReason"
+      : "admin.transactions.sheet.notePlaceholder",
+  );
 
   const send = (outcome: "APPROVED" | "DENIED") => {
+    const onError = (error: Parameters<typeof transferErrorMessage>[0]) =>
+      toast({
+        variant: "destructive",
+        title: t("admin.transactions.sheet.decideFailed"),
+        description: transferErrorMessage(error, t, locale),
+      });
+    if (deadline !== null) {
+      if (deadline <= Date.now() || !reason.trim()) return;
+      approveLateMoney.mutate(
+        { transferId, reason: reason.trim() },
+        {
+          onSuccess: () =>
+            toast({ title: t("admin.transactions.sheet.lateMoneyApproved") }),
+          onError,
+        },
+      );
+      return;
+    }
     decide.mutate(
       { transferId, body: { outcome, reason: reason.trim() || null } },
       {
         onSuccess: () =>
           toast({ title: t(`admin.transactions.sheet.toast.${outcome}`) }),
-        onError: (error) =>
-          toast({
-            variant: "destructive",
-            title: t("admin.transactions.sheet.decideFailed"),
-            description: transferErrorMessage(error, t, locale),
-          }),
+        onError,
       },
     );
   };
@@ -484,25 +534,30 @@ function DecisionForm({
       <Textarea
         rows={2}
         value={reason}
-        disabled={decide.isPending}
+        disabled={pending || expired}
         onChange={(event) => setReason(event.target.value)}
-        placeholder={t("admin.transactions.sheet.notePlaceholder")}
-        aria-label={t("admin.transactions.sheet.notePlaceholder")}
+        maxLength={1000}
+        placeholder={noteLabel}
+        aria-label={noteLabel}
       />
       <div className="flex gap-2">
         <Button
           type="button"
           size="sm"
           className="flex-1 gap-2"
-          disabled={decide.isPending}
+          disabled={pending || expired || (!!lateMoneyUntil && !reason.trim())}
           onClick={() => send("APPROVED")}
         >
-          {decide.isPending ? (
+          {pending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <CheckCircle2 className="h-3.5 w-3.5" />
           )}
-          {t("admin.transactions.sheet.approve")}
+          {t(
+            lateMoneyUntil
+              ? "admin.transactions.sheet.approveLateMoney"
+              : "admin.transactions.sheet.approve",
+          )}
         </Button>
         {allowDeny && (
           <Button
@@ -519,7 +574,9 @@ function DecisionForm({
         )}
       </div>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        {hint}
+        {expired
+          ? t("admin.transactions.errors.LATE_MONEY_APPROVAL_CLOSED")
+          : hint}
       </p>
     </section>
   );

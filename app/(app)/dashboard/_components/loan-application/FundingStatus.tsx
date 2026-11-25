@@ -58,17 +58,28 @@ export function FundingStatus({
       </section>
     );
   }
+  const usesPledges = round.flow === "COMMIT_THEN_ACCEPT";
+  const showProgress =
+    !usesPledges ||
+    round.confirmed_vnd > 0 ||
+    round.status === "CLOSING" ||
+    round.status === "REPAYING" ||
+    round.status === "REPAID";
+  const showTickets = showProgress || round.tickets.length > 0;
+
   return (
     <div className="space-y-4" data-testid="funding-status">
       {/* Commit-then-accept rounds: pledges, then the Day-13 decision. */}
-      {round.flow === "COMMIT_THEN_ACCEPT" && <SmeDecision round={round} />}
-      <section
-        aria-label={t("dashboard.sme.funding.heading")}
-        className="space-y-5 rounded-xl border border-border/60 bg-card p-4 md:p-5"
-      >
-        <RoundProgress round={round} />
-        <RoundTickets round={round} />
-      </section>
+      {usesPledges && <SmeDecision round={round} />}
+      {showTickets && (
+        <section
+          aria-label={t("dashboard.sme.funding.heading")}
+          className="space-y-5 rounded-xl border border-border/60 bg-card p-4 md:p-5"
+        >
+          {showProgress && <RoundProgress round={round} />}
+          <RoundTickets round={round} />
+        </section>
+      )}
       {/* An investment repays from its approval, so payments can be due while
           the round is still open. */}
       {(round.status === "REPAYING" ||
