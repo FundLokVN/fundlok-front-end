@@ -44,9 +44,7 @@ export function InvestmentSchedule({
             key={row.repayment_day_id}
             trancheId={trancheId}
             row={row}
-            reportable={
-              row.due_date <= today && row.status === "PRESUMED_PAID"
-            }
+            reportable={row.due_date <= today && row.status === "PRESUMED_PAID"}
           />
         ))}
       </ul>
