@@ -447,6 +447,10 @@ export const ADMIN_EMAIL_ENDPOINTS = {
   testEmail: "/admin/email/settings/test",
   // Renders exactly what would be sent; sends nothing.
   preview: "/admin/email/preview",
+  // "Write with Claude": GET { enabled } for the signed-in admin; POST the
+  // instruction (never the recipients) for a draft. Sends nothing.
+  assistant: "/admin/email/assistant",
+  assistantDraft: "/admin/email/assistant/draft",
   send: "/admin/email/send",
   // Your own sends; a SYSTEM_ADMIN gets every admin's.
   messages: "/admin/email/messages",

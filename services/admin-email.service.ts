@@ -134,6 +134,43 @@ export interface EmailRecipient {
 // Per email. Each recipient gets their own copy, so nobody sees the others.
 export const MAX_RECIPIENTS = 50;
 
+/** Whether the composer shows "Write with Claude" to the signed-in admin. */
+export interface EmailAssistantStatus {
+  enabled: boolean;
+}
+
+// What the admin asks for, plus what is already in the form (plain text) so
+// Claude can rework it. Recipients are never sent.
+export interface EmailAssistantRequest {
+  instruction: string;
+  language: "vi" | "en";
+  template: EmailTemplate;
+  current: {
+    subject: string;
+    heading: string;
+    body: string;
+    button_label: string;
+  };
+}
+
+// Checked by the backend (docs/specs/admin/email-assistant.md). body_html is
+// the composer's own markup with every piece of text escaped.
+export interface EmailAssistantDraft {
+  subject: string;
+  heading: string;
+  body_html: string;
+  body_text: string;
+  // "[deadline]"-style gaps Claude left instead of inventing a fact.
+  placeholders: string[];
+  // Figures that were not in the instruction or the old draft.
+  unverified_numbers: string[];
+}
+
+export const EMAIL_ASSISTANT_INSTRUCTION_MAX = 2000;
+
+// The backend answers within 25 s (the /api rewrite gives up at 30 s).
+const ASSISTANT_TIMEOUT_MS = 35_000;
+
 // A send waits for Google: a token refresh, then one Gmail API call per
 // recipient, each with the backend's 20 s timeout (the whole loop capped at
 // 25 s). The client's default 20 s would give up first and report a failure
@@ -200,6 +237,18 @@ export const adminEmailService = {
 
   preview(payload: EmailContentPayload) {
     return apiClient.post<EmailPreview>(ADMIN_EMAIL_ENDPOINTS.preview, payload);
+  },
+
+  assistantStatus() {
+    return apiClient.get<EmailAssistantStatus>(ADMIN_EMAIL_ENDPOINTS.assistant);
+  },
+
+  draftWithAssistant(payload: EmailAssistantRequest) {
+    return apiClient.post<EmailAssistantDraft>(
+      ADMIN_EMAIL_ENDPOINTS.assistantDraft,
+      payload,
+      { timeout: ASSISTANT_TIMEOUT_MS },
+    );
   },
 
   send(payload: SendEmailPayload) {

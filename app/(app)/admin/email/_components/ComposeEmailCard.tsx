@@ -40,10 +40,13 @@ import { CONTROL_IDLE } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils";
 import {
   MAX_RECIPIENTS,
+  type EmailAssistantDraft,
+  type EmailAssistantRequest,
   type EmailContentPayload,
   type EmailPreview,
   type EmailTemplate,
 } from "@/services/admin-email.service";
+import { EmailAssistant } from "./EmailAssistant";
 import { EmailPreviewDialog } from "./EmailPreviewDialog";
 import {
   EMAIL_PRESET_IDS,
@@ -118,6 +121,14 @@ export function ComposeEmailCard() {
   const [pendingPreset, setPendingPreset] = useState<EmailPresetId | null>(
     null,
   );
+  // A Claude draft waiting on "Replace what you've written?".
+  const [pendingDraft, setPendingDraft] = useState<EmailAssistantDraft | null>(
+    null,
+  );
+  // The [placeholders] in the last draft used: Send waits until they are gone.
+  const [assistantPlaceholders, setAssistantPlaceholders] = useState<string[]>(
+    [],
+  );
 
   const emailMismatch = Boolean(
     settings?.gmail_address &&
@@ -158,6 +169,17 @@ export function ComposeEmailCard() {
       ? !(bodyTextareaRef.current.textContent ?? "").trim()
       : !body.replace(/<[^>]+>/g, "").trim();
 
+  // The message as the reader sees it (line breaks kept where the browser
+  // can tell; jsdom has no innerText).
+  const bodyText = () => {
+    const editor = bodyTextareaRef.current;
+    if (!editor) return body.replace(/<[^>]+>/g, " ");
+    return editor.innerText ?? editor.textContent ?? "";
+  };
+
+  const writtenContent = () =>
+    [subject, heading].some((v) => v.trim()) || !bodyIsEmpty();
+
   // Fills the content fields; recipients and the template are left alone.
   const applyPreset = (id: EmailPresetId) => {
     const preset = emailPresetContent(id, presetLanguage);
@@ -175,10 +197,36 @@ export function ComposeEmailCard() {
   // Ask before overwriting anything the admin has written.
   const handlePreset = (id: EmailPresetId) => {
     const hasContent =
-      [subject, heading, buttonLabel, buttonUrl].some((v) => v.trim()) ||
-      !bodyIsEmpty();
+      writtenContent() || [buttonLabel, buttonUrl].some((v) => v.trim());
     if (hasContent) setPendingPreset(id);
     else applyPreset(id);
+  };
+
+  // What "Write with Claude" may rework: never the recipients.
+  const assistantCurrent = (): EmailAssistantRequest["current"] => ({
+    subject: subject.trim(),
+    heading: heading.trim(),
+    body: bodyText().trim(),
+    button_label: buttonLabel.trim(),
+  });
+
+  // Claude's draft fills subject, heading and message; the recipients, the
+  // template and the button stay as they are. body_html is escaped markup
+  // built by the backend in the presets' paragraph style.
+  const applyDraft = (draft: EmailAssistantDraft) => {
+    setSubject(draft.subject);
+    setHeading(draft.heading);
+    setBody(draft.body_html);
+    if (bodyTextareaRef.current) {
+      bodyTextareaRef.current.innerHTML = draft.body_html;
+    }
+    setAssistantPlaceholders(draft.placeholders);
+    setErrors(({ to }) => (to ? { to } : {}));
+  };
+
+  const handleDraft = (draft: EmailAssistantDraft) => {
+    if (writtenContent()) setPendingDraft(draft);
+    else applyDraft(draft);
   };
 
   // Content checks shared by Preview and Send; Send also checks recipients.
@@ -272,6 +320,14 @@ export function ComposeEmailCard() {
     const next = contentErrors();
     const toError = recipientError();
     if (toError) next.to = toError;
+    const text = [subject, heading, bodyText()].join("\n");
+    const unfilled = assistantPlaceholders.filter((p) => text.includes(p));
+    if (unfilled.length > 0 && !next.body) {
+      next.body = t("admin.email.assistant.placeholdersLeft").replace(
+        "{list}",
+        unfilled.join(", "),
+      );
+    }
     setErrors(next);
     if (Object.keys(next).length === 0) setConfirmOpen(true);
   };
@@ -314,6 +370,7 @@ export function ComposeEmailCard() {
       }
       setButtonLabel("");
       setButtonUrl("");
+      setAssistantPlaceholders([]);
       setErrors({});
     } catch (err) {
       // No answer (or a gateway giving up) is not a failure: the email may
@@ -491,6 +548,13 @@ export function ComposeEmailCard() {
             {t("admin.email.compose.presets.hint")}
           </p>
         </div>
+
+        <EmailAssistant
+          language={presetLanguage}
+          template={template}
+          current={assistantCurrent}
+          onUse={handleDraft}
+        />
 
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
@@ -754,6 +818,35 @@ export function ComposeEmailCard() {
               }}
             >
               {t("admin.email.compose.presets.replace")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={pendingDraft !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDraft(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("admin.email.assistant.replaceTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin.email.assistant.replaceBody")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingDraft) applyDraft(pendingDraft);
+                setPendingDraft(null);
+              }}
+            >
+              {t("admin.email.assistant.replace")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
