@@ -63,6 +63,29 @@
         "unpublishTitle": "Gỡ bài viết khỏi trang?",
         "viewLive": "Xem trên trang"
       },
+      "autoSeo": {
+        "cancel": "Hủy",
+        "description": "Claude đọc bài viết và điền các trường SEO còn trống. Những gì bạn đã tự viết được giữ nguyên.",
+        "doneTitle": "SEO đã sẵn sàng",
+        "fields": {
+          "excerpt": "Mô tả meta",
+          "focusKeyword": "Từ khóa chính",
+          "secondaryKeywords": "Từ khóa phụ",
+          "seoTitle": "Tiêu đề SEO"
+        },
+        "nothingFilled": "Claude không cần thêm gì: các trường SEO của bạn đã được điền đủ.",
+        "publishNow": "Đăng ngay",
+        "publishWithout": "Đăng không cần SEO",
+        "review": "Xem lại trước",
+        "reviewHint": "Đã thêm vào bài viết. Hãy đối chiếu với nội dung bài, rồi đăng. Các trường này được lưu khi bạn đăng.",
+        "steps": {
+          "description": "Viết mô tả meta",
+          "keywords": "Chọn từ khóa",
+          "read": "Đọc bài viết",
+          "title": "Viết tiêu đề SEO"
+        },
+        "title": "Đang tối ưu SEO trước khi đăng"
+      },
       "checklist": {
         "conflictHint": "Hai bài cùng một từ khóa chính sẽ cạnh tranh nhau trên Google. Hãy chọn từ khóa khác hoặc gộp nội dung vào một bài.",
         "conflictTitle": "Bài viết khác cũng nhắm từ khóa chính này:",
@@ -275,30 +298,7 @@
         "undo": "Hoàn tác"
       },
       "unit": "bài viết",
-      "untitled": "Bài viết chưa có tiêu đề",
-      "autoSeo": {
-        "title": "Đang tối ưu SEO trước khi đăng",
-        "doneTitle": "SEO đã sẵn sàng",
-        "description": "Claude đọc bài viết và điền các trường SEO còn trống. Những gì bạn đã tự viết được giữ nguyên.",
-        "steps": {
-          "read": "Đọc bài viết",
-          "title": "Viết tiêu đề SEO",
-          "description": "Viết mô tả meta",
-          "keywords": "Chọn từ khóa"
-        },
-        "fields": {
-          "seoTitle": "Tiêu đề SEO",
-          "excerpt": "Mô tả meta",
-          "focusKeyword": "Từ khóa chính",
-          "secondaryKeywords": "Từ khóa phụ"
-        },
-        "reviewHint": "Đã thêm vào bài viết. Hãy đối chiếu với nội dung bài, rồi đăng. Các trường này được lưu khi bạn đăng.",
-        "nothingFilled": "Claude không cần thêm gì: các trường SEO của bạn đã được điền đủ.",
-        "publishNow": "Đăng ngay",
-        "review": "Xem lại trước",
-        "publishWithout": "Đăng không cần SEO",
-        "cancel": "Hủy"
-      }
+      "untitled": "Bài viết chưa có tiêu đề"
     },
     "consent": {
       "accepted": "Đã đồng ý",
