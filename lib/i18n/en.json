@@ -63,6 +63,29 @@
         "unpublishTitle": "Take this post off the site?",
         "viewLive": "View live"
       },
+      "autoSeo": {
+        "cancel": "Cancel",
+        "description": "Claude reads the article and fills in the SEO fields that are empty. Anything you wrote yourself is kept.",
+        "doneTitle": "SEO is ready",
+        "fields": {
+          "excerpt": "Meta description",
+          "focusKeyword": "Focus keyword",
+          "secondaryKeywords": "Secondary keyword",
+          "seoTitle": "SEO title"
+        },
+        "nothingFilled": "Claude had nothing to add: your SEO fields are already filled.",
+        "publishNow": "Publish now",
+        "publishWithout": "Publish without SEO",
+        "review": "Review first",
+        "reviewHint": "Added to the post. Check them against the article, then publish. They are saved when you publish.",
+        "steps": {
+          "description": "Writing the meta description",
+          "keywords": "Choosing the keywords",
+          "read": "Reading the article",
+          "title": "Writing the SEO title"
+        },
+        "title": "Optimizing SEO before publishing"
+      },
       "checklist": {
         "conflictHint": "Two posts with the same focus keyword compete with each other on Google. Pick a different keyword or merge the content into one post.",
         "conflictTitle": "Another post already targets this focus keyword:",
@@ -275,30 +298,7 @@
         "undo": "Undo"
       },
       "unit": "posts",
-      "untitled": "Untitled post",
-      "autoSeo": {
-        "title": "Optimizing SEO before publishing",
-        "doneTitle": "SEO is ready",
-        "description": "Claude reads the article and fills in the SEO fields that are empty. Anything you wrote yourself is kept.",
-        "steps": {
-          "read": "Reading the article",
-          "title": "Writing the SEO title",
-          "description": "Writing the meta description",
-          "keywords": "Choosing the keywords"
-        },
-        "fields": {
-          "seoTitle": "SEO title",
-          "excerpt": "Meta description",
-          "focusKeyword": "Focus keyword",
-          "secondaryKeywords": "Secondary keyword"
-        },
-        "reviewHint": "Added to the post. Check them against the article, then publish. They are saved when you publish.",
-        "nothingFilled": "Claude had nothing to add: your SEO fields are already filled.",
-        "publishNow": "Publish now",
-        "review": "Review first",
-        "publishWithout": "Publish without SEO",
-        "cancel": "Cancel"
-      }
+      "untitled": "Untitled post"
     },
     "consent": {
       "accepted": "Accepted",
