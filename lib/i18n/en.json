@@ -275,7 +275,30 @@
         "undo": "Undo"
       },
       "unit": "posts",
-      "untitled": "Untitled post"
+      "untitled": "Untitled post",
+      "autoSeo": {
+        "title": "Optimizing SEO before publishing",
+        "doneTitle": "SEO is ready",
+        "description": "Claude reads the article and fills in the SEO fields that are empty. Anything you wrote yourself is kept.",
+        "steps": {
+          "read": "Reading the article",
+          "title": "Writing the SEO title",
+          "description": "Writing the meta description",
+          "keywords": "Choosing the keywords"
+        },
+        "fields": {
+          "seoTitle": "SEO title",
+          "excerpt": "Meta description",
+          "focusKeyword": "Focus keyword",
+          "secondaryKeywords": "Secondary keyword"
+        },
+        "reviewHint": "Added to the post. Check them against the article, then publish. They are saved when you publish.",
+        "nothingFilled": "Claude had nothing to add: your SEO fields are already filled.",
+        "publishNow": "Publish now",
+        "review": "Review first",
+        "publishWithout": "Publish without SEO",
+        "cancel": "Cancel"
+      }
     },
     "consent": {
       "accepted": "Accepted",
