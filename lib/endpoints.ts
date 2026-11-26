@@ -455,6 +455,11 @@ export const ADMIN_EMAIL_ENDPOINTS = {
   recipients: "/admin/email/recipients",
 } as const;
 
+export const BLOG_ENDPOINTS = {
+  views: (locale: string, slug: string) =>
+    `/api/v1/blog/posts/${encodeURIComponent(locale)}/${encodeURIComponent(slug)}/views`,
+} as const;
+
 // Admin > Blog (backend app/blog/router.py). ADMIN or SYSTEM_ADMIN; every
 // write is audited. The public pages read /api/v1/blog/* on the server
 // instead (lib/server/blog-api.ts), never through these.

@@ -43,7 +43,7 @@ export const BLOG_CACHE_TAG = "blog";
 /** Seconds. Matches `revalidate` on the /blog pages. */
 export const BLOG_REVALIDATE_SECONDS = 3600;
 
-/** The newest posts the list endpoint returns; also the sitemap's cap. */
+/** The page size for public blog reads. */
 export const BLOG_LIST_LIMIT = 50;
 
 const TIMEOUT_MS = 10_000;
@@ -65,16 +65,31 @@ async function blogFetch<T>(path: string): Promise<T | null> {
   return (await response.json()) as T;
 }
 
-/** Published posts, newest first. Throws when the API cannot be read. */
+async function readPostPage(offset = 0): Promise<PublicBlogPostList> {
+  const path = `/api/v1/blog/posts?locale=${LOCALE}&limit=${BLOG_LIST_LIMIT}&offset=${offset}`;
+  const page = await blogFetch<PublicBlogPostList>(path);
+  if (!page) throw new Error(`Blog API ${path} answered 404`);
+  return page;
+}
+
+/** Published posts, newest first, for the blog landing page. */
 export const listPublishedPosts = cache(
-  async (): Promise<PublicBlogPostSummary[]> => {
-    const path = `/api/v1/blog/posts?locale=${LOCALE}&limit=${BLOG_LIST_LIMIT}`;
-    const list = await blogFetch<PublicBlogPostList>(path);
-    // A 404 here is a backend without the blog, not an empty blog.
-    if (!list) throw new Error(`Blog API ${path} answered 404`);
-    return list.items;
-  },
+  async () => (await readPostPage()).items,
 );
+
+/** Crawl discovery includes older posts beyond the blog landing page. */
+export async function listAllPublishedPosts(): Promise<
+  PublicBlogPostSummary[]
+> {
+  const posts: PublicBlogPostSummary[] = [];
+  let offset: number | null | undefined = 0;
+  while (offset != null) {
+    const page = await readPostPage(offset);
+    posts.push(...page.items);
+    offset = page.next_offset;
+  }
+  return posts;
+}
 
 /**
  * One published post, or null when there is none at that slug (a draft, an

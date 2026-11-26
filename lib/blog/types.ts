@@ -32,6 +32,7 @@ export interface PublicBlogPost extends PublicBlogPostSummary {
 
 export interface PublicBlogPostList {
   items: PublicBlogPostSummary[];
+  next_offset?: number | null;
 }
 
 /** A new post's content: ProseMirror's doc needs at least one block. */

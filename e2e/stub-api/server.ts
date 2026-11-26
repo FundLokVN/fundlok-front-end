@@ -909,6 +909,7 @@ interface StubBlogPost {
   updated_at: string;
   created_at: string;
   reading_minutes: number;
+  view_count: number;
   locale: "vi";
   seo_title: string | null;
   content: Record<string, unknown>;
@@ -939,6 +940,7 @@ function blogStore(req: IncomingMessage, key: string) {
       updated_at: "2026-11-20T03:00:00Z",
       created_at: "2026-11-20T03:00:00Z",
       reading_minutes: 1,
+      view_count: 0,
       locale: "vi",
       seo_title: null,
       content: { type: "doc", content: [{ type: "paragraph" }] },
@@ -967,6 +969,7 @@ function blogSummary(post: StubBlogPost) {
     updated_at: post.updated_at,
     created_at: post.created_at,
     reading_minutes: post.reading_minutes,
+    view_count: post.view_count,
   };
 }
 
@@ -1340,7 +1343,22 @@ const server = createServer(async (req, res) => {
 
   // Public blog: published posts only, no session (app/blog/router.py).
   if (path === "/api/v1/blog/posts" && method === "GET") {
-    return json(res, 200, { items: STUB_BLOG_POSTS.map(blogPublicSummary) });
+    const offset = Number(url.searchParams.get("offset") ?? 0);
+    const limit = Number(url.searchParams.get("limit") ?? 50);
+    const items = STUB_BLOG_POSTS.slice(offset, offset + limit).map(
+      blogPublicSummary,
+    );
+    return json(res, 200, {
+      items,
+      next_offset: items.length === limit ? offset + limit : null,
+    });
+  }
+  if (
+    method === "POST" &&
+    /^\/api\/v1\/blog\/posts\/vi\/[^/]+\/views$/.test(path)
+  ) {
+    res.writeHead(204);
+    return res.end();
   }
   const publicPostMatch = path.match(/^\/api\/v1\/blog\/posts\/vi\/([^/]+)$/);
   if (publicPostMatch && method === "GET") {
@@ -2490,6 +2508,7 @@ const server = createServer(async (req, res) => {
           updated_at: now,
           created_at: now,
           reading_minutes: 1,
+          view_count: 0,
           locale: "vi",
           seo_title: null,
           content: { type: "doc", content: [{ type: "paragraph" }] },

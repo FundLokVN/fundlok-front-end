@@ -128,6 +128,18 @@ function BlogPostsDirectory() {
       sortValue: (post) => post.updated_at,
     },
     {
+      key: "views",
+      header: t("admin.blog.columns.views"),
+      render: (post) => (
+        <span className="tabular-nums">
+          {post.view_count == null
+            ? "—"
+            : new Intl.NumberFormat(locale).format(post.view_count)}
+        </span>
+      ),
+      sortValue: (post) => post.view_count ?? -1,
+    },
+    {
       key: "published",
       header: t("admin.blog.columns.published"),
       render: (post) =>

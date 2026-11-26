@@ -57,6 +57,7 @@
         "save": "Save draft",
         "saveLive": "Save changes",
         "saving": "Saving…",
+        "searchConsole": "Open Search Console",
         "unpublish": "Unpublish",
         "unpublishBody": "It leaves /blog and its link stops working until you publish it again. The address stays the same.",
         "unpublishTitle": "Take this post off the site?",
@@ -104,7 +105,8 @@
         "published": "Published",
         "status": "Status",
         "title": "Title",
-        "updated": "Updated"
+        "updated": "Updated",
+        "views": "Views"
       },
       "conflictReload": "Reload",
       "createError": "Could not create the post.",
@@ -195,6 +197,7 @@
         "coverUpload": "Upload cover",
         "excerptHint": "The summary under the title in search results and on /blog. Required to publish.",
         "excerptLabel": "Meta description",
+        "indexingHint": "Inspect this public URL in Search Console to check its index status or request indexing.",
         "lastSaved": "Last saved {time}",
         "overLimit": "Search results cut it off after about {limit} characters.",
         "previewDescriptionEmpty": "Add a meta description to control this text.",

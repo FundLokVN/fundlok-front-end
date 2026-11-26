@@ -20,6 +20,7 @@ import { OG_LOCALE, type SeoLocale } from "@/lib/seo";
 import { getPublishedPost } from "@/lib/server/blog-api";
 import { SITE_URL } from "@/lib/site";
 import { BlogCover } from "../_components/BlogCover";
+import { BlogView } from "../_components/BlogView";
 import { PostMeta } from "../_components/PostMeta";
 import { TableOfContents } from "../_components/TableOfContents";
 
@@ -110,6 +111,7 @@ export default async function BlogPostPage({ params }: { params: PostParams }) {
 
   return (
     <>
+      <BlogView slug={post.slug} locale={post.locale} />
       <script
         type="application/ld+json"
         id="blog-posting-jsonld"

@@ -54,6 +54,9 @@ test.describe("as an admin", () => {
       page.getByRole("heading", { name: t("admin.blog.title"), exact: true }),
     ).toBeVisible();
     await expect(page.getByText("Bản nháp có sẵn")).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: t("admin.blog.columns.views") }),
+    ).toBeVisible();
   });
 
   test("writes a post with a heading and an image, and publishes it", async ({
