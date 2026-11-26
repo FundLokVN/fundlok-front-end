@@ -17,6 +17,9 @@ import {
   type BlogPostList,
   type BlogPostListParams,
   type BlogPostUpdatePayload,
+  type BlogSeoAssistantStatus,
+  type BlogSeoSuggestionRequest,
+  type BlogSeoSuggestions,
 } from "@/services/admin-blog.service";
 
 // Posts are shared by every admin, so the keys carry no admin id.
@@ -28,7 +31,26 @@ export const adminBlogKeys = {
   detail: (id: string) => [...adminBlogKeys.all, "detail", id] as const,
   keywordUsage: (keyword: string, excludeId: string) =>
     [...adminBlogKeys.all, "keyword-usage", keyword, excludeId] as const,
+  // Per signed-in admin on the backend, but a session is one admin.
+  seoAssistant: () => [...adminBlogKeys.all, "seo-assistant"] as const,
 };
+
+/** Whether this admin's editor shows "Suggest SEO" (off until switched on). */
+export function useBlogSeoAssistant() {
+  return useQuery<BlogSeoAssistantStatus, ApiError>({
+    queryKey: adminBlogKeys.seoAssistant(),
+    queryFn: () => adminBlogService.seoAssistantStatus(),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+}
+
+/** Claude's suggestions for the draft on screen. Nothing is cached or saved. */
+export function useSuggestBlogSeo() {
+  return useMutation<BlogSeoSuggestions, ApiError, BlogSeoSuggestionRequest>({
+    mutationFn: (draft) => adminBlogService.suggestSeo(draft),
+  });
+}
 
 export function useBlogKeywordUsage(keyword: string, excludeId: string) {
   const trimmed = keyword.trim();

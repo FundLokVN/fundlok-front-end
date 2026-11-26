@@ -5,10 +5,15 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 
-import type { BlogPostDetail } from "@/services/admin-blog.service";
+import type {
+  BlogPostDetail,
+  BlogSeoSuggestions,
+} from "@/services/admin-blog.service";
 import { BlogPostEditor } from "./BlogPostEditor";
+import { seoSuggestionErrorKey } from "./SeoSuggestions";
 
 const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
@@ -18,6 +23,14 @@ const mocks = vi.hoisted(() => ({
   publish: { mutateAsync: vi.fn(), isPending: false },
   unpublish: { mutateAsync: vi.fn(), isPending: false },
   remove: { mutateAsync: vi.fn(), isPending: false },
+  seoStatus: { data: { enabled: true } as { enabled: boolean } | undefined },
+  suggest: {
+    mutate: vi.fn(),
+    reset: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null as { code?: string; message: string } | null,
+  },
 }));
 
 globalThis.ResizeObserver = class ResizeObserver {
@@ -53,6 +66,8 @@ vi.mock("@/hooks/use-admin-blog", () => ({
   useDeleteBlogPost: () => mocks.remove,
   useUploadBlogImage: () => ({ mutate: vi.fn(), isPending: false }),
   useBlogKeywordUsage: () => ({ data: undefined }),
+  useBlogSeoAssistant: () => mocks.seoStatus,
+  useSuggestBlogSeo: () => mocks.suggest,
 }));
 
 vi.mock("../actions", () => ({
@@ -103,6 +118,12 @@ const titleInput = () =>
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.refresh.mockResolvedValue({ ok: true });
+  mocks.seoStatus.data = { enabled: true };
+  Object.assign(mocks.suggest, {
+    isPending: false,
+    isError: false,
+    error: null,
+  });
 });
 
 describe("BlogPostEditor", () => {
@@ -311,5 +332,177 @@ describe("BlogPostEditor", () => {
       focus_keyword: "LÃI SUẤT vay vốn",
       secondary_keywords: ["nội dung"],
     });
+  });
+});
+
+const SUGGESTIONS: BlogSeoSuggestions = {
+  titles: [
+    {
+      title: "Lãi suất vay vốn cho doanh nghiệp nhỏ",
+      intent: "Người đang tìm hiểu lãi suất.",
+    },
+    {
+      title: "Cách so sánh lãi suất vay vốn",
+      intent: "Người đang so sánh các lựa chọn.",
+    },
+  ],
+  meta_description:
+    "Lãi suất vay vốn cho doanh nghiệp nhỏ và cách đọc nội dung.",
+  focus_keyword: "lãi suất vay vốn",
+  related_terms: ["nội dung", "vốn lưu động"],
+};
+
+const suggestButton = () =>
+  screen.getByRole("button", {
+    name: /admin\.blog\.seoAssistant\.(suggest|working)/,
+  });
+const suggestionRow = (text: string) =>
+  screen
+    .getAllByText(text)
+    .map((node) => node.closest("li"))
+    .find((row) => row?.hasAttribute("data-applied")) as HTMLElement;
+const useSuggestion = (text: string) =>
+  fireEvent.click(
+    within(suggestionRow(text)).getByRole("button", {
+      name: "admin.blog.seoAssistant.useLabel",
+    }),
+  );
+
+describe("Suggest SEO", () => {
+  it("stays hidden until it is switched on for this admin", async () => {
+    mocks.seoStatus.data = { enabled: false };
+    await renderEditor(post());
+    expect(screen.queryByTestId("blog-seo-suggestions")).toBeNull();
+  });
+
+  it("sends the draft on screen, unsaved edits included, and saves nothing", async () => {
+    await renderEditor(post());
+
+    fireEvent.change(titleInput(), {
+      target: { value: "Vốn lưu động là gì?" },
+    });
+    fireEvent.click(suggestButton());
+
+    expect(mocks.suggest.mutate).toHaveBeenCalledWith(
+      { title: "Vốn lưu động là gì?", locale: "vi", text: "Nội dung" },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+    expect(mocks.update.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("applies one field per Use this, and the checklist and preview follow", async () => {
+    mocks.suggest.mutate.mockImplementation(
+      (_draft, options: { onSuccess: (value: BlogSeoSuggestions) => void }) =>
+        options.onSuccess(SUGGESTIONS),
+    );
+    await renderEditor(post());
+    fireEvent.click(suggestButton());
+
+    const seoTitle = () =>
+      screen.getByLabelText(
+        "admin.blog.settings.seoTitleLabel",
+      ) as HTMLInputElement;
+    const excerpt = () =>
+      screen.getByLabelText(
+        "admin.blog.settings.excerptLabel",
+      ) as HTMLTextAreaElement;
+    const focus = () =>
+      screen.getByLabelText(
+        "admin.blog.keywords.focusLabel",
+      ) as HTMLInputElement;
+
+    // The second title option: only the SEO title changes.
+    const title = SUGGESTIONS.titles[1].title;
+    expect(screen.getAllByText(title)).toHaveLength(1);
+    useSuggestion(title);
+    expect(seoTitle().value).toBe(title);
+    expect(excerpt().value).toBe("");
+    expect(focus().value).toBe("");
+    expect(titleInput().value).toBe("Lãi suất vay vốn");
+    // Suggestion row + the search preview's title.
+    expect(screen.getAllByText(title)).toHaveLength(2);
+    expect(suggestionRow(title)).toHaveAttribute("data-applied", "true");
+
+    useSuggestion(SUGGESTIONS.meta_description);
+    expect(excerpt().value).toBe(SUGGESTIONS.meta_description);
+    expect(seoTitle().value).toBe(title);
+
+    useSuggestion(SUGGESTIONS.focus_keyword);
+    expect(focus().value).toBe("lãi suất vay vốn");
+    const state = (id: string) =>
+      screen.getByTestId(`blog-seo-check-${id}`).getAttribute("data-state");
+    expect(state("description")).toBe("pass");
+    expect(state("seoTitle")).toBe("pass");
+
+    useSuggestion("nội dung");
+    // The badges under the keyword input, then the checklist's list.
+    const [badges] = screen.getAllByRole("list", {
+      name: "admin.blog.keywords.secondaryLabel",
+    });
+    expect(badges).toHaveTextContent("nội dung");
+    expect(
+      screen.getByText("admin.blog.checklist.secondaryFound"),
+    ).toBeInTheDocument();
+
+    // Applied to the draft only: saving stays the admin's call.
+    expect(screen.getByTestId("blog-save-state")).toHaveTextContent(
+      "admin.blog.editor.unsaved",
+    );
+    expect(mocks.update.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("keeps the editor usable while Claude works", async () => {
+    mocks.suggest.isPending = true;
+    await renderEditor(post());
+
+    expect(suggestButton()).toBeDisabled();
+    expect(
+      screen.getByText("admin.blog.seoAssistant.workingHint"),
+    ).toBeInTheDocument();
+    fireEvent.change(titleInput(), { target: { value: "Đang sửa tiếp" } });
+    expect(titleInput().value).toBe("Đang sửa tiếp");
+    expect(
+      screen.getByRole("button", { name: "admin.blog.actions.save" }),
+    ).toBeEnabled();
+  });
+
+  it("explains a failure, leaves the draft as it was and offers a retry", async () => {
+    mocks.suggest.isError = true;
+    mocks.suggest.error = { code: "BLOG_SEO_BUSY", message: "slow" };
+    await renderEditor(post({ seo_title: "Tiêu đề cũ", excerpt: "Mô tả cũ" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "admin.blog.seoAssistant.errors.BLOG_SEO_BUSY",
+    );
+    expect(
+      (
+        screen.getByLabelText(
+          "admin.blog.settings.seoTitleLabel",
+        ) as HTMLInputElement
+      ).value,
+    ).toBe("Tiêu đề cũ");
+    expect(screen.getByTestId("blog-save-state")).toHaveTextContent(
+      "admin.blog.editor.saved",
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "admin.blog.seoAssistant.retry" }),
+    );
+    expect(mocks.suggest.mutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("names each failure the backend reports, and falls back for the rest", () => {
+    expect(
+      seoSuggestionErrorKey({ code: "BLOG_SEO_NO_CREDIT", message: "" }),
+    ).toBe("admin.blog.seoAssistant.errors.BLOG_SEO_NO_CREDIT");
+    expect(
+      seoSuggestionErrorKey({ code: "BLOG_SEO_FAILED", message: "" }),
+    ).toBe("admin.blog.seoAssistant.errors.BLOG_SEO_FAILED");
+    expect(
+      seoSuggestionErrorKey({ message: "timeout of 35000ms exceeded" }),
+    ).toBe("admin.blog.seoAssistant.errors.generic");
+    expect(seoSuggestionErrorKey(null)).toBe(
+      "admin.blog.seoAssistant.errors.generic",
+    );
   });
 });
