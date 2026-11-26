@@ -59,6 +59,31 @@ test.describe("as an admin", () => {
     ).toBeVisible();
   });
 
+  test("refreshes view counts with the current search", async ({ page }) => {
+    await page.goto("/admin/blog");
+    const search = page.getByRole("textbox", {
+      name: t("admin.blog.searchLabel"),
+    });
+    const postsUrl = (url: URL) =>
+      url.pathname === "/api/admin/blog/posts" &&
+      url.searchParams.get("search") === "Bản nháp";
+    const firstLoad = page.waitForResponse((response) =>
+      postsUrl(new URL(response.url())),
+    );
+    await search.fill("Bản nháp");
+    await firstLoad;
+
+    await page.route(postsUrl, async (route) => {
+      const response = await route.fetch();
+      const data = await response.json();
+      data.items[0].view_count = 42;
+      await route.fulfill({ response, json: data });
+    });
+    await page.getByRole("button", { name: t("admin.table.refresh") }).click();
+    await expect(page.getByText("42", { exact: true })).toBeVisible();
+    await expect(search).toHaveValue("Bản nháp");
+  });
+
   test("writes a post with a heading and an image, and publishes it", async ({
     page,
   }) => {
