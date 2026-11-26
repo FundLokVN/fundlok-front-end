@@ -57,6 +57,7 @@
         "save": "Lưu nháp",
         "saveLive": "Lưu thay đổi",
         "saving": "Đang lưu…",
+        "searchConsole": "Mở Search Console",
         "unpublish": "Gỡ bài",
         "unpublishBody": "Bài viết sẽ không còn trên /blog và liên kết ngừng hoạt động cho đến khi đăng lại. Đường dẫn vẫn giữ nguyên.",
         "unpublishTitle": "Gỡ bài viết khỏi trang?",
@@ -104,7 +105,8 @@
         "published": "Ngày đăng",
         "status": "Trạng thái",
         "title": "Tiêu đề",
-        "updated": "Cập nhật"
+        "updated": "Cập nhật",
+        "views": "Lượt xem"
       },
       "conflictReload": "Tải lại",
       "createError": "Không tạo được bài viết.",
@@ -195,6 +197,7 @@
         "coverUpload": "Tải ảnh bìa",
         "excerptHint": "Đoạn tóm tắt dưới tiêu đề trên kết quả tìm kiếm và trang /blog. Bắt buộc khi đăng.",
         "excerptLabel": "Mô tả (meta description)",
+        "indexingHint": "Kiểm tra URL công khai này trong Search Console để xem trạng thái lập chỉ mục hoặc gửi yêu cầu lập chỉ mục.",
         "lastSaved": "Lưu lần cuối {time}",
         "overLimit": "Kết quả tìm kiếm sẽ cắt bớt sau khoảng {limit} ký tự.",
         "previewDescriptionEmpty": "Thêm mô tả để kiểm soát đoạn chữ này.",

@@ -5,7 +5,7 @@ import type { PublicBlogPostSummary } from "@/lib/blog/types";
 const posts: PublicBlogPostSummary[] = [];
 
 vi.mock("@/lib/server/blog-api", () => ({
-  listPublishedPosts: async () => posts,
+  listAllPublishedPosts: async () => posts,
   readAtBuildOrDefer: async <T>(read: () => Promise<T>) => read(),
 }));
 

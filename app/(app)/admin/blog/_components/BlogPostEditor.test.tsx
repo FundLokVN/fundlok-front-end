@@ -135,6 +135,9 @@ describe("BlogPostEditor", () => {
       screen.getByRole("link", { name: "admin.blog.actions.viewLive" }),
     ).toHaveAttribute("href", "/blog/lai-suat-vay-von");
     expect(
+      screen.getByRole("link", { name: "admin.blog.actions.searchConsole" }),
+    ).toHaveAttribute("href", "https://search.google.com/search-console");
+    expect(
       screen.queryByRole("button", { name: "admin.blog.actions.delete" }),
     ).toBeNull();
   });

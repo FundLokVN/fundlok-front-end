@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { BLOG_URL, blogPostUrl } from "@/lib/blog/json-ld";
-import { listPublishedPosts, readAtBuildOrDefer } from "@/lib/server/blog-api";
+import {
+  listAllPublishedPosts,
+  readAtBuildOrDefer,
+} from "@/lib/server/blog-api";
 import {
   LOCALIZED_PATHS,
   languageAlternates,
@@ -87,7 +90,7 @@ function pageEntries(): MetadataRoute.Sitemap {
  * latest of those, so Google recrawls what actually changed.
  */
 async function blogEntries(): Promise<MetadataRoute.Sitemap> {
-  const posts = await readAtBuildOrDefer(listPublishedPosts);
+  const posts = await readAtBuildOrDefer(listAllPublishedPosts);
   // /blog changes when any post does, and the newest post is not necessarily
   // the last one edited.
   const latest = posts.reduce<string | undefined>(

@@ -47,8 +47,14 @@ test("/blog lists the published posts, newest first, with their dates", async ({
 test("a post renders on the server with its date, contents and structured data", async ({
   page,
 }) => {
+  const view = page.waitForResponse(
+    (response) =>
+      response.url().endsWith(`/api/api/v1/blog/posts/vi/${POST.slug}/views`) &&
+      response.request().method() === "POST",
+  );
   const response = await page.goto(`/blog/${POST.slug}`);
   expect(response?.status()).toBe(200);
+  expect((await view).status()).toBe(204);
 
   await expect(
     page.getByRole("heading", { level: 1, name: POST.title }),

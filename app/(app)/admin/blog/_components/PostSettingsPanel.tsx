@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { blogPostUrl } from "@/lib/blog/json-ld";
 import { isValidSlug } from "@/lib/blog/slug";
 import { formatDateTime } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
@@ -361,6 +362,26 @@ export function PostSettingsPanel() {
           description={draft.excerpt}
           date={post.published_at}
         />
+        {isPublished && (
+          <>
+            <p className="text-xs text-muted-foreground">
+              {t("admin.blog.settings.indexingHint")}
+            </p>
+            <code className="break-all text-xs text-muted-foreground">
+              {blogPostUrl(post.slug)}
+            </code>
+            <Button asChild variant="outline" size="sm" className="self-start">
+              <a
+                href="https://search.google.com/search-console"
+                target="_blank"
+                rel="noopener"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {t("admin.blog.actions.searchConsole")}
+              </a>
+            </Button>
+          </>
+        )}
       </div>
     </aside>
   );

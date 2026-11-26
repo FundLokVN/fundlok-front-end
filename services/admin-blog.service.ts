@@ -23,6 +23,8 @@ export interface BlogPostSummary {
   updated_at: string;
   created_at: string;
   reading_minutes: number;
+  /** Aggregate views since counting began. Absent on older API versions. */
+  view_count?: number;
 }
 
 export interface BlogPostDetail extends BlogPostSummary {
