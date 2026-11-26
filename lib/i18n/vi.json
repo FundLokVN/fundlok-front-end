@@ -299,6 +299,35 @@
       "verifiedBy": "Xác nhận bằng"
     },
     "email": {
+      "assistant": {
+        "discard": "Bỏ bản nháp",
+        "draft": "Soạn cùng Claude",
+        "errors": {
+          "EMAIL_ASSIST_BUSY": "Claude đang chậm hoặc tạm thời không phản hồi. Email của bạn không thay đổi. Vui lòng thử lại sau ít phút.",
+          "EMAIL_ASSIST_FAILED": "Lần này không dùng được bản nháp của Claude. Email của bạn không thay đổi. Vui lòng thử lại.",
+          "EMAIL_ASSIST_NO_CREDIT": "Tính năng soạn thảo đang tạm dừng vì đã dùng hết ngân sách Claude của tháng này. Email của bạn không thay đổi. Hãy thử lại sau hoặc nhờ quản trị hệ thống nâng hạn mức.",
+          "EMAIL_ASSIST_PERSONAL_DATA": "Hãy xoá số CCCD, số điện thoại, số tài khoản và địa chỉ email bên ngoài rồi thử lại. Thay bằng [chỗ trống] để điền sau.",
+          "EMAIL_ASSIST_UNAVAILABLE": "Tính năng soạn cùng Claude chưa được bật cho tài khoản của bạn.",
+          "generic": "Không lấy được bản nháp. Email của bạn không thay đổi. Vui lòng thử lại."
+        },
+        "hint": "Cho Claude biết email cần nói gì, hoặc cần sửa nội dung đã viết ra sao. Claude viết chủ đề, tiêu đề lớn và nội dung bằng ngôn ngữ email đã chọn ở trên. Danh sách người nhận không bao giờ được gửi cho Claude.",
+        "instructionLabel": "Email này cần nói gì?",
+        "instructionPlaceholder": "Ví dụ: Nhắc doanh nghiệp tải tờ khai thuế GTGT tháng 11 trước ngày 5",
+        "placeholders": "Điền trước khi gửi: {list}",
+        "placeholdersLeft": "Hãy điền các chỗ trống Claude để lại trước: {list}",
+        "privacy": "Không nhập số CCCD, số điện thoại hay số tài khoản; hãy viết [chỗ trống] thay vào đó.",
+        "redraft": "Soạn lại",
+        "replace": "Thay thế",
+        "replaceBody": "Chủ đề, tiêu đề lớn và nội dung sẽ được thay bằng bản nháp của Claude. Danh sách người nhận và nút được giữ nguyên.",
+        "replaceTitle": "Thay thế nội dung đã viết?",
+        "retry": "Thử lại",
+        "review": "Hãy đối chiếu bản nháp với thông tin thực tế trước khi dùng.",
+        "title": "Soạn cùng Claude",
+        "unverified": "Kiểm tra lại các con số này vì chúng không có trong yêu cầu của bạn: {list}",
+        "use": "Dùng bản nháp này",
+        "working": "Claude đang soạn…",
+        "workingHint": "Bạn vẫn có thể tiếp tục chỉnh sửa trong lúc chờ."
+      },
       "compose": {
         "allowedDomains": "Tên miền được phép: {list}.",
         "bodyLabel": "Nội dung",

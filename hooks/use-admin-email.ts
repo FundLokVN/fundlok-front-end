@@ -5,6 +5,9 @@ import type { ApiError } from "@/lib/types";
 import { useCurrentUser } from "@/hooks/use-authentication";
 import {
   adminEmailService,
+  type EmailAssistantDraft,
+  type EmailAssistantRequest,
+  type EmailAssistantStatus,
   type EmailContentPayload,
   type EmailOAuthStart,
   type EmailPolicy,
@@ -29,6 +32,8 @@ export const adminEmailKeys = {
     [...adminEmailKeys.forUser(userId), "settings"] as const,
   messages: (userId: string) =>
     [...adminEmailKeys.forUser(userId), "messages"] as const,
+  assistant: (userId: string) =>
+    [...adminEmailKeys.forUser(userId), "assistant"] as const,
   policy: () => [...adminEmailKeys.all, "policy"] as const,
   reminderSender: () => [...adminEmailKeys.all, "reminder-sender"] as const,
   // The user directory is the same for every admin.
@@ -151,6 +156,25 @@ export function useSendTestEmail() {
 export function usePreviewEmail() {
   return useMutation<EmailPreview, ApiError, EmailContentPayload>({
     mutationFn: (payload) => adminEmailService.preview(payload),
+  });
+}
+
+/** Whether "Write with Claude" is switched on for the signed-in admin. */
+export function useEmailAssistant() {
+  const userId = useAdminId();
+  return useQuery<EmailAssistantStatus, ApiError>({
+    queryKey: adminEmailKeys.assistant(userId ?? ""),
+    queryFn: () => adminEmailService.assistantStatus(),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+    enabled: !!userId,
+  });
+}
+
+/** A draft from Claude. Nothing is sent, cached or saved. */
+export function useDraftEmail() {
+  return useMutation<EmailAssistantDraft, ApiError, EmailAssistantRequest>({
+    mutationFn: (payload) => adminEmailService.draftWithAssistant(payload),
   });
 }
 
