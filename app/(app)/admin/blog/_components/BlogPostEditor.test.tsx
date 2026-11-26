@@ -26,6 +26,7 @@ const mocks = vi.hoisted(() => ({
   seoStatus: { data: { enabled: true } as { enabled: boolean } | undefined },
   suggest: {
     mutate: vi.fn(),
+    mutateAsync: vi.fn(),
     reset: vi.fn(),
     isPending: false,
     isError: false,
@@ -164,6 +165,7 @@ describe("BlogPostEditor", () => {
   });
 
   it("says what is missing instead of publishing an incomplete post", async () => {
+    mocks.seoStatus.data = { enabled: false };
     await renderEditor(post());
 
     fireEvent.click(
@@ -188,6 +190,7 @@ describe("BlogPostEditor", () => {
         published_at: "2026-11-21T04:00:00Z",
       }),
     );
+    mocks.seoStatus.data = { enabled: false };
     await renderEditor(post());
 
     fireEvent.change(
@@ -503,6 +506,139 @@ describe("Suggest SEO", () => {
     ).toBe("admin.blog.seoAssistant.errors.generic");
     expect(seoSuggestionErrorKey(null)).toBe(
       "admin.blog.seoAssistant.errors.generic",
+    );
+  });
+});
+
+describe("Publish with automatic SEO", () => {
+  const publishButton = () =>
+    screen.getByRole("button", { name: "admin.blog.actions.publish" });
+  const dialog = () => screen.getByTestId("blog-auto-seo");
+
+  it("fills only the empty SEO fields, then publishes on Publish now", async () => {
+    mocks.suggest.mutateAsync.mockResolvedValue(SUGGESTIONS);
+    mocks.update.mutateAsync.mockResolvedValue(post({ version: 4 }));
+    mocks.publish.mutateAsync.mockResolvedValue(
+      post({
+        version: 5,
+        status: "published",
+        published_at: "2026-11-26T04:00:00Z",
+      }),
+    );
+    await renderEditor(post({ seo_title: "Tiêu đề của tôi" }));
+
+    fireEvent.click(publishButton());
+    expect(mocks.publish.mutateAsync).not.toHaveBeenCalled();
+    expect(
+      within(dialog()).getByText("admin.blog.autoSeo.steps.read"),
+    ).toBeInTheDocument();
+    expect(mocks.suggest.mutateAsync).toHaveBeenCalledWith({
+      title: "Lãi suất vay vốn",
+      locale: "vi",
+      text: "Nội dung",
+    });
+
+    await screen.findByText("admin.blog.autoSeo.doneTitle");
+    // The admin's own SEO title stays; the empty fields are filled.
+    expect(
+      within(dialog()).queryByText(SUGGESTIONS.titles[0].title),
+    ).toBeNull();
+    expect(
+      within(dialog()).getByText(SUGGESTIONS.meta_description),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(dialog()).getByRole("button", {
+        name: "admin.blog.autoSeo.publishNow",
+      }),
+    );
+    await waitFor(() =>
+      expect(mocks.publish.mutateAsync).toHaveBeenCalledWith(4),
+    );
+    expect(mocks.update.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        seo_title: "Tiêu đề của tôi",
+        excerpt: SUGGESTIONS.meta_description,
+        focus_keyword: SUGGESTIONS.focus_keyword,
+        secondary_keywords: ["nội dung", "vốn lưu động"],
+      }),
+    );
+  });
+
+  it("Review first fills the fields and publishes nothing", async () => {
+    mocks.suggest.mutateAsync.mockResolvedValue(SUGGESTIONS);
+    await renderEditor(post());
+
+    fireEvent.click(publishButton());
+    await screen.findByText("admin.blog.autoSeo.doneTitle");
+    fireEvent.click(
+      within(dialog()).getByRole("button", {
+        name: "admin.blog.autoSeo.review",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByTestId("blog-auto-seo")).toBeNull(),
+    );
+    expect(
+      (
+        screen.getByLabelText(
+          "admin.blog.settings.seoTitleLabel",
+        ) as HTMLInputElement
+      ).value,
+    ).toBe(SUGGESTIONS.titles[0].title);
+    expect(mocks.publish.mutateAsync).not.toHaveBeenCalled();
+    expect(mocks.update.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("skips the SEO step when the SEO fields are already filled", async () => {
+    mocks.publish.mutateAsync.mockResolvedValue(
+      post({
+        version: 4,
+        status: "published",
+        published_at: "2026-11-26T04:00:00Z",
+      }),
+    );
+    await renderEditor(
+      post({
+        seo_title: "Tiêu đề",
+        excerpt: "Mô tả",
+        focus_keyword: "nội dung",
+      }),
+    );
+
+    fireEvent.click(publishButton());
+    await waitFor(() =>
+      expect(mocks.publish.mutateAsync).toHaveBeenCalledWith(3),
+    );
+    expect(mocks.suggest.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("on a failure, explains it and can publish without SEO", async () => {
+    mocks.suggest.mutateAsync.mockRejectedValue({
+      code: "BLOG_SEO_FAILED",
+      message: "",
+    });
+    mocks.publish.mutateAsync.mockResolvedValue(
+      post({
+        version: 4,
+        status: "published",
+        published_at: "2026-11-26T04:00:00Z",
+      }),
+    );
+    await renderEditor(post({ excerpt: "Mô tả" }));
+
+    fireEvent.click(publishButton());
+    expect(await within(dialog()).findByRole("alert")).toHaveTextContent(
+      "admin.blog.seoAssistant.errors.BLOG_SEO_FAILED",
+    );
+    fireEvent.click(
+      within(dialog()).getByRole("button", {
+        name: "admin.blog.autoSeo.publishWithout",
+      }),
+    );
+    await waitFor(() =>
+      expect(mocks.publish.mutateAsync).toHaveBeenCalledWith(3),
     );
   });
 });

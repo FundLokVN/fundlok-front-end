@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { useTranslations } from "@/lib/i18n";
 import type { BlogPostDetail } from "@/services/admin-blog.service";
+import { AutoSeoDialog } from "./AutoSeoDialog";
 import { BlogEditor } from "./BlogEditor";
 import { BlogPostEditorProvider } from "./BlogPostEditorContext";
 import { ImageInsertDialog } from "./ImageInsertDialog";
@@ -38,6 +39,7 @@ export function BlogPostEditor({ post }: { post: BlogPostDetail }) {
       </div>
       <LinkDialog />
       <ImageInsertDialog />
+      <AutoSeoDialog />
     </BlogPostEditorProvider>
   );
 }

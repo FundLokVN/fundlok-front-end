@@ -275,7 +275,30 @@
         "undo": "Hoàn tác"
       },
       "unit": "bài viết",
-      "untitled": "Bài viết chưa có tiêu đề"
+      "untitled": "Bài viết chưa có tiêu đề",
+      "autoSeo": {
+        "title": "Đang tối ưu SEO trước khi đăng",
+        "doneTitle": "SEO đã sẵn sàng",
+        "description": "Claude đọc bài viết và điền các trường SEO còn trống. Những gì bạn đã tự viết được giữ nguyên.",
+        "steps": {
+          "read": "Đọc bài viết",
+          "title": "Viết tiêu đề SEO",
+          "description": "Viết mô tả meta",
+          "keywords": "Chọn từ khóa"
+        },
+        "fields": {
+          "seoTitle": "Tiêu đề SEO",
+          "excerpt": "Mô tả meta",
+          "focusKeyword": "Từ khóa chính",
+          "secondaryKeywords": "Từ khóa phụ"
+        },
+        "reviewHint": "Đã thêm vào bài viết. Hãy đối chiếu với nội dung bài, rồi đăng. Các trường này được lưu khi bạn đăng.",
+        "nothingFilled": "Claude không cần thêm gì: các trường SEO của bạn đã được điền đủ.",
+        "publishNow": "Đăng ngay",
+        "review": "Xem lại trước",
+        "publishWithout": "Đăng không cần SEO",
+        "cancel": "Hủy"
+      }
     },
     "consent": {
       "accepted": "Đã đồng ý",

@@ -13,6 +13,7 @@ import { useEditor } from "@tiptap/react";
 
 import { ToastAction } from "@/components/ui/toast";
 import {
+  useBlogSeoAssistant,
   useDeleteBlogPost,
   usePublishBlogPost,
   useUnpublishBlogPost,
@@ -30,6 +31,7 @@ import {
   BLOG_KEYWORD_MAX,
   BLOG_SECONDARY_KEYWORDS_MAX,
   type BlogPostDetail,
+  type BlogSeoSuggestions,
 } from "@/services/admin-blog.service";
 import { refreshPublicBlog } from "../actions";
 import {
@@ -41,6 +43,21 @@ import {
   slugFollowsTitle,
   type PostDraft,
 } from "./post-editor";
+
+/** A field the pre-publish SEO pass filled, and what it put there. */
+export interface AutoSeoFill {
+  field: "seoTitle" | "excerpt" | "focusKeyword" | "secondaryKeywords";
+  value: string;
+}
+
+/** Whether Publish should first let Claude fill the empty SEO fields. */
+export function needsAutoSeo(draft: PostDraft): boolean {
+  return (
+    !draft.seoTitle.trim() ||
+    !draft.excerpt.trim() ||
+    !draft.focusKeyword.trim()
+  );
+}
 
 /**
  * Everything the post editor does, in one hook (the provider just hands it
@@ -64,6 +81,7 @@ export function useBlogPostEditor(post: BlogPostDetail) {
   const publishMutation = usePublishBlogPost(post.id);
   const unpublishMutation = useUnpublishBlogPost(post.id);
   const deleteMutation = useDeleteBlogPost(post.id);
+  const seoAssistant = useBlogSeoAssistant();
 
   const [draft, setDraft] = useState<PostDraft>(() => draftFromPost(post));
   const [slugAuto, setSlugAuto] = useState(() => slugFollowsTitle(post));
@@ -71,6 +89,8 @@ export function useBlogPostEditor(post: BlogPostDetail) {
   const [savedSeq, setSavedSeq] = useState(0);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  // The "Optimizing SEO" step Publish opens when SEO fields are empty.
+  const [autoSeoOpen, setAutoSeoOpen] = useState(false);
   // Set just before a deliberate reload, so the unsaved-changes prompt does
   // not ask a second time.
   const leavingRef = useRef(false);
@@ -211,9 +231,25 @@ export function useBlogPostEditor(post: BlogPostDetail) {
     }
   };
 
-  const publish = async () => {
+  /**
+   * Publish. Unless `skipSeo`, and when the SEO assistant is on for this
+   * admin and the SEO title, meta description or focus keyword is empty,
+   * this first opens the "Optimizing SEO" dialog (AutoSeoDialog), which
+   * fills the empty fields and then publishes or hands back for review. The
+   * meta description is the excerpt, so a missing one does not block that.
+   */
+  const publish = async ({ skipSeo = false }: { skipSeo?: boolean } = {}) => {
     if (busy || !editor) return;
-    const missing = missingForPublish(draft, editor.getText());
+    const allMissing = missingForPublish(draft, editor.getText());
+    const autoSeo =
+      !skipSeo &&
+      !!seoAssistant.data?.enabled &&
+      draft.title.trim() !== "" &&
+      !editor.isEmpty &&
+      needsAutoSeo(draft);
+    const missing = autoSeo
+      ? allMissing.filter((field) => field !== "excerpt")
+      : allMissing;
     if (missing.length > 0) {
       toast({
         variant: "destructive",
@@ -222,6 +258,10 @@ export function useBlogPostEditor(post: BlogPostDetail) {
           missing.map((field) => t(`admin.blog.missing.${field}`)).join(", "),
         ),
       });
+      return;
+    }
+    if (autoSeo) {
+      setAutoSeoOpen(true);
       return;
     }
     // Publishing makes the SAVED post live, so unsaved edits go first.
@@ -329,6 +369,51 @@ export function useBlogPostEditor(post: BlogPostDetail) {
       draft.secondaryKeywords.filter((existing) => existing !== keyword),
     );
 
+  /**
+   * Put Claude's suggestions into the EMPTY SEO fields only: what the admin
+   * wrote stays. First title option, the meta description, the focus
+   * keyword, and related terms as secondary keywords when there are none.
+   * Returns what was filled, for the dialog to show.
+   */
+  const applySeoSuggestions = (
+    suggestions: BlogSeoSuggestions,
+  ): AutoSeoFill[] => {
+    const filled: AutoSeoFill[] = [];
+    const next = { ...draft };
+    const title = suggestions.titles[0]?.title;
+    if (!next.seoTitle.trim() && title) {
+      next.seoTitle = title;
+      filled.push({ field: "seoTitle", value: title });
+    }
+    if (!next.excerpt.trim() && suggestions.meta_description) {
+      next.excerpt = suggestions.meta_description;
+      filled.push({ field: "excerpt", value: suggestions.meta_description });
+    }
+    if (!next.focusKeyword.trim() && suggestions.focus_keyword) {
+      next.focusKeyword = suggestions.focus_keyword;
+      filled.push({ field: "focusKeyword", value: suggestions.focus_keyword });
+    }
+    // Secondary keywords only when the admin has none yet.
+    const related =
+      next.secondaryKeywords.length === 0 ? suggestions.related_terms : [];
+    for (const term of related) {
+      const { list, result } = addSecondaryKeyword(
+        next.secondaryKeywords,
+        next.focusKeyword,
+        term,
+        { max: BLOG_SECONDARY_KEYWORDS_MAX, maxLength: BLOG_KEYWORD_MAX },
+      );
+      if (result !== "added") continue;
+      next.secondaryKeywords = list;
+      filled.push({ field: "secondaryKeywords", value: term });
+    }
+    if (filled.length > 0) {
+      setDraft(next);
+      markChanged();
+    }
+    return filled;
+  };
+
   const cover = useMemo(
     () => ({
       setCover: (url: string | null) => {
@@ -375,6 +460,9 @@ export function useBlogPostEditor(post: BlogPostDetail) {
     setLinkDialogOpen,
     imageDialogOpen,
     setImageDialogOpen,
+    autoSeoOpen,
+    setAutoSeoOpen,
+    applySeoSuggestions,
   };
 }
 
