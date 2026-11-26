@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Newspaper, Plus, Search } from "lucide-react";
+import { Loader2, Newspaper, Plus, RefreshCw, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiErrorMessage } from "@/lib/api-error-message";
 import { formatDateTime } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { isAdminRole } from "@/services/authentication.service";
 import type {
   BlogPostStatus,
@@ -73,7 +74,7 @@ function BlogPostsDirectory() {
     return () => clearTimeout(id);
   }, [searchInput]);
 
-  const { data, isLoading, isFetching, isError } = useAdminBlogPosts({
+  const { data, isLoading, isFetching, isError, refetch } = useAdminBlogPosts({
     page,
     page_size: PAGE_SIZE,
     status: status === "all" ? undefined : status,
@@ -210,15 +211,35 @@ function BlogPostsDirectory() {
             </SelectContent>
           </Select>
 
-          <div className="relative sm:w-64">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder={t("admin.blog.searchPlaceholder")}
-              aria-label={t("admin.blog.searchLabel")}
-              className="pl-9"
-            />
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="relative min-w-0 flex-1 sm:w-64 sm:flex-initial">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder={t("admin.blog.searchPlaceholder")}
+                aria-label={t("admin.blog.searchLabel")}
+                className="pl-9"
+              />
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              aria-label={t("admin.table.refresh")}
+              className="h-9 shrink-0 gap-1.5 px-3 text-xs"
+            >
+              <RefreshCw
+                className={cn("h-3.5 w-3.5", isFetching && "animate-spin")}
+                aria-hidden
+              />
+              <span className="hidden sm:inline">
+                {t("admin.table.refresh")}
+              </span>
+            </Button>
           </div>
         </div>
 
