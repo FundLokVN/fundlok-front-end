@@ -479,6 +479,10 @@ export const ADMIN_BLOG_ENDPOINTS = {
   confirmMedia: (mediaId: string) =>
     `/admin/blog/media/${encodeURIComponent(mediaId)}/confirm`,
   keywordUsage: "/admin/blog/keyword-usage",
+  // GET { enabled }: whether this admin sees "Suggest SEO". POST the draft
+  // on screen for Claude's suggestions; nothing is stored.
+  seoAssistant: "/admin/blog/seo-assistant",
+  seoSuggestions: "/admin/blog/seo-assistant/suggestions",
 } as const;
 
 // Underwriting. Admin-only server-side (require_roles(Role.ADMIN) — note that

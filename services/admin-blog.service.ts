@@ -89,6 +89,30 @@ export interface BlogMediaConfirm {
   public_url: string;
 }
 
+/** Whether the editor shows "Suggest SEO" to the signed-in admin. */
+export interface BlogSeoAssistantStatus {
+  enabled: boolean;
+}
+
+/** The draft on screen, unsaved edits included, body as plain text. */
+export interface BlogSeoSuggestionRequest {
+  title: string;
+  locale: BlogLocale;
+  text: string;
+}
+
+// Claude's suggestions, already checked by the backend against the limits
+// below and FundLok's copy rules (docs/specs/blog/seo-assistant.md).
+export interface BlogSeoSuggestions {
+  titles: { title: string; intent: string }[];
+  meta_description: string;
+  focus_keyword: string;
+  related_terms: string[];
+}
+
+// The backend answers within 25 s (the /api rewrite gives up at 30 s).
+const SEO_SUGGESTIONS_TIMEOUT_MS = 35_000;
+
 // Same rules as the backend (MEDIA_CONTENT_TYPE_EXTENSIONS, MEDIA_MAX_SIZE).
 export const BLOG_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const BLOG_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
@@ -162,6 +186,20 @@ export const adminBlogService = {
     return apiClient.get<BlogKeywordUsage>(ADMIN_BLOG_ENDPOINTS.keywordUsage, {
       params: { keyword, exclude_id: excludeId },
     });
+  },
+
+  seoAssistantStatus() {
+    return apiClient.get<BlogSeoAssistantStatus>(
+      ADMIN_BLOG_ENDPOINTS.seoAssistant,
+    );
+  },
+
+  suggestSeo(payload: BlogSeoSuggestionRequest) {
+    return apiClient.post<BlogSeoSuggestions>(
+      ADMIN_BLOG_ENDPOINTS.seoSuggestions,
+      payload,
+      { timeout: SEO_SUGGESTIONS_TIMEOUT_MS },
+    );
   },
 
   // Presign → PUT the bytes straight to R2 → confirm (the backend checks the

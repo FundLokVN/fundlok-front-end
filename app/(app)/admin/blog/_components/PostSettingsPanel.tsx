@@ -35,6 +35,7 @@ import { useBlogPostEditorContext } from "./BlogPostEditorContext";
 import { KeywordFields } from "./KeywordFields";
 import { SearchPreview } from "./SearchPreview";
 import { SeoChecklist } from "./SeoChecklist";
+import { SeoSuggestions } from "./SeoSuggestions";
 
 /** "42 / 60 characters shown in search", amber past what Google shows. */
 function CharacterCounter({
@@ -345,6 +346,7 @@ export function PostSettingsPanel() {
 
       <KeywordFields />
       <SeoChecklist />
+      <SeoSuggestions />
 
       <Separator />
 
