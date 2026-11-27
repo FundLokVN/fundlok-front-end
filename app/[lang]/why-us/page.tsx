@@ -8,6 +8,7 @@ import {
   type LangParams,
 } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
+import { achievementsData } from "./achievements-data";
 import WhyUsClient from "./why-us-client";
 import SiteFooter from "@/components/site-footer";
 
@@ -70,56 +71,37 @@ export async function generateMetadata({
 // CreativeWork) plus an Organization node whose `award` list links back to the
 // main entity via the shared @id declared in the root layout, so Google can
 // attribute these recognitions to FundLok.
-const achievements = [
-  {
-    name: "Seed Stage Start-up Incubation in FinTech Industry 2025",
-    awarder: "Startup and Innovation Hub Ho Chi Minh City (SIHUB)",
-    description:
-      "Selected for SIHUB's premium incubation program, receiving strategic mentorship, regulatory sandbox guidance, and network access to top regional venture capitals.",
-  },
-  {
-    name: "Top 3 Project to Facilitate Investments",
-    awarder: "Sustainability in Action 2024, Australian Government",
-    description:
-      "Recognized as a top-3 fintech project by the Australian Government for facilitating sustainable cross-border investments and ESG-aligned SME funding.",
-  },
-  {
-    name: "Top 10 Potential Project Global",
-    awarder: "International Blockchain Olympiad 2023 (IBCOL)",
-    description:
-      "Representing Vietnam (under the project name LENDMI), won a top-10 global spot for blockchain-based reference business scores and secure liquidity pooling for emerging markets.",
-  },
-];
-
-const achievementsJsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${SITE_URL}#organization`,
-      name: "FundLok",
-      url: SITE_URL,
-      award: achievements.map((a) => `${a.name} — ${a.awarder}`),
-    },
-    {
-      "@type": "ItemList",
-      name: "FundLok's Achievements",
-      itemListElement: achievements.map((a, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        item: {
-          "@type": "CreativeWork",
-          name: a.name,
-          description: a.description,
-          award: `${a.name} — ${a.awarder}`,
-        },
-      })),
-    },
-  ],
-};
-
 export default async function WhyUsPage({ params }: { params: LangParams }) {
   const locale = await pageLocale(params);
+  const achievements = achievementsData[locale];
+  const achievementsJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}#organization`,
+        name: "FundLok",
+        url: SITE_URL,
+        award: achievements.map((a) => `${a.title} — ${a.subtitle}`),
+      },
+      {
+        "@type": "ItemList",
+        name:
+          locale === "vi" ? "Thành tựu của FundLok" : "FundLok’s Achievements",
+        itemListElement: achievements.map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "CreativeWork",
+            name: a.title,
+            description: a.description,
+            award: `${a.title} — ${a.subtitle}`,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <>
       <script
