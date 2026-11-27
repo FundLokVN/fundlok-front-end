@@ -593,6 +593,16 @@ test.describe("the admin user preview", () => {
       .getByRole("button", { name: t("admin.userPreview.statuses.SUSPENDED") })
       .click();
 
+    const confirmation = page.getByRole("alertdialog", {
+      name: t("admin.userPreview.confirmSuspendTitle"),
+    });
+    await expect(confirmation).toContainText(STUB_USERS.sme.email);
+    await confirmation
+      .getByRole("button", {
+        name: t("admin.userPreview.confirmSuspendAction"),
+      })
+      .click();
+
     // The outcome that matters: the row in the table now reads as suspended
     // (the raw enum is translated for display). Scoped to a table cell rather
     // than matching the bare word, which also appears on the panel's own
