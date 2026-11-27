@@ -108,7 +108,12 @@ export function BankAccountReviewItem({
       )}
 
       {account.status === "PENDING" && (
-        <PaymentAccountDecision accountId={account.id} locale={locale} t={t} />
+        <PaymentAccountDecision
+          accountId={account.id}
+          accountLabel={`${account.account_name} · ${account.bank_name} · •••• ${account.account_number.slice(-4)}`}
+          locale={locale}
+          t={t}
+        />
       )}
     </li>
   );

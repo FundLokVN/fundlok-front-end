@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import en from "@/lib/i18n/en.json";
 import { TransferReviewSheet } from "./TransferReviewSheet";
 import type {
   AdminFundingActivity,
@@ -43,7 +44,11 @@ vi.mock("@/lib/i18n", () => ({
   useTranslations: () => ({
     locale: "en",
     t: (key: string, values?: Record<string, string | number>) =>
-      values ? `${key}:${JSON.stringify(values)}` : key,
+      key === "admin.transactions.sheet.confirmApprove"
+        ? en.admin.transactions.sheet.confirmApprove
+        : values
+          ? `${key}:${JSON.stringify(values)}`
+          : key,
   }),
 }));
 
@@ -88,6 +93,14 @@ const base: AdminInvestorTransfer = {
 const open = () =>
   render(<TransferReviewSheet trancheId="tr-1" onOpenChange={vi.fn()} />);
 
+const sheetButton = (name: string) =>
+  screen.getByRole("button", { name: `admin.transactions.sheet.${name}` });
+
+const confirmButton = (action: "Approve" | "Deny") =>
+  within(screen.getByRole("alertdialog")).getByRole("button", {
+    name: `admin.transactions.sheet.confirm${action}Action`,
+  });
+
 describe("TransferReviewSheet", () => {
   beforeEach(() => {
     decideMock.mockReset();
@@ -119,6 +132,7 @@ describe("TransferReviewSheet", () => {
       { target: { value: "  Checked the bank statement.  " } },
     );
     fireEvent.click(approve);
+    fireEvent.click(confirmButton("Approve"));
     expect(approveLateMoneyMock).toHaveBeenCalledWith(
       { transferId: "tf-1", reason: "Checked the bank statement." },
       expect.anything(),
@@ -158,13 +172,27 @@ describe("TransferReviewSheet", () => {
       screen.getByText("admin.transactions.sheet.receiptHint"),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.approve" }),
-    );
+    fireEvent.click(sheetButton("approve"));
+    fireEvent.click(confirmButton("Approve"));
     expect(decideMock).toHaveBeenCalledWith(
       { transferId: "tf-1", body: { outcome: "APPROVED", reason: null } },
       expect.anything(),
     );
+  });
+
+  it("shows the investor, amount and approval outcome and cancels without sending", () => {
+    open();
+    fireEvent.click(sheetButton("approve"));
+    const dialog = screen.getByRole("alertdialog");
+    expect(dialog).toHaveTextContent("Nguyễn Văn An");
+    expect(dialog).toHaveTextContent("10,000,000");
+    expect(dialog).toHaveTextContent("recorded as received");
+    expect(decideMock).not.toHaveBeenCalled();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "common.cancel" }),
+    );
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(decideMock).not.toHaveBeenCalled();
   });
 
   it("lets staff settle a ticket left waiting for the business", () => {
@@ -175,9 +203,8 @@ describe("TransferReviewSheet", () => {
     };
     open();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.approve" }),
-    );
+    fireEvent.click(sheetButton("approve"));
+    fireEvent.click(confirmButton("Approve"));
     expect(decideMock).toHaveBeenCalledWith(
       { transferId: "tf-1", body: { outcome: "APPROVED", reason: null } },
       expect.anything(),
@@ -262,16 +289,22 @@ describe("TransferReviewSheet", () => {
     expect(block).toHaveTextContent('"gross":"₫124,999","net":"₫124,703"');
   });
 
-  it("denies with the note staff gave", () => {
+  it("requires a nonblank denial reason and sends it trimmed only on confirmation", () => {
     open();
-
-    fireEvent.change(
-      screen.getByLabelText("admin.transactions.sheet.notePlaceholder"),
-      { target: { value: "Screenshot of another transfer" } },
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.deny" }),
-    );
+    fireEvent.click(sheetButton("deny"));
+    const dialog = within(screen.getByRole("alertdialog"));
+    const reason = dialog.getByRole("textbox", {
+      name: "admin.transactions.sheet.denyReason",
+    });
+    const confirm = confirmButton("Deny");
+    expect(confirm).toBeDisabled();
+    fireEvent.change(reason, { target: { value: "   " } });
+    expect(confirm).toBeDisabled();
+    expect(decideMock).not.toHaveBeenCalled();
+    fireEvent.change(reason, {
+      target: { value: "  Screenshot of another transfer  " },
+    });
+    fireEvent.click(confirm);
     expect(decideMock).toHaveBeenCalledWith(
       {
         transferId: "tf-1",
@@ -318,9 +351,8 @@ describe("TransferReviewSheet", () => {
       screen.getByText("admin.transactions.sheet.reviewHint"),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.approve" }),
-    );
+    fireEvent.click(sheetButton("approve"));
+    fireEvent.click(confirmButton("Approve"));
     expect(decideMock).toHaveBeenCalledWith(
       { transferId: "tf-1", body: { outcome: "APPROVED", reason: null } },
       expect.anything(),
@@ -494,11 +526,20 @@ describe("TransferReviewSheet", () => {
       screen.getByText("admin.transactions.system.decideBody.ACCEPTED"),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.deny" }),
+    fireEvent.click(sheetButton("deny"));
+    fireEvent.change(
+      within(screen.getByRole("alertdialog")).getByRole("textbox"),
+      { target: { value: "The transfer did not reach the business." } },
     );
+    fireEvent.click(confirmButton("Deny"));
     expect(decideMock).toHaveBeenCalledWith(
-      { transferId: "tf-1", body: { outcome: "DENIED", reason: null } },
+      {
+        transferId: "tf-1",
+        body: {
+          outcome: "DENIED",
+          reason: "The transfer did not reach the business.",
+        },
+      },
       expect.anything(),
     );
   });
@@ -535,9 +576,8 @@ describe("TransferReviewSheet", () => {
       screen.getByText("admin.transactions.system.decideBody.DENIED"),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "admin.transactions.sheet.approve" }),
-    );
+    fireEvent.click(sheetButton("approve"));
+    fireEvent.click(confirmButton("Approve"));
     expect(decideMock).toHaveBeenCalledWith(
       { transferId: "tf-1", body: { outcome: "APPROVED", reason: null } },
       expect.anything(),

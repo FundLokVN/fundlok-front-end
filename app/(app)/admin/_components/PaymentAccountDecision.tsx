@@ -10,10 +10,13 @@ import { apiErrorMessage } from "@/lib/api-error-message";
 import { CONTROL_HOVER } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils";
 
+import { AdminActionConfirmation } from "./AdminActionConfirmation";
+
 const K = "admin.bankAccounts";
 
 interface PaymentAccountDecisionProps {
   accountId: string;
+  accountLabel: string;
   locale: string;
   t: (key: string, vars?: Record<string, string | number>) => string;
 }
@@ -26,6 +29,7 @@ interface PaymentAccountDecisionProps {
  */
 export function PaymentAccountDecision({
   accountId,
+  accountLabel,
   locale,
   t,
 }: PaymentAccountDecisionProps) {
@@ -86,19 +90,27 @@ export function PaymentAccountDecision({
         <p className="text-xs font-medium text-destructive">{noteError}</p>
       )}
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          size="sm"
-          disabled={pending}
-          onClick={() => submit("APPROVED")}
-        >
-          {pending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" />
+        <AdminActionConfirmation
+          trigger={
+            <Button type="button" size="sm" disabled={pending}>
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              {t(`${K}.approve`)}
+            </Button>
+          }
+          title={t(`${K}.confirmApproveTitle`)}
+          description={t(`${K}.confirmApprove`).replace(
+            "{account}",
+            accountLabel,
           )}
-          {t(`${K}.approve`)}
-        </Button>
+          cancelLabel={t("common.cancel")}
+          confirmLabel={t(`${K}.confirmApproveAction`)}
+          confirmDisabled={pending}
+          onConfirm={() => submit("APPROVED")}
+        />
         <Button
           type="button"
           size="sm"

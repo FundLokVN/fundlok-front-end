@@ -33,6 +33,7 @@ import type {
   AdminInvestorTransfer,
   AdminReceiptFields,
 } from "@/services/admin-funding.service";
+import { AdminActionConfirmation } from "../../_components/AdminActionConfirmation";
 import { ReceiptViewer } from "./ReceiptViewer";
 import { failureLabel } from "./receipt-codes";
 import { RepaymentPreview } from "./RepaymentPreview";
@@ -406,6 +407,8 @@ function Actions({
       <DecisionForm
         key={`${receipt.id}:${lateMoneyUntil}`}
         transferId={receipt.id}
+        investor={transfer.investor_full_name || transfer.investor_email}
+        amount={formatCurrency(transfer.amount_vnd, locale)}
         body={t("admin.transactions.sheet.lateMoneyBody", {
           deadline: formatDateTimeIct(lateMoneyUntil, locale),
         })}
@@ -419,6 +422,8 @@ function Actions({
     <DecisionForm
       key={`${receipt!.id}:${review?.id ?? ""}`}
       transferId={receipt!.id}
+      investor={transfer.investor_full_name || transfer.investor_email}
+      amount={formatCurrency(transfer.amount_vnd, locale)}
       body={
         review
           ? causeText(t, review.cause)
@@ -458,16 +463,19 @@ function settledText(
     : t("admin.transactions.sheet.waitingForReceipt");
 }
 
-// Approve or deny, with an optional note for the record. Nothing from the
-// receipt is typed in: staff look at it and decide.
+// Approval can include a note. Denial and late-money approval require a reason.
 function DecisionForm({
   transferId,
+  investor,
+  amount,
   body,
   hint,
   allowDeny = true,
   lateMoneyUntil,
 }: {
   transferId: string;
+  investor: string;
+  amount: string;
   body: string;
   hint: string;
   allowDeny?: boolean;
@@ -495,6 +503,8 @@ function DecisionForm({
   );
 
   const send = (outcome: "APPROVED" | "DENIED") => {
+    const trimmed = reason.trim();
+    if (pending || (outcome === "DENIED" && (!allowDeny || !trimmed))) return;
     const onError = (error: Parameters<typeof transferErrorMessage>[0]) =>
       toast({
         variant: "destructive",
@@ -502,9 +512,9 @@ function DecisionForm({
         description: transferErrorMessage(error, t, locale),
       });
     if (deadline !== null) {
-      if (deadline <= Date.now() || !reason.trim()) return;
+      if (deadline <= Date.now() || !trimmed) return;
       approveLateMoney.mutate(
-        { transferId, reason: reason.trim() },
+        { transferId, reason: trimmed },
         {
           onSuccess: () =>
             toast({ title: t("admin.transactions.sheet.lateMoneyApproved") }),
@@ -514,7 +524,7 @@ function DecisionForm({
       return;
     }
     decide.mutate(
-      { transferId, body: { outcome, reason: reason.trim() || null } },
+      { transferId, body: { outcome, reason: trimmed || null } },
       {
         onSuccess: () =>
           toast({ title: t(`admin.transactions.sheet.toast.${outcome}`) }),
@@ -541,36 +551,78 @@ function DecisionForm({
         aria-label={noteLabel}
       />
       <div className="flex gap-2">
-        <Button
-          type="button"
-          size="sm"
-          className="flex-1 gap-2"
-          disabled={pending || expired || (!!lateMoneyUntil && !reason.trim())}
-          onClick={() => send("APPROVED")}
-        >
-          {pending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <CheckCircle2 className="h-3.5 w-3.5" />
-          )}
-          {t(
+        <AdminActionConfirmation
+          trigger={
+            <Button
+              type="button"
+              size="sm"
+              className="flex-1 gap-2"
+              disabled={
+                pending || expired || (!!lateMoneyUntil && !reason.trim())
+              }
+            >
+              {pending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              )}
+              {t(
+                lateMoneyUntil
+                  ? "admin.transactions.sheet.approveLateMoney"
+                  : "admin.transactions.sheet.approve",
+              )}
+            </Button>
+          }
+          title={t("admin.transactions.sheet.confirmApproveTitle")}
+          description={t(
             lateMoneyUntil
-              ? "admin.transactions.sheet.approveLateMoney"
-              : "admin.transactions.sheet.approve",
-          )}
-        </Button>
+              ? "admin.transactions.sheet.confirmLateMoney"
+              : "admin.transactions.sheet.confirmApprove",
+          )
+            .replace("{investor}", investor)
+            .replace("{amount}", amount)}
+          cancelLabel={t("common.cancel")}
+          confirmLabel={t("admin.transactions.sheet.confirmApproveAction")}
+          confirmDisabled={
+            pending || expired || (!!lateMoneyUntil && !reason.trim())
+          }
+          onConfirm={() => send("APPROVED")}
+        />
         {allowDeny && (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="flex-1 gap-2"
-            disabled={decide.isPending}
-            onClick={() => send("DENIED")}
+          <AdminActionConfirmation
+            trigger={
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="flex-1 gap-2"
+                disabled={pending}
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                {t("admin.transactions.sheet.deny")}
+              </Button>
+            }
+            title={t("admin.transactions.sheet.confirmDenyTitle")}
+            description={t("admin.transactions.sheet.confirmDeny")
+              .replace("{investor}", investor)
+              .replace("{amount}", amount)}
+            cancelLabel={t("common.cancel")}
+            confirmLabel={t("admin.transactions.sheet.confirmDenyAction")}
+            confirmDisabled={pending || !reason.trim()}
+            destructive
+            onConfirm={() => send("DENIED")}
           >
-            <XCircle className="h-3.5 w-3.5" />
-            {t("admin.transactions.sheet.deny")}
-          </Button>
+            <label className="space-y-2 text-sm">
+              <span>{t("admin.transactions.sheet.denyReason")}</span>
+              <Textarea
+                rows={2}
+                required
+                maxLength={1000}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+              />
+            </label>
+          </AdminActionConfirmation>
         )}
       </div>
       <p className="text-[11px] leading-relaxed text-muted-foreground">

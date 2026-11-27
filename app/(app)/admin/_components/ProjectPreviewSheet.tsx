@@ -28,6 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { AdminActionConfirmation } from "./AdminActionConfirmation";
 import { DocumentViewerDialog } from "./DocumentViewerDialog";
 import { NeacCheckPanel } from "./NeacCheckPanel";
 import { ProjectFunding } from "./ProjectFunding";
@@ -439,6 +440,26 @@ export function ProjectPreviewSheet({
                           onReject={() =>
                             handleApplication(application.id, "REJECTED")
                           }
+                          rejectConfirmation={{
+                            title: t("admin.preview.confirmRejectTitle"),
+                            description: t("admin.preview.confirmReject")
+                              .replace("{company}", data.legal_name)
+                              .replace(
+                                "{amount}",
+                                formatCurrency(
+                                  application.requested_amount,
+                                  locale,
+                                ),
+                              )
+                              .replace(
+                                "{date}",
+                                formatDate(application.created_at, locale),
+                              ),
+                            cancelLabel: t("common.cancel"),
+                            confirmLabel: t(
+                              "admin.preview.confirmRejectAction",
+                            ),
+                          }}
                           approveLabel={t("admin.preview.approve")}
                           rejectLabel={t("admin.preview.reject")}
                           notePlaceholder={t("admin.preview.notePlaceholder")}
@@ -922,6 +943,12 @@ interface DecisionControlsProps {
   approveBlockedReason?: string | null;
   onApprove: () => void;
   onReject: () => void;
+  rejectConfirmation?: {
+    title: string;
+    description: string;
+    cancelLabel: string;
+    confirmLabel: string;
+  };
   approveLabel: string;
   rejectLabel: string;
   notePlaceholder: string;
@@ -934,10 +961,24 @@ function DecisionControls({
   approveBlockedReason = null,
   onApprove,
   onReject,
+  rejectConfirmation,
   approveLabel,
   rejectLabel,
   notePlaceholder,
 }: DecisionControlsProps) {
+  const rejectButton = (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      className="flex-1"
+      disabled={disabled}
+      onClick={rejectConfirmation ? undefined : onReject}
+    >
+      <XCircle className="mr-2 h-3.5 w-3.5" />
+      {rejectLabel}
+    </Button>
+  );
   return (
     <div className="space-y-2">
       <Textarea
@@ -962,17 +1003,17 @@ function DecisionControls({
           )}
           {approveLabel}
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="flex-1"
-          disabled={disabled}
-          onClick={onReject}
-        >
-          <XCircle className="mr-2 h-3.5 w-3.5" />
-          {rejectLabel}
-        </Button>
+        {rejectConfirmation ? (
+          <AdminActionConfirmation
+            trigger={rejectButton}
+            {...rejectConfirmation}
+            confirmDisabled={disabled}
+            destructive
+            onConfirm={onReject}
+          />
+        ) : (
+          rejectButton
+        )}
       </div>
       {approveBlockedReason && (
         <p className="text-[11px] leading-relaxed text-destructive">
