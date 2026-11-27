@@ -970,6 +970,8 @@ function blogSummary(post: StubBlogPost) {
     created_at: post.created_at,
     reading_minutes: post.reading_minutes,
     view_count: post.view_count,
+    // No post has been seen by Google in the stub.
+    search: null,
   };
 }
 
@@ -2490,6 +2492,12 @@ const server = createServer(async (req, res) => {
           items: rows
             .slice((page - 1) * pageSize, page * pageSize)
             .map(blogSummary),
+          search_console: {
+            configured: true,
+            last_synced_at: "2026-11-27T23:00:00Z",
+            data_through: "2026-11-26",
+            window_days: 28,
+          },
         });
       }
 

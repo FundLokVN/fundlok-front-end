@@ -84,6 +84,53 @@ test.describe("as an admin", () => {
     await expect(search).toHaveValue("Bản nháp");
   });
 
+  test("shows each post's Google Search figures and where they come from", async ({
+    page,
+  }) => {
+    await page.route("**/api/admin/blog/posts?*", async (route) => {
+      const response = await route.fetch();
+      const data = await response.json();
+      data.items[0].search = { clicks: 12, impressions: 480, position: 7.4 };
+      await route.fulfill({ response, json: data });
+    });
+    await page.goto("/admin/blog");
+
+    for (const column of ["clicks", "impressions", "ctr", "position"]) {
+      await expect(
+        page.getByRole("columnheader", {
+          name: t(`admin.blog.columns.${column}`),
+        }),
+      ).toBeVisible();
+    }
+    const row = page.locator("tbody tr").filter({ hasText: "Bản nháp có sẵn" });
+    await expect(row).toContainText("12");
+    await expect(row).toContainText("480");
+    await expect(row).toContainText(/2[.,]5\s?%/);
+    await expect(row).toContainText(/7[.,]4/);
+    await expect(page.getByTestId("search-console-note")).toContainText(
+      t("admin.blog.searchConsole.window").split("{days}")[0].trim(),
+    );
+  });
+
+  test("says when Google Search Console is not connected", async ({ page }) => {
+    await page.route("**/api/admin/blog/posts?*", async (route) => {
+      const response = await route.fetch();
+      const data = await response.json();
+      data.search_console = {
+        configured: false,
+        last_synced_at: null,
+        data_through: null,
+        window_days: 28,
+      };
+      await route.fulfill({ response, json: data });
+    });
+    await page.goto("/admin/blog");
+
+    await expect(page.getByTestId("search-console-note")).toHaveText(
+      t("admin.blog.searchConsole.notConfigured"),
+    );
+  });
+
   test("writes a post with a heading and an image, and publishes it", async ({
     page,
   }) => {

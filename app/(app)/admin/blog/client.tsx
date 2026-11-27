@@ -17,13 +17,14 @@ import { useRequireAuth } from "@/hooks/use-authentication";
 import { useAdminBlogPosts, useCreateBlogPost } from "@/hooks/use-admin-blog";
 import { useToast } from "@/hooks/use-toast";
 import { apiErrorMessage } from "@/lib/api-error-message";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDate, formatDateTime } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { isAdminRole } from "@/services/authentication.service";
 import type {
   BlogPostStatus,
   BlogPostSummary,
+  BlogSearchConsoleStatus,
 } from "@/services/admin-blog.service";
 import { AdminPageLoader } from "../_components/AdminPageLoader";
 import { DataTable, type Column } from "../_components/DataTable";
@@ -141,6 +142,41 @@ function BlogPostsDirectory() {
       sortValue: (post) => post.view_count ?? -1,
     },
     {
+      key: "clicks",
+      header: t("admin.blog.columns.clicks"),
+      render: (post) => <SearchFigure value={post.search?.clicks} />,
+      sortValue: (post) => post.search?.clicks,
+    },
+    {
+      key: "impressions",
+      header: t("admin.blog.columns.impressions"),
+      render: (post) => <SearchFigure value={post.search?.impressions} />,
+      sortValue: (post) => post.search?.impressions,
+    },
+    {
+      key: "ctr",
+      header: t("admin.blog.columns.ctr"),
+      render: (post) => (
+        <SearchFigure
+          value={searchCtr(post)}
+          format={{ style: "percent", maximumFractionDigits: 1 }}
+        />
+      ),
+      sortValue: searchCtr,
+    },
+    {
+      key: "position",
+      header: t("admin.blog.columns.position"),
+      render: (post) => (
+        <SearchFigure
+          value={post.search?.position}
+          format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
+        />
+      ),
+      // Lower ranks higher; posts with no position sort last either way.
+      sortValue: (post) => post.search?.position,
+    },
+    {
       key: "published",
       header: t("admin.blog.columns.published"),
       render: (post) =>
@@ -243,6 +279,8 @@ function BlogPostsDirectory() {
           </div>
         </div>
 
+        <SearchConsoleNote status={data?.search_console} />
+
         <DataTable<BlogPostSummary>
           columns={columns}
           rows={data?.items ?? []}
@@ -268,5 +306,63 @@ function BlogPostsDirectory() {
         />
       </div>
     </div>
+  );
+}
+
+// Clicks per impression; none without impressions.
+function searchCtr(post: BlogPostSummary): number | undefined {
+  const search = post.search;
+  return search && search.impressions > 0
+    ? search.clicks / search.impressions
+    : undefined;
+}
+
+function SearchFigure({
+  value,
+  format,
+}: {
+  value: number | null | undefined;
+  format?: Intl.NumberFormatOptions;
+}) {
+  const { locale } = useTranslations();
+  if (value == null) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+  return (
+    <span className="tabular-nums">
+      {new Intl.NumberFormat(locale, format).format(value)}
+    </span>
+  );
+}
+
+// Says where the Google columns come from and how fresh they are, or why
+// they are empty.
+function SearchConsoleNote({
+  status,
+}: {
+  status: BlogSearchConsoleStatus | undefined;
+}) {
+  const { t, locale } = useTranslations();
+  if (!status) return null;
+
+  let text: string;
+  if (!status.configured) {
+    text = t("admin.blog.searchConsole.notConfigured");
+  } else if (!status.data_through || !status.last_synced_at) {
+    text = t("admin.blog.searchConsole.notSynced");
+  } else {
+    text = `${t("admin.blog.searchConsole.window")
+      .replace("{days}", String(status.window_days))
+      .replace("{date}", formatDate(status.data_through, locale))} ${t(
+      "admin.blog.searchConsole.synced",
+    ).replace("{time}", formatDateTime(status.last_synced_at, locale))}`;
+  }
+  return (
+    <p
+      data-testid="search-console-note"
+      className="border-b px-4 py-2 text-xs text-muted-foreground"
+    >
+      {text}
+    </p>
   );
 }

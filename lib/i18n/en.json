@@ -128,6 +128,10 @@
         "title": "SEO checklist"
       },
       "columns": {
+        "clicks": "Clicks",
+        "ctr": "CTR",
+        "impressions": "Impressions",
+        "position": "Avg. position",
         "published": "Published",
         "status": "Status",
         "title": "Title",
@@ -211,6 +215,12 @@
       },
       "newPost": "New post",
       "openPost": "Edit {title}",
+      "searchConsole": {
+        "notConfigured": "Google Search Console is not connected, so the Google columns are empty.",
+        "notSynced": "Google Search Console is connected but has not synced yet. Figures appear after the first daily sync.",
+        "synced": "Last synced {time}.",
+        "window": "Clicks, impressions, CTR and average position come from Google Search, over the {days} days to {date}."
+      },
       "searchLabel": "Search posts",
       "searchPlaceholder": "Search titles",
       "seoAssistant": {
