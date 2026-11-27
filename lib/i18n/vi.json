@@ -2852,7 +2852,7 @@
       "cicReportSubtitle": "Tất cả các trường đánh dấu * là bắt buộc.",
       "cicReportTitle": "Bước 5 – Báo cáo CIC khách hàng",
       "cicScore": "Điểm tín dụng CIC",
-      "cicScoredOn": "Ngày CIC chấm điểm",
+      "cicScoredOn": "Ngày CIC tính điểm",
       "cicStep1": "Truy cập cổng thông tin CIC của Ngân hàng Nhà nước Việt Nam",
       "cicStep2": "Đăng nhập bằng mã số thuế doanh nghiệp của bạn",
       "cicStep3": "Yêu cầu báo cáo tín dụng đầy đủ (Báo cáo tín dụng)",
@@ -2990,14 +2990,14 @@
           "failed": "Không kê khai được doanh thu",
           "file": "Tệp chứng từ (PDF hoặc ảnh)",
           "heading": "Kê khai doanh thu hằng tháng",
-          "hint": "Doanh thu không đủ cho khoản trả nợ tháng này? Kê khai doanh thu tháng {month} trước ngày 5, kèm tờ khai thuế hoặc sao kê tiền vào. Nếu thiếu hụt, khoản vay của mọi nhà đầu tư được thêm cùng số ngày làm việc và số tiền trả hằng ngày không bao giờ tăng. Không thu phí.",
+          "hint": "Doanh thu không đủ cho khoản trả nợ tháng này? Kê khai doanh thu tháng {month} trước ngày 5, kèm tờ khai thuế hoặc sao kê tiền vào. Nếu doanh thu không đủ, khoản vay của từng nhà đầu tư được gia hạn cùng số ngày làm việc. Tiền lãi phát sinh trong những ngày gia hạn làm tăng tổng số tiền phải trả.",
           "kind": "Chứng từ",
           "kinds": {
             "BANK_INFLOW": "Sao kê tiền vào",
             "TAX_DECLARATION": "Tờ khai thuế"
           },
           "result": {
-            "EXTENDED": "Đã gia hạn thêm {days} ngày làm việc từ {date}. Số tiền trả hằng ngày không tăng.",
+            "EXTENDED": "Đã gia hạn thêm {days} ngày làm việc từ {date}. Tiền lãi phát sinh trong những ngày gia hạn làm tăng tổng số tiền phải trả.",
             "NO_ROOM": "Không còn ngày nào trước ngày chặn: không gia hạn.",
             "NO_SHORTFALL": "Doanh thu đủ cho tháng này: không cần gia hạn."
           },
