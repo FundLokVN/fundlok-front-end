@@ -128,6 +128,10 @@
         "title": "Kiểm tra SEO"
       },
       "columns": {
+        "clicks": "Lượt nhấp",
+        "ctr": "CTR",
+        "impressions": "Lượt hiển thị",
+        "position": "Vị trí TB",
         "published": "Ngày đăng",
         "status": "Trạng thái",
         "title": "Tiêu đề",
@@ -211,6 +215,12 @@
       },
       "newPost": "Bài viết mới",
       "openPost": "Sửa {title}",
+      "searchConsole": {
+        "notConfigured": "Chưa kết nối Google Search Console nên các cột của Google đang trống.",
+        "notSynced": "Đã kết nối Google Search Console nhưng chưa đồng bộ lần nào. Số liệu sẽ có sau lần đồng bộ hằng ngày đầu tiên.",
+        "synced": "Đồng bộ lần cuối {time}.",
+        "window": "Lượt nhấp, lượt hiển thị, CTR và vị trí trung bình lấy từ Google Search, trong {days} ngày đến {date}."
+      },
       "searchLabel": "Tìm bài viết",
       "searchPlaceholder": "Tìm theo tiêu đề",
       "seoAssistant": {

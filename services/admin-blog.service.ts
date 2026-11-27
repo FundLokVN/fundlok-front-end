@@ -25,6 +25,28 @@ export interface BlogPostSummary {
   reading_minutes: number;
   /** Aggregate views since counting began. Absent on older API versions. */
   view_count?: number;
+  /**
+   * Google Search figures over the list's window (see BlogSearchConsoleStatus).
+   * null when Google has not reported the post; absent outside the list and on
+   * older API versions.
+   */
+  search?: BlogSearchStats | null;
+}
+
+/** A post's Google Search figures, from Search Console's daily sync. */
+export interface BlogSearchStats {
+  clicks: number;
+  impressions: number;
+  /** Average position, weighted by impressions. null with no impressions. */
+  position: number | null;
+}
+
+/** Where the list's Google figures come from: the `window_days` ending on `data_through`. */
+export interface BlogSearchConsoleStatus {
+  configured: boolean;
+  last_synced_at: string | null;
+  data_through: string | null;
+  window_days: number;
 }
 
 export interface BlogPostDetail extends BlogPostSummary {
@@ -60,6 +82,8 @@ export interface BlogPostList {
   page: number;
   page_size: number;
   items: BlogPostSummary[];
+  /** Absent on older API versions. */
+  search_console?: BlogSearchConsoleStatus;
 }
 
 // The whole editable post. The backend refuses anything outside the
