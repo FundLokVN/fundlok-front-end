@@ -131,6 +131,7 @@
         "clicks": "Clicks",
         "ctr": "CTR",
         "impressions": "Impressions",
+        "index": "Google index",
         "position": "Avg. position",
         "published": "Published",
         "status": "Status",
@@ -181,6 +182,15 @@
         "tooLarge": "The image is larger than 5 MB.",
         "uploadError": "Could not upload the image. Try again.",
         "uploading": "Uploading…"
+      },
+      "indexStatus": {
+        "checked": "Checked {time}",
+        "indexed": "Indexed",
+        "lastCrawl": "Last crawled {time}",
+        "neverCrawled": "Not crawled yet",
+        "notIndexed": "Not indexed",
+        "problem": "Has issues",
+        "unchecked": "Not checked yet"
       },
       "keywords": {
         "duplicate": "That keyword is already listed.",

@@ -31,6 +31,25 @@ export interface BlogPostSummary {
    * older API versions.
    */
   search?: BlogSearchStats | null;
+  /**
+   * Google's latest URL Inspection answer for the public address. null until
+   * the daily check has looked at the post (drafts are never checked).
+   */
+  index_status?: BlogIndexStatus | null;
+}
+
+/** PASS = indexed; NEUTRAL = not indexed; PARTIAL / FAIL = problems. */
+export interface BlogIndexStatus {
+  verdict: string;
+  /** Google's own wording, e.g. "Discovered - currently not indexed". */
+  coverage_state: string | null;
+  last_crawl_at: string | null;
+  checked_at: string;
+}
+
+export interface BlogSitemapSubmitResult {
+  submitted: boolean;
+  reason: "NOT_CONFIGURED" | "REFUSED" | null;
 }
 
 /** A post's Google Search figures, from Search Console's daily sync. */
@@ -186,6 +205,14 @@ export const adminBlogService = {
     return apiClient.put<BlogPostDetail>(
       ADMIN_BLOG_ENDPOINTS.post(id),
       payload,
+    );
+  },
+
+  // After a publish, once the public sitemap is refreshed. Never fails the
+  // publish: the backend answers 200 with submitted=false when Google says no.
+  submitSitemap() {
+    return apiClient.post<BlogSitemapSubmitResult>(
+      ADMIN_BLOG_ENDPOINTS.submitSitemap,
     );
   },
 

@@ -20,6 +20,7 @@ import {
   type BlogSeoAssistantStatus,
   type BlogSeoSuggestionRequest,
   type BlogSeoSuggestions,
+  type BlogSitemapSubmitResult,
 } from "@/services/admin-blog.service";
 
 // Posts are shared by every admin, so the keys carry no admin id.
@@ -49,6 +50,13 @@ export function useBlogSeoAssistant() {
 export function useSuggestBlogSeo() {
   return useMutation<BlogSeoSuggestions, ApiError, BlogSeoSuggestionRequest>({
     mutationFn: (draft) => adminBlogService.suggestSeo(draft),
+  });
+}
+
+/** Ask Google to re-read the sitemap. Best effort: nothing waits on it. */
+export function useSubmitBlogSitemap() {
+  return useMutation<BlogSitemapSubmitResult, ApiError, void>({
+    mutationFn: () => adminBlogService.submitSitemap(),
   });
 }
 

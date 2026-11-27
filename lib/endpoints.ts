@@ -487,6 +487,9 @@ export const ADMIN_BLOG_ENDPOINTS = {
   // on screen for Claude's suggestions; nothing is stored.
   seoAssistant: "/admin/blog/seo-assistant",
   seoSuggestions: "/admin/blog/seo-assistant/suggestions",
+  // POST: tell Google Search Console the sitemap changed (after a publish).
+  // Always 200 { submitted, reason }.
+  submitSitemap: "/admin/blog/sitemap/submit",
 } as const;
 
 // Underwriting. Admin-only server-side (require_roles(Role.ADMIN) — note that

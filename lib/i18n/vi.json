@@ -131,6 +131,7 @@
         "clicks": "Lượt nhấp",
         "ctr": "CTR",
         "impressions": "Lượt hiển thị",
+        "index": "Google index",
         "position": "Vị trí TB",
         "published": "Ngày đăng",
         "status": "Trạng thái",
@@ -181,6 +182,15 @@
         "tooLarge": "Ảnh lớn hơn 5 MB.",
         "uploadError": "Không tải ảnh lên được. Hãy thử lại.",
         "uploading": "Đang tải lên…"
+      },
+      "indexStatus": {
+        "checked": "Kiểm tra lúc {time}",
+        "indexed": "Đã index",
+        "lastCrawl": "Thu thập lần cuối {time}",
+        "neverCrawled": "Chưa được thu thập",
+        "notIndexed": "Chưa index",
+        "problem": "Có vấn đề",
+        "unchecked": "Chưa kiểm tra"
       },
       "keywords": {
         "duplicate": "Từ khóa này đã có trong danh sách.",

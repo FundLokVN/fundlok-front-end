@@ -16,6 +16,7 @@ import {
   useBlogSeoAssistant,
   useDeleteBlogPost,
   usePublishBlogPost,
+  useSubmitBlogSitemap,
   useUnpublishBlogPost,
   useUpdateBlogPost,
 } from "@/hooks/use-admin-blog";
@@ -79,6 +80,7 @@ export function useBlogPostEditor(post: BlogPostDetail) {
 
   const update = useUpdateBlogPost(post.id);
   const publishMutation = usePublishBlogPost(post.id);
+  const submitSitemap = useSubmitBlogSitemap();
   const unpublishMutation = useUnpublishBlogPost(post.id);
   const deleteMutation = useDeleteBlogPost(post.id);
   const seoAssistant = useBlogSeoAssistant();
@@ -274,6 +276,9 @@ export function useBlogPostEditor(post: BlogPostDetail) {
     try {
       const published = await publishMutation.mutateAsync(version);
       const refreshed = await refreshCache();
+      // Only once the public sitemap lists the new post: Google is asked to
+      // re-read it. Best effort; the publish already succeeded.
+      if (refreshed) submitSitemap.mutate();
       toast({
         title: t("admin.blog.toast.published").replace(
           "{slug}",

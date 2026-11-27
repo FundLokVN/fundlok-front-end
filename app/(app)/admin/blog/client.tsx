@@ -29,6 +29,11 @@ import type {
 import { AdminPageLoader } from "../_components/AdminPageLoader";
 import { DataTable, type Column } from "../_components/DataTable";
 import { TablePager } from "../_components/TablePager";
+import {
+  BlogIndexBadge,
+  indexKey,
+  indexRank,
+} from "./_components/BlogIndexBadge";
 import { BlogStatusBadge } from "./_components/BlogStatusBadge";
 
 const PAGE_SIZE = 20;
@@ -140,6 +145,22 @@ function BlogPostsDirectory() {
         </span>
       ),
       sortValue: (post) => post.view_count ?? -1,
+    },
+    {
+      key: "index",
+      header: t("admin.blog.columns.index"),
+      render: (post) =>
+        post.status === "published" ? (
+          <BlogIndexBadge status={post.index_status ?? null} />
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+      sortValue: (post) =>
+        post.status === "published" ? indexRank(post.index_status) : null,
+      filterValue: (post) =>
+        post.status === "published"
+          ? t(`admin.blog.indexStatus.${indexKey(post.index_status)}`)
+          : null,
     },
     {
       key: "clicks",
