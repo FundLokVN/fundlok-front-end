@@ -257,3 +257,30 @@ test.describe("an SME whose request was approved", () => {
     );
   });
 });
+
+test("retries a failed repayment lookup and shows the empty state only after a successful read", async ({
+  context,
+  page,
+}) => {
+  await signInAs(context, "sme");
+  let attempts = 0;
+  await page.route("**/api/funding/me/rounds", async (route) => {
+    attempts += 1;
+    if (attempts <= 2) {
+      await route.fulfill({ status: 503, json: { detail: "Unavailable" } });
+    } else {
+      await route.fulfill({ json: [] });
+    }
+  });
+
+  await page.goto("/dashboard/repayments/test-investment");
+  await expect(
+    page.getByText(t("dashboard.sme.funding.loadFailed")),
+  ).toBeVisible();
+  expect(attempts).toBe(2);
+  await expect(page.getByTestId("investment-not-found")).toHaveCount(0);
+
+  await page.getByRole("button", { name: t("errorPage.retry") }).click();
+  await expect(page.getByTestId("investment-not-found")).toBeVisible();
+  expect(attempts).toBe(3);
+});
