@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { USER_ENDPOINTS } from "@/lib/endpoints";
 import { backendGet } from "@/lib/server/backend-get";
@@ -28,5 +28,7 @@ export async function refreshPublicBlog(): Promise<{ ok: boolean }> {
   const role = me.data.role;
   if (role !== "ADMIN" && role !== "SYSTEM_ADMIN") return { ok: false };
   updateTag(BLOG_CACHE_TAG);
+  // The generated XML has its own route cache.
+  revalidatePath("/sitemap.xml");
   return { ok: true };
 }
