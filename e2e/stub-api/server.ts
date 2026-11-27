@@ -1935,6 +1935,12 @@ const server = createServer(async (req, res) => {
     });
   }
 
+  // The SME's own funding rounds. No stub SME has an open round yet: approval
+  // is not funding, so the dashboard shows its "nothing invested yet" state.
+  if (path === "/funding/me/rounds" && method === "GET") {
+    return json(res, 200, []);
+  }
+
   // Payment details wait for the Investor Service Agreement, confirmed with a
   // one-time code.
   if (path === "/funding/me/investor-agreement" && method === "GET") {
