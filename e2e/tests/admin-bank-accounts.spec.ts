@@ -31,8 +31,19 @@ test("approving an account takes it out of the queue", async ({ page }) => {
   const item = page
     .getByTestId("bank-account-review-item")
     .filter({ hasText: STUB_USERS.investor.email });
-  await item.getByRole("button", { name: t(`${K}.approve`) }).click();
+  const approve = item.getByRole("button", { name: t(`${K}.approve`) });
+  await approve.click();
+  const confirmation = page.getByRole("alertdialog", {
+    name: t(`${K}.confirmApproveTitle`),
+  });
+  await expect(confirmation).toContainText("4567");
+  await confirmation.getByRole("button", { name: t("common.cancel") }).click();
+  await expect(item).toBeVisible();
 
+  await approve.click();
+  await confirmation
+    .getByRole("button", { name: t(`${K}.confirmApproveAction`) })
+    .click();
   await expect(item).toHaveCount(0);
   await expect(page.getByTestId("bank-account-review-item")).toHaveCount(1);
 });
