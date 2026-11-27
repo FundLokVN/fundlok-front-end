@@ -2990,14 +2990,14 @@
           "failed": "Couldn't file your revenue",
           "file": "Evidence file (PDF or image)",
           "heading": "Monthly revenue filing",
-          "hint": "Revenue short of this month's repayments? File {month}'s revenue by the 5th with its tax declaration or bank inflow statement. If it falls short, every investor's loan gets the same extra working days and your daily amount never rises. No fee.",
+          "hint": "Revenue short of this month's repayments? File {month}'s revenue by the 5th with its tax declaration or bank inflow statement. If it falls short, every investor's loan is extended by the same number of working days. Interest accrues during those extra days, increasing the total you repay.",
           "kind": "Evidence",
           "kinds": {
             "BANK_INFLOW": "Bank inflow statement",
             "TAX_DECLARATION": "Tax declaration"
           },
           "result": {
-            "EXTENDED": "Extended by {days} working days from {date}. Your daily amount does not rise.",
+            "EXTENDED": "Extended by {days} working days from {date}. Interest accrues during those extra days, increasing the total you repay.",
             "NO_ROOM": "No days are left before the backstop: no extension.",
             "NO_SHORTFALL": "Your revenue covered the month: no extension needed."
           },
