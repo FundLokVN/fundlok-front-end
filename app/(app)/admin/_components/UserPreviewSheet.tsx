@@ -45,6 +45,7 @@ import type { AdminUserRow, AdminUserStatus } from "@/services/admin.service";
 import { apiErrorMessage } from "@/lib/api-error-message";
 import { UserBankAccounts } from "./UserBankAccounts";
 import { UserConsentSection } from "./UserConsentSection";
+import { AdminActionConfirmation } from "./AdminActionConfirmation";
 import { UserRoleSection } from "./UserRoleSection";
 
 // Account status, changed from the users table.
@@ -717,28 +718,56 @@ export function UserPreviewSheet({
                     onChange={(event) => setNote(event.target.value)}
                   />
                   <div className="flex flex-wrap gap-2">
-                    {STATUSES.map((status) => (
-                      <Button
-                        key={status}
-                        type="button"
-                        size="sm"
-                        variant={
-                          status === "SUSPENDED"
-                            ? "destructive"
-                            : status === currentStatus
-                              ? "default"
-                              : "outline"
-                        }
-                        className={cn("flex-1", "min-w-28")}
-                        disabled={isUpdatingStatus || status === currentStatus}
-                        onClick={() => handleStatus(status)}
-                      >
-                        {isUpdatingStatus && (
-                          <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                        )}
-                        {t(`admin.userPreview.statuses.${status}`)}
-                      </Button>
-                    ))}
+                    {STATUSES.map((status) => {
+                      const suspending = status === "SUSPENDED";
+                      const button = (
+                        <Button
+                          key={status}
+                          type="button"
+                          size="sm"
+                          variant={
+                            status === "SUSPENDED"
+                              ? "destructive"
+                              : status === currentStatus
+                                ? "default"
+                                : "outline"
+                          }
+                          className={cn("flex-1", "min-w-28")}
+                          disabled={
+                            isUpdatingStatus || status === currentStatus
+                          }
+                          onClick={
+                            suspending ? undefined : () => handleStatus(status)
+                          }
+                        >
+                          {isUpdatingStatus && (
+                            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                          )}
+                          {t(`admin.userPreview.statuses.${status}`)}
+                        </Button>
+                      );
+                      return suspending ? (
+                        <AdminActionConfirmation
+                          key={`${user.id}:${status}`}
+                          trigger={button}
+                          title={t("admin.userPreview.confirmSuspendTitle")}
+                          description={t("admin.userPreview.confirmSuspend")
+                            .replace("{name}", displayName)
+                            .replace("{email}", detail?.email || user.email)}
+                          cancelLabel={t("common.cancel")}
+                          confirmLabel={t(
+                            "admin.userPreview.confirmSuspendAction",
+                          )}
+                          confirmDisabled={
+                            isUpdatingStatus || status === currentStatus
+                          }
+                          destructive
+                          onConfirm={() => void handleStatus(status)}
+                        />
+                      ) : (
+                        button
+                      );
+                    })}
                   </div>
                 </>
               )}

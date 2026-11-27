@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import enDictionary from "@/lib/i18n/en.json";
 import type { AdminPaymentAccount } from "@/services/admin.service";
@@ -72,7 +72,15 @@ describe("BankAccountReviewItem", () => {
   it("approves a pending account, with an optional note", async () => {
     const user = userEvent.setup();
     renderItem(pending);
-    await user.click(screen.getByRole("button", { name: "Approve" }));
+    const approve = screen.getByRole("button", { name: "Approve" });
+    await user.click(approve);
+    const dialog = screen.getByRole("alertdialog");
+    expect(dialog).toHaveTextContent("SME TEST · Techcombank · •••• 9012");
+    expect(mutate).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(mutate).not.toHaveBeenCalled();
+    await user.click(approve);
+    await user.click(screen.getByRole("button", { name: "Confirm approval" }));
     expect(mutate).toHaveBeenCalledWith(
       { id: "acc-1", body: { decision: "APPROVED", note: null } },
       expect.anything(),
