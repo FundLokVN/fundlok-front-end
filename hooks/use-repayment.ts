@@ -32,7 +32,6 @@ export function useTodaysPayments(enabled = true) {
     queryFn: () => repaymentService.getToday(),
     enabled,
     staleTime: 30 * 1000,
-    retry: false,
   });
 }
 
@@ -43,7 +42,6 @@ export function useRepaymentSchedule(trancheId: string, enabled = true) {
     queryFn: () => repaymentService.getSchedule(trancheId),
     enabled,
     staleTime: 60 * 1000,
-    retry: false,
   });
 }
 
@@ -74,7 +72,6 @@ export function useInvestmentDue(trancheId: string, enabled = true) {
     queryFn: () => repaymentService.getDue(trancheId),
     enabled,
     staleTime: 30 * 1000,
-    retry: false,
   });
 }
 
@@ -108,7 +105,6 @@ export function useRepaymentProjection(trancheId: string, enabled = true) {
     queryFn: () => repaymentService.getProjection(trancheId),
     enabled,
     staleTime: 5 * 60 * 1000,
-    retry: false,
   });
 }
 

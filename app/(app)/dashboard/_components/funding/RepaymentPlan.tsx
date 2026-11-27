@@ -17,6 +17,7 @@ import { formatDate, todayIct } from "@/lib/format-date";
 import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { SmeRepaymentDay, SmeRound } from "@/services/funding.service";
+import { ReadError } from "../ReadError";
 import { Breakdown } from "./Breakdown";
 
 const K = "dashboard.sme.plan";
@@ -34,6 +35,16 @@ export function RepaymentPlan({ round }: { round: SmeRound }) {
   const [open, setOpen] = useState(false);
   const money = (vnd: number) => formatCurrency(vnd, locale);
 
+  if (plan.isError) {
+    return (
+      <ReadError
+        message={t(`${K}.loadFailed`)}
+        retryLabel={t("errorPage.retry")}
+        isFetching={plan.isFetching}
+        refetch={plan.refetch}
+      />
+    );
+  }
   if (plan.isLoading) {
     return (
       <div className="flex justify-center py-4">

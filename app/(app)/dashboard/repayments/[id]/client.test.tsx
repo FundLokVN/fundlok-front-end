@@ -9,6 +9,12 @@ import type {
 } from "@/services/repayment.service";
 
 const payMock = vi.fn();
+const retryRounds = vi.fn();
+const retrySchedule = vi.fn();
+const retryDue = vi.fn();
+let roundsFailed = false;
+let scheduleFailed = false;
+let dueFailed = false;
 let rounds: SmeRound[] = [];
 let schedule: RepaymentRow[] | undefined;
 let projection: ProjectedSchedule | undefined;
@@ -18,12 +24,27 @@ vi.mock("@/hooks/use-authentication", () => ({
   useRequireAuth: () => ({ user: { id: "sme-1" }, isLoading: false }),
 }));
 vi.mock("@/hooks/use-funding", () => ({
-  useMyRounds: () => ({ data: rounds, isLoading: false }),
+  useMyRounds: () => ({
+    data: rounds,
+    isLoading: false,
+    isError: roundsFailed,
+    refetch: retryRounds,
+  }),
 }));
 vi.mock("@/hooks/use-repayment", () => ({
-  useRepaymentSchedule: () => ({ data: schedule, isLoading: false }),
+  useRepaymentSchedule: () => ({
+    data: schedule,
+    isLoading: false,
+    isError: scheduleFailed,
+    refetch: retrySchedule,
+  }),
   useRepaymentProjection: () => ({ data: projection, isLoading: false }),
-  useInvestmentDue: () => ({ data: due, isLoading: false }),
+  useInvestmentDue: () => ({
+    data: due,
+    isLoading: false,
+    isError: dueFailed,
+    refetch: retryDue,
+  }),
   usePayWithReceipt: () => ({ mutate: payMock, isPending: false }),
 }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
@@ -125,6 +146,12 @@ const open = () => render(<RepaymentClient trancheId="tr-1" />);
 
 beforeEach(() => {
   payMock.mockReset();
+  retryRounds.mockReset();
+  retrySchedule.mockReset();
+  retryDue.mockReset();
+  roundsFailed = false;
+  scheduleFailed = false;
+  dueFailed = false;
   rounds = [round([ticket()])];
   projection = undefined;
   // Paid on the first two days; the third due and unpaid; the last next year.
@@ -316,6 +343,44 @@ describe("RepaymentClient", () => {
         name: /dashboard\.sme\.investment\.pay\.send/,
       }),
     ).toBeDisabled();
+  });
+
+  it("retries a failed due read without reporting nothing to pay", () => {
+    due = undefined;
+    dueFailed = true;
+    open();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "dashboard.sme.investment.pay.loadFailed",
+    );
+    expect(
+      screen.queryByText("dashboard.sme.investment.pay.none"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retryDue).toHaveBeenCalledOnce();
+    expect(payMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps today's payment available while the schedule read can be retried", () => {
+    schedule = undefined;
+    scheduleFailed = true;
+    open();
+    expect(screen.getByTestId("pay-today")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "dashboard.sme.investment.loadFailed",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retrySchedule).toHaveBeenCalledOnce();
+  });
+
+  it("offers to retry the investment lookup before claiming it was not found", () => {
+    rounds = [];
+    roundsFailed = true;
+    open();
+    expect(
+      screen.queryByTestId("investment-not-found"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retryRounds).toHaveBeenCalledOnce();
   });
 
   it("says when nothing is due to this investor today", () => {

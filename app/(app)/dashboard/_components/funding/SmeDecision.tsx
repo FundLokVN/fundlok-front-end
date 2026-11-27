@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadError } from "@/app/(app)/dashboard/_components/ReadError";
 import { useRef, useState } from "react";
 import {
   CheckCircle2,
@@ -102,6 +103,16 @@ export function SmeDecision({ round }: { round: SmeRound }) {
     );
   }
   if (!day13) return null;
+  if (contracts.isError) {
+    return (
+      <ReadError
+        message={t(`${K}.loadFailed`)}
+        retryLabel={t("errorPage.retry")}
+        isFetching={contracts.isFetching}
+        refetch={contracts.refetch}
+      />
+    );
+  }
   if (contracts.isLoading || !contracts.data) {
     return (
       <div className="flex justify-center py-4">
