@@ -1,4 +1,5 @@
 import { Loader2, Users } from "lucide-react";
+import { ReadError } from "@/app/(app)/dashboard/_components/ReadError";
 import { useMyRounds } from "@/hooks/use-funding";
 import { RoundProgress } from "../funding/RoundProgress";
 import { ExtensionFiling } from "../funding/ExtensionFiling";
@@ -28,6 +29,16 @@ export function FundingStatus({
   // The newest round on this project (the API lists newest first).
   const round = rounds.data?.find((r) => r.project_id === projectId);
 
+  if (rounds.isError) {
+    return (
+      <ReadError
+        message={t("dashboard.sme.funding.loadFailed")}
+        retryLabel={t("errorPage.retry")}
+        isFetching={rounds.isFetching}
+        refetch={rounds.refetch}
+      />
+    );
+  }
   if (rounds.isLoading) {
     return (
       <div className="flex justify-center py-6">

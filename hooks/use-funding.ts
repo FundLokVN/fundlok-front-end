@@ -365,7 +365,6 @@ export function useWindowLoanContracts(windowId: string, enabled = true) {
     queryFn: () => fundingService.getWindowLoanContracts(windowId),
     enabled: enabled && Boolean(windowId),
     staleTime: 15 * 1000,
-    retry: false,
   });
 }
 
@@ -488,7 +487,6 @@ export function useMyRounds(enabled = true) {
     queryFn: () => fundingService.listMyRounds(),
     enabled,
     staleTime: 30 * 1000,
-    retry: false,
   });
 }
 
@@ -543,6 +541,5 @@ export function useRepaymentPlan(windowId: string, enabled = true) {
     queryFn: () => fundingService.getRepaymentPlan(windowId),
     enabled,
     staleTime: 60 * 1000,
-    retry: false,
   });
 }

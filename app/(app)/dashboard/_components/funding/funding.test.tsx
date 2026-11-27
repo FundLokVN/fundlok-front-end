@@ -13,12 +13,23 @@ const closeMock = vi.fn();
 const reportMissingMock = vi.fn();
 const confirmMock = vi.fn();
 const disputeMock = vi.fn();
+const retryRounds = vi.fn();
+const retryToday = vi.fn();
+const retryPlan = vi.fn();
+let roundsFailed = false;
+let todayFailed = false;
+let planFailed = false;
 let rounds: SmeRound[] = [];
 let today: TodaysPayments | undefined;
 let plan: SmeRepaymentPlan | undefined;
 
 vi.mock("@/hooks/use-funding", () => ({
-  useMyRounds: () => ({ data: rounds, isLoading: false }),
+  useMyRounds: () => ({
+    data: rounds,
+    isLoading: false,
+    isError: roundsFailed,
+    refetch: retryRounds,
+  }),
   useWindowLoanContracts: () => ({ isLoading: false }),
   useCloseRoundEarly: () => ({ mutate: closeMock, isPending: false }),
   useReportMissingTransfer: () => ({
@@ -33,10 +44,20 @@ vi.mock("@/hooks/use-funding", () => ({
     mutate: disputeMock,
     isPending: false,
   }),
-  useRepaymentPlan: () => ({ data: plan, isLoading: false }),
+  useRepaymentPlan: () => ({
+    data: plan,
+    isLoading: false,
+    isError: planFailed,
+    refetch: retryPlan,
+  }),
 }));
 vi.mock("@/hooks/use-repayment", () => ({
-  useTodaysPayments: () => ({ data: today, isLoading: false }),
+  useTodaysPayments: () => ({
+    data: today,
+    isLoading: false,
+    isError: todayFailed,
+    refetch: retryToday,
+  }),
   useFileExtension: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
@@ -101,12 +122,31 @@ beforeEach(() => {
   reportMissingMock.mockReset();
   confirmMock.mockReset();
   disputeMock.mockReset();
+  retryRounds.mockReset();
+  retryToday.mockReset();
+  retryPlan.mockReset();
+  roundsFailed = false;
+  todayFailed = false;
+  planFailed = false;
   rounds = [];
   today = undefined;
   plan = undefined;
 });
 
 describe("FundingStatus", () => {
+  it("offers to retry a failed funding read instead of reporting no round", () => {
+    roundsFailed = true;
+    render(<FundingStatus projectId="p-1" t={t} />);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "dashboard.sme.funding.loadFailed",
+    );
+    expect(
+      screen.queryByText("dashboard.sme.funding.none"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retryRounds).toHaveBeenCalledOnce();
+  });
+
   it("shows pledges without an empty tickets block or an early-close action", () => {
     rounds = [
       round({
@@ -409,6 +449,29 @@ describe("FundingStatus", () => {
 });
 
 describe("TodaysRepayments", () => {
+  it("offers to retry a failed read and reserves the empty message for an empty response", () => {
+    todayFailed = true;
+    const view = render(<TodaysRepayments />);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "dashboard.sme.repayments.loadFailed",
+    );
+    expect(
+      screen.queryByText("dashboard.sme.repayments.none"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retryToday).toHaveBeenCalledOnce();
+    today = {
+      date: "2026-11-03",
+      rows: [],
+      totals: { gross_vnd: 0, tax_withheld_vnd: 0, net_vnd: 0 },
+    };
+    todayFailed = false;
+    view.rerender(<TodaysRepayments />);
+    expect(
+      screen.getByText("dashboard.sme.repayments.none"),
+    ).toBeInTheDocument();
+  });
+
   const row = {
     repayment_day_id: "d-1",
     tranche_id: "tr-1",
@@ -499,6 +562,18 @@ describe("TodaysRepayments", () => {
 });
 
 describe("RepaymentPlan", () => {
+  it("can retry a plan read that failed while the funding round remains visible", () => {
+    rounds = [round({ confirmed_vnd: 10_000_000 })];
+    planFailed = true;
+    render(<FundingStatus projectId="p-1" t={t} />);
+    expect(screen.getByTestId("funding-status")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "dashboard.sme.plan.loadFailed",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "errorPage.retry" }));
+    expect(retryPlan).toHaveBeenCalledOnce();
+  });
+
   const day = (due_date: string, gross: number, over = {}) => ({
     due_date,
     principal_vnd: gross - 3_000,

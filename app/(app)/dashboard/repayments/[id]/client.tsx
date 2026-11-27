@@ -19,6 +19,7 @@ import {
   investmentProgress,
   ticketsByDay,
 } from "../../_components/funding/investment-days";
+import { ReadError } from "../../_components/ReadError";
 import { PayToday } from "./_components/PayToday";
 import { TicketCards } from "./_components/TicketCards";
 
@@ -42,6 +43,8 @@ export default function RepaymentClient({ trancheId }: { trancheId: string }) {
   const schedule = useRepaymentSchedule(trancheId, repaying);
   const projection = useRepaymentProjection(trancheId, received);
 
+  const repayments = repaying ? schedule : projection;
+
   if (isAuthLoading || rounds.isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
@@ -60,7 +63,14 @@ export default function RepaymentClient({ trancheId }: { trancheId: string }) {
         {t(`${K}.back`)}
       </Link>
 
-      {!found || !ticket ? (
+      {rounds.isError ? (
+        <ReadError
+          message={t("dashboard.sme.funding.loadFailed")}
+          retryLabel={t("errorPage.retry")}
+          isFetching={rounds.isFetching}
+          refetch={rounds.refetch}
+        />
+      ) : !found || !ticket ? (
         <NotFound />
       ) : (
         <>
@@ -69,7 +79,7 @@ export default function RepaymentClient({ trancheId }: { trancheId: string }) {
             <Body
               trancheId={trancheId}
               repaying={repaying}
-              isLoading={repaying ? schedule.isLoading : projection.isLoading}
+              repayments={repayments}
               rows={repaying ? schedule.data : projection.data?.days}
               assumedClose={
                 projection.data
@@ -137,31 +147,48 @@ function Header({
 function Body({
   trancheId,
   repaying,
-  isLoading,
+  repayments,
   rows,
   assumedClose,
 }: {
   trancheId: string;
   repaying: boolean;
-  isLoading: boolean;
+  repayments:
+    | ReturnType<typeof useRepaymentSchedule>
+    | ReturnType<typeof useRepaymentProjection>;
   rows: Parameters<typeof ticketsByDay>[0] | undefined;
   assumedClose: string;
 }) {
   const { t, locale } = useTranslations();
   const money = (vnd: number) => formatCurrency(vnd, locale);
 
-  if (isLoading) {
+  if (repayments.isError) {
     return (
-      <div className="flex justify-center py-6">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
+      <>
+        <ReadError
+          message={t(`${K}.loadFailed`)}
+          retryLabel={t("errorPage.retry")}
+          isFetching={repayments.isFetching}
+          refetch={repayments.refetch}
+        />
+        {repaying && <PayToday trancheId={trancheId} />}
+      </>
     );
   }
-  if (!rows || rows.length === 0) {
+  if (repayments.isLoading || !rows || rows.length === 0) {
     return (
-      <p className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
-        {t(`${K}.unavailable`)}
-      </p>
+      <>
+        {repayments.isLoading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <p className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
+            {t(`${K}.unavailable`)}
+          </p>
+        )}
+        {repaying && <PayToday trancheId={trancheId} />}
+      </>
     );
   }
 

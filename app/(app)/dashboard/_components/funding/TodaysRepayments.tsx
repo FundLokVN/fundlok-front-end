@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadError } from "@/app/(app)/dashboard/_components/ReadError";
 import Link from "next/link";
 import { CalendarCheck, Loader2, Wallet } from "lucide-react";
 
@@ -56,6 +57,16 @@ export function TodaysRepayments() {
   const today = useTodaysPayments();
   const money = (vnd: number) => formatCurrency(vnd, locale);
 
+  if (today.isError) {
+    return (
+      <ReadError
+        message={t(`${K}.loadFailed`)}
+        retryLabel={t("errorPage.retry")}
+        isFetching={today.isFetching}
+        refetch={today.refetch}
+      />
+    );
+  }
   if (today.isLoading) {
     return (
       <div className="flex justify-center py-6">

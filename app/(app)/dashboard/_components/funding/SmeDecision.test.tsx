@@ -9,9 +9,16 @@ document.elementFromPoint = () => null;
 
 const decideMutate = vi.fn();
 const uploadMutate = vi.fn();
-let contracts: WindowLoanContracts;
+const retryContracts = vi.fn();
+let contractsFailed = false;
+let contracts: WindowLoanContracts | undefined;
 vi.mock("@/hooks/use-funding", () => ({
-  useWindowLoanContracts: () => ({ data: contracts, isLoading: false }),
+  useWindowLoanContracts: () => ({
+    data: contracts,
+    isLoading: false,
+    isError: contractsFailed,
+    refetch: retryContracts,
+  }),
   useDownloadWindowLoanContract: () => ({ mutate: vi.fn(), isPending: false }),
   useUploadWindowLoanContract: () => ({
     mutate: uploadMutate,
@@ -93,7 +100,28 @@ describe("SmeDecision (Money flow FINAL v1.0, Day 13)", () => {
   beforeEach(() => {
     decideMutate.mockReset();
     uploadMutate.mockReset();
+    contractsFailed = false;
+    retryContracts.mockReset();
     contracts = day13();
+  });
+
+  it("retries a failed Day 13 read and restores signing and decision controls", async () => {
+    const user = userEvent.setup();
+    contracts = undefined;
+    contractsFailed = true;
+    const view = render(<SmeDecision round={round()} />);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Could not load the Day 13 loan contracts.",
+    );
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(retryContracts).toHaveBeenCalledOnce();
+    expect(decideMutate).not.toHaveBeenCalled();
+    contracts = day13();
+    contractsFailed = false;
+    view.rerender(<SmeDecision round={round()} />);
+    expect(screen.getByTestId("contract-file-k-1")).toBeInTheDocument();
+    expect(screen.getByTestId("decision-accept")).toBeDisabled();
+    expect(screen.getByTestId("decision-decline")).toBeEnabled();
   });
 
   it("lists each investor's contract, says the noon cut-off and keeps Accept shut until all are signed", () => {

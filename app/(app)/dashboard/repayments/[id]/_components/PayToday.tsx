@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadError } from "@/app/(app)/dashboard/_components/ReadError";
 import { useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import {
@@ -58,6 +59,16 @@ export function PayToday({ trancheId }: { trancheId: string }) {
   const [open, setOpen] = useState(false);
   const money = (vnd: number) => formatCurrency(vnd, locale);
 
+  if (due.isError) {
+    return (
+      <ReadError
+        message={t(`${K}.loadFailed`)}
+        retryLabel={t("errorPage.retry")}
+        isFetching={due.isFetching}
+        refetch={due.refetch}
+      />
+    );
+  }
   if (due.isLoading) {
     return (
       <div className="flex justify-center py-4">
