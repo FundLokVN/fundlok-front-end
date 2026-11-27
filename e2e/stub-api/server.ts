@@ -972,6 +972,7 @@ function blogSummary(post: StubBlogPost) {
     view_count: post.view_count,
     // No post has been seen by Google in the stub.
     search: null,
+    index_status: null,
   };
 }
 
@@ -2499,6 +2500,10 @@ const server = createServer(async (req, res) => {
             window_days: 28,
           },
         });
+      }
+
+      if (path === "/admin/blog/sitemap/submit" && method === "POST") {
+        return json(res, 200, { submitted: true, reason: null });
       }
 
       if (path === "/admin/blog/posts" && method === "POST") {

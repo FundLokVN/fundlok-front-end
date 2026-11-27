@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => ({
   publish: { mutateAsync: vi.fn(), isPending: false },
   unpublish: { mutateAsync: vi.fn(), isPending: false },
   remove: { mutateAsync: vi.fn(), isPending: false },
+  submitSitemap: { mutate: vi.fn() },
   seoStatus: { data: { enabled: true } as { enabled: boolean } | undefined },
   suggest: {
     mutate: vi.fn(),
@@ -69,6 +70,7 @@ vi.mock("@/hooks/use-admin-blog", () => ({
   useBlogKeywordUsage: () => ({ data: undefined }),
   useBlogSeoAssistant: () => mocks.seoStatus,
   useSuggestBlogSeo: () => mocks.suggest,
+  useSubmitBlogSitemap: () => mocks.submitSitemap,
 }));
 
 vi.mock("../actions", () => ({
@@ -216,9 +218,46 @@ describe("BlogPostEditor", () => {
       }),
     );
     expect(mocks.publish.mutateAsync).toHaveBeenCalledWith(4);
+    // The refreshed sitemap now lists the post: Google is asked to re-read it.
+    await waitFor(() =>
+      expect(mocks.submitSitemap.mutate).toHaveBeenCalledTimes(1),
+    );
     expect(screen.getByTestId("blog-save-state")).toHaveTextContent(
       "admin.blog.editor.saved",
     );
+  });
+
+  it("does not ask Google to re-read a sitemap that was not refreshed", async () => {
+    mocks.refresh.mockResolvedValue({ ok: false });
+    mocks.update.mutateAsync.mockResolvedValue(
+      post({ version: 4, excerpt: "Mô tả" }),
+    );
+    mocks.publish.mutateAsync.mockResolvedValue(
+      post({
+        version: 5,
+        status: "published",
+        published_at: "2026-11-21T04:00:00Z",
+      }),
+    );
+    mocks.seoStatus.data = { enabled: false };
+    await renderEditor(post());
+
+    fireEvent.change(
+      screen.getByLabelText("admin.blog.settings.excerptLabel"),
+      { target: { value: "Mô tả" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "admin.blog.actions.publish" }),
+    );
+
+    await waitFor(() =>
+      expect(mocks.toast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: "admin.blog.toast.cacheNotRefreshed",
+        }),
+      ),
+    );
+    expect(mocks.submitSitemap.mutate).not.toHaveBeenCalled();
   });
 
   it("saves on Ctrl+S without refreshing the public pages for a draft", async () => {

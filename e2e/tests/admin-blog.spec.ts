@@ -112,6 +112,65 @@ test.describe("as an admin", () => {
     );
   });
 
+  test("shows whether Google has indexed each published post", async ({
+    page,
+  }) => {
+    await page.route("**/api/admin/blog/posts?*", async (route) => {
+      const response = await route.fetch();
+      const data = await response.json();
+      const base = data.items[0];
+      data.items = [
+        {
+          ...base,
+          id: "p-indexed",
+          title: "Bài đã index",
+          status: "published",
+          published_at: "2026-11-20T03:00:00Z",
+          index_status: {
+            verdict: "PASS",
+            coverage_state: "Submitted and indexed",
+            last_crawl_at: "2026-11-25T10:00:00Z",
+            checked_at: "2026-11-27T23:00:00Z",
+          },
+        },
+        {
+          ...base,
+          id: "p-waiting",
+          title: "Bài chờ index",
+          status: "published",
+          published_at: "2026-11-26T03:00:00Z",
+          index_status: {
+            verdict: "NEUTRAL",
+            coverage_state: "Discovered - currently not indexed",
+            last_crawl_at: null,
+            checked_at: "2026-11-27T23:00:00Z",
+          },
+        },
+        { ...base, id: "p-draft", title: "Bài nháp", index_status: null },
+      ];
+      data.total = 3;
+      await route.fulfill({ response, json: data });
+    });
+    await page.goto("/admin/blog");
+
+    await expect(
+      page.getByRole("columnheader", { name: t("admin.blog.columns.index") }),
+    ).toBeVisible();
+    const row = (title: string) =>
+      page.locator("tbody tr").filter({ hasText: title });
+    await expect(row("Bài đã index").getByTestId("index-status")).toHaveText(
+      t("admin.blog.indexStatus.indexed"),
+    );
+    const waiting = row("Bài chờ index").getByTestId("index-status");
+    await expect(waiting).toHaveText(t("admin.blog.indexStatus.notIndexed"));
+    // Google's own reason is one hover away.
+    await expect(waiting).toHaveAttribute(
+      "title",
+      /Discovered - currently not indexed/,
+    );
+    await expect(row("Bài nháp").getByTestId("index-status")).toHaveCount(0);
+  });
+
   test("says when Google Search Console is not connected", async ({ page }) => {
     await page.route("**/api/admin/blog/posts?*", async (route) => {
       const response = await route.fetch();
@@ -202,6 +261,12 @@ test.describe("as an admin", () => {
         request.method() === "PUT" &&
         /\/api\/admin\/blog\/posts\/blog-\d+$/.test(request.url()),
     );
+    // Once the public sitemap is refreshed, Google is asked to re-read it.
+    const sitemapSubmitted = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        request.url().endsWith("/api/admin/blog/sitemap/submit"),
+    );
     await page
       .getByRole("button", { name: t("admin.blog.actions.publish") })
       .click();
@@ -226,6 +291,7 @@ test.describe("as an admin", () => {
     await expect(
       page.getByRole("link", { name: t("admin.blog.actions.viewLive") }),
     ).toHaveAttribute("href", "/blog/huong-dan-vay-von-luu-dong");
+    await sitemapSubmitted;
     // Locked from now on, so the live link never breaks.
     await expect(slug).toHaveAttribute("readonly", "");
     await expect(page.getByTestId("blog-save-state")).toContainText(
