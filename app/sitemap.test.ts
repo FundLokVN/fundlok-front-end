@@ -60,4 +60,10 @@ describe("sitemap", () => {
     expect(blog).toBeDefined();
     expect(blog).not.toHaveProperty("lastModified");
   });
+
+  it("lists the Vietnamese and English VietQR generator pages", async () => {
+    const urls = (await sitemap()).map(({ url }) => new URL(url).pathname);
+    expect(urls).toContain("/tao-ma-qr");
+    expect(urls).toContain("/en/tao-ma-qr");
+  });
 });

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { SVGProps } from "react";
 import { Mail, ArrowRight } from "lucide-react";
 import { createServerTranslator } from "@/lib/i18n/server";
-import { localizedHref } from "@/lib/locale-routing";
+import { localizedHref, VIETQR_PATH } from "@/lib/locale-routing";
 import type { SeoLocale } from "@/lib/seo";
 
 /**
@@ -43,6 +43,7 @@ const aboutLinks = [
 
 const supportLinks = [
   { labelKey: "footer.contactUs", href: "/contact", prefetch: undefined },
+  { labelKey: "vietqrPage.footer", href: VIETQR_PATH, prefetch: undefined },
   {
     labelKey: "footer.projectApplication",
     href: "/project-application",

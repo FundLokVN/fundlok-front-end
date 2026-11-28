@@ -7,6 +7,7 @@ import {
 } from "@/lib/server/blog-api";
 import {
   LOCALIZED_PATHS,
+  VIETQR_PATH,
   languageAlternates,
   localizedPath,
   type RouteLocale,
@@ -33,6 +34,7 @@ const PAGES: Record<(typeof LOCALIZED_PATHS)[number], PageMeta> = {
   // types into Google ("lãi suất vay doanh nghiệp"). The investor tab is the
   // same document at ?for=investor, so it is not listed separately.
   "/rate": { changeFrequency: "weekly", priority: 0.9 },
+  [VIETQR_PATH]: { changeFrequency: "monthly", priority: 0.7 },
   "/faq": { changeFrequency: "weekly", priority: 0.7 },
   "/contact": { changeFrequency: "monthly", priority: 0.7 },
   // Legal boilerplate: crawlable, but far below the pages that match what an
