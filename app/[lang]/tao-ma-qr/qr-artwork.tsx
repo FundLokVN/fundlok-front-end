@@ -9,6 +9,7 @@ type QrArtworkProps = {
   bankName: string;
   title: string;
   amount: string;
+  logo: string | null;
 };
 
 export function QrArtwork({
@@ -18,12 +19,18 @@ export function QrArtwork({
   bankName,
   title,
   amount,
+  logo,
 }: QrArtworkProps) {
   const decorated = fields.template !== "qr-only";
   const details = fields.template === "details";
   const headline = fields.businessName || bankName;
   const headlineSize = Math.min(28, 440 / Array.from(headline).length);
   const height = details ? 694 : 560;
+  const qrTop = decorated ? 157 : 72;
+  const qrSize = decorated ? 336 : 416;
+  const logoSize = qrSize / 8;
+  const logoX = (560 - logoSize) / 2;
+  const logoY = qrTop + (qrSize - logoSize) / 2;
 
   return (
     <svg
@@ -91,11 +98,33 @@ export function QrArtwork({
       )}
       {/* The accent stays outside the white quiet zone around the modules. */}
       <QRCode
-        x={decorated ? 112 : 72}
-        y={decorated ? 157 : 72}
-        size={decorated ? 336 : 416}
+        x={(560 - qrSize) / 2}
+        y={qrTop}
+        size={qrSize}
         value={payload}
+        fgColor={fields.ink}
+        level={logo ? "H" : "L"}
       />
+      {logo && (
+        <>
+          <rect
+            x={logoX - 5}
+            y={logoY - 5}
+            width={logoSize + 10}
+            height={logoSize + 10}
+            rx="5"
+            fill="#fff"
+          />
+          <image
+            href={logo}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </>
+      )}
       {details && (
         <g
           textAnchor="middle"
@@ -133,11 +162,17 @@ export function QrArtwork({
   );
 }
 
-export async function downloadQrPng(artwork: SVGSVGElement) {
+export async function downloadQrPng(
+  artwork: SVGSVGElement,
+  exportWidth: number,
+) {
   const { width, height } = artwork.viewBox.baseVal;
   const svg = artwork.cloneNode(true) as SVGSVGElement;
-  svg.setAttribute("width", String(width * 3));
-  svg.setAttribute("height", String(height * 3));
+  svg.setAttribute("width", String(exportWidth));
+  svg.setAttribute(
+    "height",
+    String(Math.round((height * exportWidth) / width)),
+  );
   const image = new Image();
   image.src =
     "data:image/svg+xml;charset=utf-8," +
@@ -153,8 +188,33 @@ export async function downloadQrPng(artwork: SVGSVGElement) {
 
   const link = document.createElement("a");
   link.href = canvas.toDataURL("image/png");
-  link.download = "vietqr.png";
+  link.download = `vietqr-${exportWidth}.png`;
   document.body.append(link);
   link.click();
   link.remove();
+}
+
+export const logoTypes = ["image/png", "image/jpeg", "image/svg+xml"];
+
+export async function rasterizeLogo(file: File) {
+  if (file.size > 3 * 1024 * 1024 || !logoTypes.includes(file.type)) {
+    throw new Error("Unsupported logo");
+  }
+  const src = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = src;
+    await image.decode();
+    // SVG is decoded in image mode and embedded only as pixels.
+    const scale = 256 / Math.max(image.naturalWidth, image.naturalHeight);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Cannot read logo image");
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/png");
+  } finally {
+    URL.revokeObjectURL(src);
+  }
 }
