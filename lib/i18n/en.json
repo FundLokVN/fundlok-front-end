@@ -1999,6 +1999,42 @@
     "toc": "In this article",
     "updatedOn": "Updated {date}"
   },
+  "breakEvenPage": {
+    "contribution": "Amount per order left to cover fixed costs",
+    "dailyOrders": "Orders per open day to break even",
+    "description": "Find out how many orders your café or shop needs each day to cover costs. Enter your monthly costs, average order value and cost per order for an instant estimate.",
+    "example": "Load café example",
+    "fields": {
+      "fixedCosts": {
+        "hint": "Rent, wages and other monthly costs you pay regardless of how many orders you sell.",
+        "label": "Monthly fixed costs (VND)"
+      },
+      "openDays": {
+        "hint": "Use the number of days you plan to open, from 1 to 31.",
+        "label": "Open days per month"
+      },
+      "orderCost": {
+        "hint": "Ingredients, packaging and any fees that apply per order.",
+        "label": "Average variable cost per order (VND)"
+      },
+      "orderPrice": {
+        "hint": "The amount customers pay per order, on average.",
+        "label": "Average order value (VND)"
+      }
+    },
+    "footer": "Break-even calculator",
+    "formula": "Monthly orders = monthly fixed costs ÷ (average order value − variable cost per order).",
+    "formulaExample": "A café with 24 million VND in monthly fixed costs, a 50,000 VND average order and 30,000 VND in variable costs per order needs 1,200 orders a month. If it opens 30 days, that’s 40 orders per open day.",
+    "formulaTitle": "How the break-even point is calculated",
+    "inputs": "Your shop’s numbers",
+    "invalid": "Enter whole VND amounts, an order value above zero and 1 to 31 open days.",
+    "monthlyOrders": "Orders per month",
+    "monthlyRevenue": "Monthly sales at break-even",
+    "noBreakEven": "With these numbers, an order leaves nothing to cover fixed costs. Try increasing the average order value or reducing the cost per order.",
+    "result": "Your break-even target",
+    "rounding": "Order targets round up to whole orders. This estimate assumes your average order value and cost per order stay constant.",
+    "title": "Break-even calculator for cafés and small shops"
+  },
   "common": {
     "all": "All",
     "backToHome": "Go to home",
