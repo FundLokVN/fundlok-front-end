@@ -2,6 +2,8 @@ import bankCatalog from "./banks.json";
 
 export const banks = bankCatalog.banks;
 export const templates = ["details", "compact", "qr-only"] as const;
+export const defaultAccent = "#7755ee";
+export const businessNameLimit = 36;
 
 export type QrFields = {
   bank: string;
@@ -10,11 +12,14 @@ export type QrFields = {
   amount: string;
   memo: string;
   template: (typeof templates)[number];
+  businessName: string;
+  accent: string;
 };
 
 export function readFields(read: (key: string) => unknown): QrFields {
   const get = (key: string) => String(read(key) ?? "").trim();
   const template = templates.find((value) => value === get("template"));
+  const accent = get("accent");
 
   return {
     bank: get("bank").slice(0, 7),
@@ -23,6 +28,8 @@ export function readFields(read: (key: string) => unknown): QrFields {
     amount: get("amount").slice(0, 14),
     memo: get("memo").slice(0, 50),
     template: template ?? "details",
+    businessName: get("businessName").slice(0, businessNameLimit),
+    accent: /^#[0-9a-f]{6}$/i.test(accent) ? accent : defaultAccent,
   };
 }
 

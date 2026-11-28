@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createVietQr,
+  defaultAccent,
   readFields,
   shareFragment,
   type QrFields,
@@ -13,6 +14,8 @@ const account: QrFields = {
   amount: "",
   memo: "",
   template: "details",
+  businessName: "",
+  accent: defaultAccent,
 };
 
 describe("public VietQR generator", () => {
@@ -40,10 +43,20 @@ describe("public VietQR generator", () => {
     const original = {
       ...account,
       name: "An & Đạt",
-      template: "qr-only" as const,
+      template: "compact" as const,
+      businessName: "Tiệm cà phê Đạt",
+      accent: "#fb6286",
     };
     const params = new URLSearchParams(shareFragment(original).slice(1));
     expect(readFields((key) => params.get(key))).toEqual(original);
+  });
+
+  it("uses safe design defaults for older or malformed share links", () => {
+    const params = new URLSearchParams(
+      "account=001234abcd&accent=url(example)",
+    );
+    const fields = readFields((key) => params.get(key));
+    expect(fields).toMatchObject({ businessName: "", accent: defaultAccent });
   });
 
   it.each([
