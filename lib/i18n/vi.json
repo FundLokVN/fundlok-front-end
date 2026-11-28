@@ -1999,6 +1999,42 @@
     "toc": "Nội dung bài viết",
     "updatedOn": "Cập nhật ngày {date}"
   },
+  "breakEvenPage": {
+    "contribution": "Số tiền mỗi đơn còn lại để bù chi phí cố định",
+    "dailyOrders": "Đơn mỗi ngày mở cửa để hòa vốn",
+    "description": "Tính số đơn quán cà phê hoặc cửa hàng nhỏ cần bán mỗi ngày để đủ bù chi phí. Nhập chi phí cố định, giá trị đơn hàng và chi phí biến đổi để xem kết quả ngay.",
+    "example": "Dùng ví dụ quán cà phê",
+    "fields": {
+      "fixedCosts": {
+        "hint": "Tiền thuê, lương và các chi phí hằng tháng không thay đổi theo số đơn.",
+        "label": "Chi phí cố định mỗi tháng (VND)"
+      },
+      "openDays": {
+        "hint": "Nhập số ngày dự kiến mở cửa, từ 1 đến 31 ngày.",
+        "label": "Số ngày mở cửa mỗi tháng"
+      },
+      "orderCost": {
+        "hint": "Nguyên liệu, bao bì và các khoản phí phát sinh theo từng đơn.",
+        "label": "Chi phí biến đổi mỗi đơn (VND)"
+      },
+      "orderPrice": {
+        "hint": "Số tiền trung bình khách trả cho một đơn hàng.",
+        "label": "Giá trị trung bình mỗi đơn (VND)"
+      }
+    },
+    "footer": "Công cụ tính điểm hòa vốn",
+    "formula": "Số đơn mỗi tháng = chi phí cố định mỗi tháng ÷ (giá trị trung bình mỗi đơn − chi phí biến đổi mỗi đơn).",
+    "formulaExample": "Một quán có chi phí cố định 24 triệu đồng mỗi tháng, giá trị trung bình 50.000 đồng mỗi đơn và chi phí biến đổi 30.000 đồng mỗi đơn cần bán 1.200 đơn mỗi tháng. Nếu mở cửa 30 ngày, quán cần 40 đơn mỗi ngày mở cửa.",
+    "formulaTitle": "Cách tính điểm hòa vốn",
+    "inputs": "Thông tin của cửa hàng",
+    "invalid": "Hãy nhập số tiền nguyên theo VND, giá trị đơn hàng lớn hơn 0 và số ngày mở cửa từ 1 đến 31.",
+    "monthlyOrders": "Số đơn mỗi tháng",
+    "monthlyRevenue": "Doanh thu tháng tại điểm hòa vốn",
+    "noBreakEven": "Với số liệu hiện tại, mỗi đơn không còn dư để bù chi phí cố định. Hãy thử tăng giá trị đơn hàng hoặc giảm chi phí biến đổi mỗi đơn.",
+    "result": "Mục tiêu hòa vốn",
+    "rounding": "Số đơn được làm tròn lên. Kết quả ước tính dựa trên giá trị đơn hàng và chi phí mỗi đơn không đổi.",
+    "title": "Tính điểm hòa vốn quán cà phê"
+  },
   "common": {
     "all": "Tất cả",
     "backToHome": "Về trang chủ",

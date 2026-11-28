@@ -40,6 +40,7 @@ export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const LOCALE_HEADER = "x-fundlok-locale";
 
 export const VIETQR_PATH = "/tao-ma-qr";
+export const BREAK_EVEN_PATH = "/tinh-diem-hoa-von";
 
 /** The public pages, as their default-language paths. Must match sitemap.ts. */
 export const LOCALIZED_PATHS = [
@@ -47,6 +48,7 @@ export const LOCALIZED_PATHS = [
   "/why-us",
   "/rate",
   VIETQR_PATH,
+  BREAK_EVEN_PATH,
   "/faq",
   "/contact",
   "/terms",
@@ -67,6 +69,7 @@ export const MARKETING_PATHS = [
   "/why-us",
   "/rate",
   VIETQR_PATH,
+  BREAK_EVEN_PATH,
   "/faq",
   "/contact",
   "/terms",

@@ -6,6 +6,7 @@ import {
   readAtBuildOrDefer,
 } from "@/lib/server/blog-api";
 import {
+  BREAK_EVEN_PATH,
   LOCALIZED_PATHS,
   VIETQR_PATH,
   languageAlternates,
@@ -35,6 +36,7 @@ const PAGES: Record<(typeof LOCALIZED_PATHS)[number], PageMeta> = {
   // same document at ?for=investor, so it is not listed separately.
   "/rate": { changeFrequency: "weekly", priority: 0.9 },
   [VIETQR_PATH]: { changeFrequency: "monthly", priority: 0.7 },
+  [BREAK_EVEN_PATH]: { changeFrequency: "monthly", priority: 0.7 },
   "/faq": { changeFrequency: "weekly", priority: 0.7 },
   "/contact": { changeFrequency: "monthly", priority: 0.7 },
   // Legal boilerplate: crawlable, but far below the pages that match what an

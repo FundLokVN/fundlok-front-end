@@ -66,4 +66,10 @@ describe("sitemap", () => {
     expect(urls).toContain("/tao-ma-qr");
     expect(urls).toContain("/en/tao-ma-qr");
   });
+
+  it("lists both break-even calculator pages", async () => {
+    const urls = (await sitemap()).map(({ url }) => new URL(url).pathname);
+    expect(urls).toContain("/tinh-diem-hoa-von");
+    expect(urls).toContain("/en/tinh-diem-hoa-von");
+  });
 });
