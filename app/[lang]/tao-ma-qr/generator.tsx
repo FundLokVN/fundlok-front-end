@@ -8,11 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/lib/i18n";
-import { downloadQrPng, QrArtwork } from "./qr-artwork";
+import {
+  downloadQrPng,
+  logoTypes,
+  QrArtwork,
+  rasterizeLogo,
+} from "./qr-artwork";
 import {
   banks,
   businessNameLimit,
   createVietQr,
+  inkColors,
   readFields,
   shareFragment,
   templates,
@@ -38,7 +44,13 @@ function GeneratorForm({ hash }: { hash: string }) {
   const [design, setDesign] = useState({
     businessName: initial.businessName,
     accent: initial.accent,
+    ink: initial.ink,
   });
+  const [logo, setLogo] = useState<string | null>(null);
+  const [logoStatus, setLogoStatus] = useState<"idle" | "loading" | "failed">(
+    "idle",
+  );
+  const [exportWidth, setExportWidth] = useState(1024);
   const [download, setDownload] = useState<"idle" | "pending" | "failed">(
     "idle",
   );
@@ -67,10 +79,20 @@ function GeneratorForm({ hash }: { hash: string }) {
     if (!artwork.current) return;
     setDownload("pending");
     try {
-      await downloadQrPng(artwork.current);
+      await downloadQrPng(artwork.current, exportWidth);
       setDownload("idle");
     } catch {
       setDownload("failed");
+    }
+  }
+
+  async function loadLogo(file: File) {
+    setLogoStatus("loading");
+    try {
+      setLogo(await rasterizeLogo(file));
+      setLogoStatus("idle");
+    } catch {
+      setLogoStatus("failed");
     }
   }
 
@@ -223,6 +245,7 @@ function GeneratorForm({ hash }: { hash: string }) {
               bankName={qr.bank.name}
               title={t("vietqrPage.preview")}
               amount={amount}
+              logo={logo}
             />
             {qr.fields.template !== "details" && (
               <p className="break-words text-center text-sm text-muted-foreground">
@@ -284,10 +307,88 @@ function GeneratorForm({ hash }: { hash: string }) {
                 </div>
               </fieldset>
             )}
+            <fieldset className="space-y-3">
+              <legend className="mb-2 text-sm font-semibold">
+                {t("vietqrPage.qrStyle")}
+              </legend>
+              <div className="space-y-2">
+                <Label htmlFor="qr-logo">{t("vietqrPage.logo")}</Label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Input
+                    id="qr-logo"
+                    type="file"
+                    accept={logoTypes.join(",")}
+                    aria-describedby="qr-logo-hint"
+                    disabled={logoStatus === "loading"}
+                    onChange={(event) => {
+                      const file = event.currentTarget.files?.[0];
+                      event.currentTarget.value = "";
+                      if (file) void loadLogo(file);
+                    }}
+                  />
+                  {logo && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={logoStatus === "loading"}
+                      onClick={() => {
+                        setLogo(null);
+                        setLogoStatus("idle");
+                      }}
+                    >
+                      {t("vietqrPage.removeLogo")}
+                    </Button>
+                  )}
+                </div>
+                <p id="qr-logo-hint" className="text-xs text-muted-foreground">
+                  {t("vietqrPage.logoHint")}
+                </p>
+                {logoStatus === "failed" && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {t("vietqrPage.logoFailed")}
+                  </p>
+                )}
+              </div>
+              <div
+                role="group"
+                aria-label={t("vietqrPage.ink")}
+                className="flex flex-wrap items-center gap-2"
+              >
+                <span className="mr-1 text-sm font-medium">
+                  {t("vietqrPage.ink")}
+                </span>
+                {inkColors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    aria-label={`${t("vietqrPage.ink")} ${color}`}
+                    aria-pressed={design.ink === color}
+                    onClick={() => updateDesign({ ink: color })}
+                    style={{ backgroundColor: color }}
+                    className="size-8 rounded-full border border-background ring-offset-2 ring-offset-background outline-none aria-pressed:ring-2 focus-visible:ring-2"
+                  />
+                ))}
+              </div>
+            </fieldset>
+            <div className="space-y-2">
+              <Label htmlFor="qr-export-width">
+                {t("vietqrPage.exportWidth")}
+              </Label>
+              <select
+                id="qr-export-width"
+                className={selectClass}
+                value={exportWidth}
+                onChange={(event) => setExportWidth(Number(event.target.value))}
+              >
+                <option value="1024">1024 px</option>
+                <option value="2048">2048 px</option>
+              </select>
+            </div>
             <Button
               type="button"
               onClick={saveImage}
-              disabled={download === "pending"}
+              disabled={download === "pending" || logoStatus === "loading"}
               className="w-full"
             >
               <Download aria-hidden="true" />
