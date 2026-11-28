@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useSyncExternalStore, type FormEvent } from "react";
-import { Check, Copy, QrCode } from "lucide-react";
-import QRCode from "react-qr-code";
+import { useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { Check, Copy, Download, QrCode } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "@/lib/i18n";
+import { downloadQrPng, QrArtwork } from "./qr-artwork";
 import {
   banks,
+  businessNameLimit,
   createVietQr,
   readFields,
   shareFragment,
@@ -19,6 +20,8 @@ import {
 
 const selectClass =
   "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+const accentColors = ["#7755ee", "#e95380", "#ee9632", "#0b987a", "#2082db"];
 
 function subscribeToHash(callback: () => void) {
   window.addEventListener("hashchange", callback);
@@ -31,6 +34,14 @@ function GeneratorForm({ hash }: { hash: string }) {
   const initial = readFields((key) => params.get(key));
   const [qr, setQr] = useState(() => createVietQr(initial));
   const [invalid, setInvalid] = useState(false);
+  const artwork = useRef<SVGSVGElement>(null);
+  const [design, setDesign] = useState({
+    businessName: initial.businessName,
+    accent: initial.accent,
+  });
+  const [download, setDownload] = useState<"idle" | "pending" | "failed">(
+    "idle",
+  );
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
   function generate(event: FormEvent<HTMLFormElement>) {
@@ -52,10 +63,31 @@ function GeneratorForm({ hash }: { hash: string }) {
     }
   }
 
-  const link = qr
+  async function saveImage() {
+    if (!artwork.current) return;
+    setDownload("pending");
+    try {
+      await downloadQrPng(artwork.current);
+      setDownload("idle");
+    } catch {
+      setDownload("failed");
+    }
+  }
+
+  function updateDesign(values: Partial<typeof design>) {
+    setDesign((current) => ({ ...current, ...values }));
+    setCopy("idle");
+  }
+
+  const artworkFields = qr && {
+    ...qr.fields,
+    ...design,
+    businessName: design.businessName.trim(),
+  };
+  const link = artworkFields
     ? window.location.origin +
       window.location.pathname +
-      shareFragment(qr.fields)
+      shareFragment(artworkFields)
     : "";
   const amount = qr?.fields.amount
     ? new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", {
@@ -182,30 +214,16 @@ function GeneratorForm({ hash }: { hash: string }) {
         className="min-w-0 space-y-5 border-t bg-muted/50 p-5 sm:p-8 lg:border-t-0 lg:border-l"
       >
         <h2 className="text-lg font-semibold">{t("vietqrPage.preview")}</h2>
-        {qr ? (
+        {qr && artworkFields ? (
           <>
-            <div className="mx-auto w-full max-w-xs rounded-xl border bg-card p-4 text-center">
-              {qr.fields.template !== "qr-only" && (
-                <p className="mb-3 text-sm font-semibold">{qr.bank.name}</p>
-              )}
-              {/* Keep a light quiet zone and dark modules in both themes. */}
-              <div className="mx-auto aspect-square w-full max-w-60 rounded bg-white p-4">
-                <QRCode
-                  value={qr.payload}
-                  title={t("vietqrPage.preview")}
-                  className="h-auto w-full"
-                />
-              </div>
-              {qr.fields.template === "details" && (
-                <div className="mt-3 space-y-1 break-words">
-                  {qr.fields.name && (
-                    <p className="text-sm font-semibold">{qr.fields.name}</p>
-                  )}
-                  <p className="font-mono text-sm">{qr.fields.account}</p>
-                  <p className="text-sm text-muted-foreground">{amount}</p>
-                </div>
-              )}
-            </div>
+            <QrArtwork
+              artworkRef={artwork}
+              payload={qr.payload}
+              fields={artworkFields}
+              bankName={qr.bank.name}
+              title={t("vietqrPage.preview")}
+              amount={amount}
+            />
             {qr.fields.template !== "details" && (
               <p className="break-words text-center text-sm text-muted-foreground">
                 {[qr.bank.name, qr.fields.account, qr.fields.name, amount]
@@ -218,6 +236,66 @@ function GeneratorForm({ hash }: { hash: string }) {
                 {t("vietqrPage.memo")}
                 {": "}
                 {qr.fields.memo}
+              </p>
+            )}
+            {qr.fields.template !== "qr-only" && (
+              <fieldset className="space-y-3 border-t pt-4">
+                <legend className="pr-2 text-sm font-semibold">
+                  {t("vietqrPage.customize")}
+                </legend>
+                <div className="space-y-2">
+                  <Label htmlFor="qr-business-name">
+                    {t("vietqrPage.businessName")}
+                  </Label>
+                  <Input
+                    id="qr-business-name"
+                    maxLength={businessNameLimit}
+                    value={design.businessName}
+                    onChange={(event) =>
+                      updateDesign({ businessName: event.target.value })
+                    }
+                    placeholder={qr.bank.name}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label htmlFor="qr-accent" className="mr-1">
+                    {t("vietqrPage.accent")}
+                  </Label>
+                  {accentColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      aria-label={`${t("vietqrPage.accent")} ${color}`}
+                      aria-pressed={design.accent.toLowerCase() === color}
+                      onClick={() => updateDesign({ accent: color })}
+                      style={{ backgroundColor: color }}
+                      className="size-8 rounded-full border border-background ring-offset-2 ring-offset-background outline-none aria-pressed:ring-2 focus-visible:ring-2"
+                    />
+                  ))}
+                  <Input
+                    id="qr-accent"
+                    type="color"
+                    value={design.accent}
+                    onChange={(event) =>
+                      updateDesign({ accent: event.target.value })
+                    }
+                    className="h-8 w-10 cursor-pointer p-1"
+                  />
+                </div>
+              </fieldset>
+            )}
+            <Button
+              type="button"
+              onClick={saveImage}
+              disabled={download === "pending"}
+              className="w-full"
+            >
+              <Download aria-hidden="true" />
+              {t("vietqrPage.download")}
+            </Button>
+            {download === "failed" && (
+              <p role="alert" className="text-sm text-destructive">
+                {t("vietqrPage.downloadFailed")}
               </p>
             )}
             <div className="space-y-2">
