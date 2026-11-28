@@ -5111,6 +5111,37 @@
     "title": "Terms & Services and Data Consent",
     "version": "Version 1.0 – Final"
   },
+  "vietqrPage": {
+    "account": "Account number",
+    "amount": "Amount in VND (optional)",
+    "bank": "Bank",
+    "chooseBank": "Choose a bank",
+    "copied": "Copied",
+    "copy": "Copy link",
+    "copyFailed": "Select the link and copy it manually.",
+    "description": "Create a free VietQR bank transfer code from an account number. Add an amount or payment note, preview the QR, and copy a link to share.",
+    "details": "Transfer details",
+    "empty": "Choose a bank and enter the account number to preview your VietQR code.",
+    "footer": "Free VietQR generator",
+    "generate": "Generate QR",
+    "howBody": "Choose the recipient’s bank and enter their account number. Leave the amount blank to let the payer enter it. To pay, scan the code with a banking app and confirm the recipient details before transferring.",
+    "howTitle": "How to use the VietQR code",
+    "invalid": "Enter a supported bank, a valid account number, and a positive amount if needed.",
+    "link": "QR link",
+    "memo": "Transfer note (optional)",
+    "memoHint": "Up to 50 characters. The QR uses letters without accents, numbers, and spaces.",
+    "name": "Recipient name (optional)",
+    "openAmount": "Payer enters amount",
+    "preview": "QR preview",
+    "shareHint": "Share this link only with people who should see the transfer details.",
+    "template": "QR template",
+    "templates": {
+      "compact": "Compact",
+      "details": "With transfer details",
+      "qr-only": "QR only"
+    },
+    "title": "Convert a bank account number to a free VietQR code"
+  },
   "welcome": {
     "common": {
       "back": "Back",
